@@ -1,7 +1,44 @@
 ﻿  stdafx.cpp
   Renderer.cpp
+  Game.cpp
+  VillageArt.cpp
   SimpleGame.cpp
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(45,41): warning C4244: '초기화 중': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(56,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(56,33): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(133,20): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(175,164): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(179,122): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(201,76): warning C4244: '초기화 중': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\VillageArt.cpp(207,91): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 '/VillageArt.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\SimpleGame.cpp(8,1): warning C4005: 'NOMINMAX': 매크로 재정의
+      C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\SimpleGame.cpp(8,1):
+      이전에 명령줄에서 선언된 'NOMINMAX'
+  
+C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\SimpleGame.cpp(8,1): warning C4603: 'NOMINMAX': 매크로가 정의되지 않았거나 미리 컴파일된 헤더 사용 후와 정의가 다릅니다.
+  (소스 파일 '/SimpleGame.cpp'을(를) 컴파일하는 중)
+      C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\SimpleGame.cpp(8,1):
+      여기에서 정의하지 않고 미리 컴파일된 헤더에 매크로 추가
+      C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\SimpleGame\SimpleGame.cpp(10,1):
+      미리 컴파일된 헤더 사용
+  
   코드를 생성하고 있습니다...
-  SimpleGame.vcxproj -> C:\Users\dnwls\Desktop\BaseProject_SE\x64\Debug\SimpleGame.exe
+  SimpleGame.vcxproj -> C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\x64\Debug\SimpleGame.exe
   'pwsh.exe'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
   배치 파일이 아닙니다.

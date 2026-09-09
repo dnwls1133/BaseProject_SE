@@ -1,0 +1,103 @@
+# type x y width depth height variant
+# Roads: start x/y, end width/depth, half-width height.
+map 52 40 1 1
+spawn 8 7 1 1
+road 8 7 19 17 1.7
+road 19 17 33 22 1.8
+road 19 17 43 32 1.7
+road 33 22 43 32 1.7
+road 19 17 23 9 1.4
+road 23 9 32 8 1.3
+road 19 17 21 31 1.4
+road 21 31 33 33 1.1
+npc 19 17 1 1
+chest 33 22 1.2 1
+exit 43 32 1 1 110
+# South gate.
+arch 6 5 1 1 80
+pillar 4 5 0.8 0.8 55
+banner 8 5 1 1 65
+wall 7 11 4 0.6 44 1
+wall 4 9 0.6 4 65 3
+rubble 6 9 1 1 0 1
+rubble 9 10 1 1 0 0
+corpse 10 7 1 1 0 0
+body 7 6 1 1 0 1
+body 11 10 1 1 0 2
+# Burned houses.
+wall 9 17 5 0.7 62 4
+wall 7 20 0.7 5 58 2
+wall 11 23 5 0.7 37 0
+wagon 12 19 1.6 1.2 25 1
+rubble 10 20 1 1 0 1
+rubble 12 23 1 1 0 2
+root 8 22 1 1 0 3
+body 14 15 1 1 0 1
+# Martyr square.
+well 16 17 1.9 1.9 28
+altar 18 13 1.8 1 37
+lamp 18 16 1 1
+lamp 22 19 1 1
+banner 21 14 1 1 70
+pillar 23 17 0.7 0.7 42 1
+body 17 20 1 1 0 0
+body 21 16 1 1 0 2
+rubble 16 14 1 1 0 2
+root 15 18 1 1 0 5
+# Chapel.
+wall 19 6 7 0.7 100 3
+wall 16 9 0.7 6 75 1
+wall 27 6 4 0.7 74 2
+arch 23 7 1 1 106
+pillar 21 8 0.7 0.7 87
+pillar 26 9 0.7 0.7 43 1
+altar 24 4 2 1 35
+banner 27 7 1 1 78
+rubble 20 10 1 1 0 0
+rubble 25 11 1 1 0 2
+lore 23 10 1 1 0 0
+root 18 7 1 1 0 2
+body 24 9 1 1 0 0
+# Apothecary.
+wall 32 18 5 0.65 68 2
+wall 36 20 0.65 5 81 1
+wall 33 25 5 0.65 48 4
+banner 30 21 1 1 62
+lamp 32 21 1 1
+rubble 34 20 1 1 0 1
+rubble 35 24 1 1 0 0
+altar 38 20 1.5 0.9 24
+body 31 24 1 1 0 1
+body 34 23 1 1 0 2
+root 36 24 1 1 0 3
+# Northeast.
+wall 34 10 5 0.7 61 0
+wall 38 8 0.7 5 76 2
+wagon 40 13 1.7 1.2 20
+rubble 32 11 1 1 0 1
+rubble 37 12 1 1 0 2
+root 40 9 1 1 0 3
+# Cemetery.
+grave 17 29 1 0.7 28 1
+grave 17 32 1 0.7 28 2
+grave 18 35 1 0.7 28 0
+grave 24 30 1 0.7 28 1
+grave 25 33 1 0.7 28 2
+grave 28 32 1 0.7 28 0
+grave 28 35 1 0.7 28 1
+wall 15 34 0.6 6 38 1
+banner 22 29 1 1 59
+root 27 34 1 1 0 1
+lore 21 31 1 1 0 1
+body 23 33 1 1 0 0
+# Eastern procession road.
+wagon 38 29 1.8 1.2 25
+lore 37 28 1 1 0 2
+lamp 40 30 1 1
+wall 41 35 4 0.7 66 0
+wall 47 30 0.7 6 73 2
+pillar 44 29 0.7 0.7 64 1
+banner 45 32 1 1 76
+body 39 32 1 1 0 1
+rubble 45 34 1 1 0 1
+root 46 31 1 1 0 4

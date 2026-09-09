@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\SimpleGame.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|solutionrelative:SimpleGame\\SimpleGame.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|solutionrelative:SimpleGame\\Game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Renderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|solutionrelative:SimpleGame\\Renderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Renderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|solutionrelative:SimpleGame\\Renderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\SimpleGame.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|solutionrelative:SimpleGame\\SimpleGame.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{25179D6C-FA85-4619-8EDB-AC241382F6CA}|SimpleGame\\SimpleGame.vcxproj|C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\stdafx.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -31,19 +35,30 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "Game.h",
+              "DocumentMoniker": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Game.h",
+              "RelativeDocumentMoniker": "SimpleGame\\Game.h",
+              "ToolTip": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Game.h",
+              "RelativeToolTip": "SimpleGame\\Game.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-09-09T08:01:17.105Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "Renderer.h",
               "DocumentMoniker": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Renderer.h",
               "RelativeDocumentMoniker": "SimpleGame\\Renderer.h",
               "ToolTip": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Renderer.h",
               "RelativeToolTip": "SimpleGame\\Renderer.h",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABQAAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABQAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-09-07T05:30:16.409Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-07T05:30:16.409Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "stdafx.cpp",
               "DocumentMoniker": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\stdafx.cpp",
               "RelativeDocumentMoniker": "SimpleGame\\stdafx.cpp",
@@ -55,28 +70,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "SimpleGame.cpp",
               "DocumentMoniker": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\SimpleGame.cpp",
               "RelativeDocumentMoniker": "SimpleGame\\SimpleGame.cpp",
               "ToolTip": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\SimpleGame.cpp",
               "RelativeToolTip": "SimpleGame\\SimpleGame.cpp",
-              "ViewState": "AgIAADYAAAAAAAAAAAAAAEEAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABIAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-09-07T04:29:16.283Z"
+              "WhenOpened": "2026-09-07T04:29:16.283Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Renderer.cpp",
               "DocumentMoniker": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Renderer.cpp",
               "RelativeDocumentMoniker": "SimpleGame\\Renderer.cpp",
               "ToolTip": "C:\\Users\\dnwls\\Desktop\\\uAC8C\uC784\uC18C\uD504\uD2B8\uC6E8\uC5B4\uACF5\uD559\\BaseProject_SE\\SimpleGame\\Renderer.cpp",
               "RelativeToolTip": "SimpleGame\\Renderer.cpp",
-              "ViewState": "AgIAALQAAAAAAAAAAAAAAMAAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAHQAAAAAAAAAAAAAAI4AAABPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-09-07T04:29:03.909Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-07T04:29:03.909Z"
             }
           ]
         }
