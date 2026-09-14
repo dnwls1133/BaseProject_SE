@@ -1,0 +1,38 @@
+# Visual Studio local state
+/.vs/
+*.suo
+*.user
+*.VC.db
+*.VC.db-shm
+*.VC.db-wal
+*.VC.opendb
+
+# Intermediate build files
+/SimpleGame/x64/
+/SimpleGame/Debug/
+/SimpleGame/Release/
+*.obj
+*.pch
+*.ipch
+*.pdb
+*.idb
+*.ilk
+*.tlog
+*.lastbuildstate
+*.exe.recipe
+*.Build.CppClean.log
+*.vcxproj.FileListAbsolute.txt
+
+# Build output: keep the bundled runtime DLLs tracked
+/Debug/*
+!/Debug/freeglut.dll
+!/Debug/glew32.dll
+/Release/*
+!/Release/freeglut.dll
+!/Release/glew32.dll
+/x64/Debug/*
+!/x64/Debug/freeglut.dll
+!/x64/Debug/glew32.dll
+/x64/Release/*
+!/x64/Release/freeglut.dll
+!/x64/Release/glew32.dll
