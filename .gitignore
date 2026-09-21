@@ -8,6 +8,8 @@
 *.VC.opendb
 
 # Intermediate build files
+/SimpleGame/Data/Cache/
+/Data/Cache/
 /SimpleGame/x64/
 /SimpleGame/Debug/
 /SimpleGame/Release/
