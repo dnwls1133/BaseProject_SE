@@ -28,12 +28,12 @@ void Actor::Destroy()
 
 bool Actor::IsActive() const
 {
-    return active && !destroyed;
+    return active && hierarchyActive && !destroyed;
 }
 
 bool Actor::IsVisible() const
 {
-    return visible && IsActive();
+    return visible && hierarchyVisible && IsActive();
 }
 
 bool Actor::IsDestroyed() const
@@ -48,7 +48,7 @@ float Actor::Depth() const
 
 void Actor::Update(float dt)
 {
-    if (IsActive())
+    if (IsActive() && tickEnabled)
     {
         OnUpdate(dt);
     }
@@ -56,7 +56,7 @@ void Actor::Update(float dt)
 
 void Actor::Render(Renderer& renderer, ActorPass pass) const
 {
-    if (IsVisible())
+    if (IsVisible() && RendersIn(pass))
     {
         OnRender(renderer, pass);
     }
@@ -64,6 +64,52 @@ void Actor::Render(Renderer& renderer, ActorPass pass) const
 
 void Actor::OnUpdate(float)
 {
+}
+
+void Actor::SetRenderPasses(unsigned mask)
+{
+    renderPasses = mask & ((1u << 6) - 1);
+}
+
+bool Actor::RendersIn(ActorPass pass) const
+{
+    return (renderPasses & ActorPassBit(pass)) != 0;
+}
+
+unsigned Actor::RenderPasses() const
+{
+    return renderPasses;
+}
+
+void Actor::SetRenderBounds(SceneRect bounds)
+{
+    renderBounds = bounds;
+    bounded = true;
+}
+
+void Actor::ClearRenderBounds()
+{
+    bounded = false;
+}
+
+void Actor::SetTickEnabled(bool value)
+{
+    tickEnabled = value;
+}
+
+bool Actor::IsTickEnabled() const
+{
+    return tickEnabled;
+}
+
+bool Actor::HasRenderBounds() const
+{
+    return bounded;
+}
+
+SceneRect Actor::RenderBounds() const
+{
+    return renderBounds;
 }
 
 void CallbackActor::OnUpdate(float dt)

@@ -1,6 +1,8 @@
 #pragma once
 #include "ModelCache.h"
 #include "Actor.h"
+#include "Scene.h"
+#include <list>
 #include "RandomLevelMap.h"
 #include "RpgStats.h"
 #include <string>
@@ -24,13 +26,22 @@ class LevelOne
     {
         explicit Enemy(LevelOne* owner) : owner(owner)
         {
+            SetRenderPasses(ActorPassBit(ActorPass::Shadow) | ActorPassBit(ActorPass::World) |
+                            ActorPassBit(ActorPass::Overlay));
+            SetRenderBounds({-180, -220, 180, 150});
         }
 
         LevelOne* owner;
         int health = 0, maximumHealth = 0;
-        bool brute = false, dead = false;
+        bool brute = false, crawler = false, dead = false;
         float cooldown = 0, windup = 0, flash = 0, phase = 0;
         float attackX = 0, attackY = 0;
+        float movement = 0, facing = 1, strikeTime = 0, collapse = 0;
+
+        float WindupDuration() const
+        {
+            return brute ? .95f : crawler ? .55f : .7f;
+        }
 
       protected:
         void OnUpdate(float dt) override
@@ -49,6 +60,8 @@ class LevelOne
         Drop(LevelOne* owner, float x, float y, bool potion, bool collected)
             : Actor(x, y), owner(owner), potion(potion), collected(collected)
         {
+            SetRenderPasses(ActorPassBit(ActorPass::World));
+            SetRenderBounds({-40, -50, 40, 30});
         }
 
         LevelOne* owner;
@@ -70,10 +83,13 @@ class LevelOne
         Prop(LevelOne* owner, float x, float y, ModelId model)
             : Actor(x, y), owner(owner), model(model)
         {
+            SetRenderPasses(ActorPassBit(ActorPass::Shadow) | ActorPassBit(ActorPass::World));
+            SetRenderBounds({-220, -220, 220, 120});
         }
 
         LevelOne* owner;
         ModelId model;
+        float scale = 1, facing = 1;
 
       protected:
         void OnRender(Renderer& r, ActorPass pass) const override
@@ -88,6 +104,8 @@ class LevelOne
                      bool reward)
             : Actor(x, y), owner(owner), remaining(remaining), text(text), reward(reward)
         {
+            SetRenderPasses(ActorPassBit(ActorPass::Overlay));
+            SetRenderBounds({-40, -160, 300, 40});
         }
 
         LevelOne* owner;
@@ -118,13 +136,20 @@ class LevelOne
     RandomLevelMap map;
     RpgStats stats;
     std::vector<Enemy> enemies;
-    std::vector<Drop> drops;
+    std::list<Drop> drops;
     std::vector<Prop> props;
-    std::vector<FloatingText> numbers;
+    std::list<FloatingText> numbers;
     std::array<int, RandomLevelMap::Width * RandomLevelMap::Height> distances = {};
     bool keys[256] = {};
     bool started = false, paused = false, statPanel = false, completed = false;
-    CallbackActor player, terrain, hud;
+    CallbackActor player, terrain, hud, navigation, minimap, menus, atmosphere;
+    Scene scene;
+    Scene::Node* lootGroup = nullptr;
+    Scene::Node* numberGroup = nullptr;
+    Scene::Node* minimapGroup = nullptr;
+    void BuildScene();
+    void SpawnDrop(float x, float y, bool potion);
+    void SpawnNumber(float x, float y, float remaining, const std::string& text, bool reward);
     float cx = 0, cy = 0, time = 0, phase = 0, movement = 0;
     float aimX = .7071f, aimY = .7071f, facing = 1;
     float attackTime = 0, attackCooldown = 0, hurtTime = 0, navigationTime = 0;
@@ -140,11 +165,14 @@ class LevelOne
     void Kill(Enemy& enemy);
     void Interact();
     const Prop* FindShrine() const;
-    void UpdateEnemies(float dt);
+    void UpdateNavigation(float dt);
     void Notify(const std::string& text);
     void DrawUI(Renderer& renderer);
+    void DrawMinimap(Renderer& renderer);
+    void DrawMenus(Renderer& renderer);
     void DrawGround(Renderer& renderer);
-    void DrawPlayer(Renderer& renderer);
+    void DrawAtmosphere(Renderer& renderer);
+    void DrawPlayer(Renderer& renderer, ActorPass pass);
     void DrawEnemy(Renderer& renderer, const Enemy& enemy, ActorPass pass);
     void DrawProp(Renderer& renderer, const Prop& prop, ActorPass pass);
     void DrawDrop(Renderer& renderer, const Drop& drop);

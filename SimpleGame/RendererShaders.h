@@ -66,6 +66,34 @@ void main()
         result = vec4(fire, alpha * color.a);
         return;
     }
+    if (material == 11)
+    {
+        vec2 p = uv * 2. - 1.;
+        float radius = dot(p, p);
+        float falloff = exp(-radius * 3.6) * (1. - smoothstep(.55, 1., radius));
+        result = vec4(color.rgb, color.a * falloff);
+        return;
+    }
+    if (material == 10)
+    {
+        vec2 drift = vec2(effectTime * .018, -effectTime * .011);
+        float cloud = noise(world * .006 + drift);
+        cloud = cloud * .65 + noise(world * .016 - drift * .6) * .35;
+        vec2 edge = smoothstep(vec2(0.), vec2(.22), uv) *
+                    (1. - smoothstep(vec2(.78), vec2(1.), uv));
+        result = vec4(color.rgb, color.a * smoothstep(.25, .77, cloud) * edge.x * edge.y);
+        return;
+    }
+    if (material == 9)
+    {
+        float tissue = noise(world * .085);
+        float veins = 1. - smoothstep(.03, .10, abs(tissue - .5));
+        float pulse = .5 + .5 * sin(effectTime * 1.8 + world.y * .027);
+        vec3 flesh = color.rgb * (.79 + tissue * .27 - veins * .24);
+        flesh += vec3(.10, .012, .018) * pulse * veins;
+        result = vec4(flesh, color.a);
+        return;
+    }
     if (material == 7)
     {
         // Ripples and highlights are evaluated per fragment, not CPU animation.

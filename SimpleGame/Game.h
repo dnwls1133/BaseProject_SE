@@ -2,6 +2,8 @@
 #include "Renderer.h"
 #include "LevelOne.h"
 #include "Actor.h"
+#include "Scene.h"
+#include <list>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -69,6 +71,8 @@ class Game
     {
         Footprint(Game* owner, float x, float y, float age) : Actor(x, y), owner(owner), age(age)
         {
+            SetRenderPasses(ActorPassBit(ActorPass::Ground));
+            SetRenderBounds({-24, -16, 24, 16});
         }
 
         Game* owner;
@@ -93,7 +97,11 @@ class Game
         }
     };
 
-    std::vector<Footprint> footsteps;
+    std::list<Footprint> footsteps;
+    Scene scene;
+    Scene::Node* footprintGroup = nullptr;
+    void BuildScene();
+    void SpawnFootprint(float x, float y);
     bool paused = false, blood = false, given = false, accepted = false, choice = false,
          done = false;
     int answer = 0, line = 0, target = -1;

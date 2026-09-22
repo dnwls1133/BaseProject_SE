@@ -27,7 +27,10 @@ enum class Material
     Cloth = 4,
     Paving = 5,
     Water = 7,
-    Flame = 8
+    Flame = 8,
+    Organic = 9,
+    Mist = 10,
+    SoftLight = 11
 };
 
 class Renderer
@@ -58,6 +61,8 @@ class Renderer
     void Begin(float time = 0, Point worldOffset = {0, 0});
     void FinishScene();
     void Flush();
+    void SetClipRect(int x, int y, int w, int h);
+    void ResetClipRect();
     void Triangle(Point a, Point b, Point c, Color color);
     void Quad(Point a, Point b, Point c, Point d, Color color);
     void Rect(float x, float y, float w, float h, Color color);
@@ -106,6 +111,8 @@ class Renderer
     GLuint bloomFbo[2] = {}, bloomTexture[2] = {};
     int width = 1, height = 1, bloomWidth = 1, bloomHeight = 1, samples = 1;
     bool ready = false;
+    bool clipEnabled = false;
+    int clipX = 0, clipY = 0, clipWidth = 0, clipHeight = 0;
     std::uint64_t drawCallCount = 0;
     float clock = 0;
     Point offset = {0, 0};

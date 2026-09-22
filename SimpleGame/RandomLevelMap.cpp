@@ -139,47 +139,157 @@ void RandomLevelMap::Connect(Cell a, Cell b, bool horizontalFirst)
     Carve(b.x, b.y, 1);
 }
 
+RandomLevelMap::Region RandomLevelMap::RegionAt(int x, int y) const
+{
+    Region result = Region::Refuge;
+    int nearest = Width * Width + Height * Height;
+    for (const auto& district : districts)
+    {
+        int dx = x - district.center.x, dy = y - district.center.y;
+        int distance = dx * dx + dy * dy;
+        if (distance < nearest)
+        {
+            nearest = distance;
+            result = district.region;
+        }
+    }
+    return result;
+}
+
+const char* RandomLevelMap::RegionName(int x, int y) const
+{
+    switch (RegionAt(x, y))
+    {
+    case Region::Refuge:
+        return "꺼져가는 성소";
+    case Region::Processional:
+        return "부서진 순례길";
+    case Region::Ossuary:
+        return "이름 없는 매장지";
+    case Region::Flooded:
+        return "성혈이 고인 수로";
+    case Region::Cathedral:
+        return "무너진 대성당";
+    case Region::Garden:
+        return "우화의 정원";
+    }
+    return "성혈의 사냥터";
+}
+
 void RandomLevelMap::Generate(std::uint32_t value)
 {
     seed = value;
     std::mt19937 random(seed);
     tiles.fill(0);
     rooms.clear();
+    districts.clear();
     reachable.clear();
+    const Region themes[] = {Region::Refuge,  Region::Processional, Region::Ossuary,
+                             Region::Flooded, Region::Cathedral,    Region::Garden,
+                             Region::Ossuary, Region::Garden,       Region::Flooded};
 
+    // Recognizable districts keep their roles; proportions and connecting streets vary per run.
     for (int row = 0; row < 3; ++row)
     {
         for (int column = 0; column < 3; ++column)
         {
-            Cell center{6 + column * 11 + static_cast<int>(random() % 3) - 1,
-                        6 + row * 11 + static_cast<int>(random() % 3) - 1};
-            rooms.push_back(center);
-            Carve(center.x, center.y, 2 + random() % 3);
-        }
-    }
-
-    // Every room is attached to the existing connected component.
-    for (std::size_t i = 1; i < rooms.size(); ++i)
-    {
-        std::size_t nearest = 0;
-        int best = 1000;
-        for (std::size_t j = 0; j < i; ++j)
-        {
-            int distance = std::abs(rooms[i].x - rooms[j].x) + std::abs(rooms[i].y - rooms[j].y);
-            if (distance < best)
+            Cell center{8 + column * 16 + static_cast<int>(random() % 3) - 1,
+                        8 + row * 16 + static_cast<int>(random() % 3) - 1};
+            int rx = 4 + random() % 3, ry = 4 + random() % 3;
+            Region region = themes[row * 3 + column];
+            if (region == Region::Processional)
             {
-                nearest = j;
-                best = distance;
+                rx = 6;
+                ry = 3 + random() % 2;
+            }
+            else if (region == Region::Cathedral)
+            {
+                rx = ry = 6;
+            }
+            rooms.push_back(center);
+            districts.push_back({center, rx, ry, region});
+            for (int dy = -ry; dy <= ry; ++dy)
+            {
+                for (int dx = -rx; dx <= rx; ++dx)
+                {
+                    bool floor = std::abs(dx) + std::abs(dy) <= rx + ry - 2;
+                    if (region == Region::Garden)
+                    {
+                        float nx = dx / static_cast<float>(rx), ny = dy / static_cast<float>(ry);
+                        floor = nx * nx + ny * ny <= 1.08f;
+                    }
+                    else if (region == Region::Cathedral)
+                    {
+                        floor = std::abs(dx) <= 2 || std::abs(dy) <= 2 ||
+                                std::abs(dx) + std::abs(dy) <= 8;
+                    }
+                    if (floor)
+                    {
+                        Carve(center.x + dx, center.y + dy, 0);
+                    }
+                }
             }
         }
-        Connect(rooms[i], rooms[nearest], random() % 2 == 0);
-    }
-    for (int i = 0; i < 3; ++i)
-    {
-        Connect(rooms[random() % rooms.size()], rooms[random() % rooms.size()], random() % 2 == 0);
     }
 
-    // Runtime invariant: repair any disconnected floor before placing gameplay objects.
+    // A connected backbone plus cross streets gives loops without sealed rooms.
+    for (std::size_t i = 1; i < rooms.size(); ++i)
+    {
+        std::size_t parent = i % 3 == 0 ? i - 3 : i - 1;
+        Connect(rooms[parent], rooms[i], random() % 2 == 0);
+    }
+    for (int row = 0; row < 2; ++row)
+    {
+        for (int column = 1; column < 3; ++column)
+        {
+            if (column == 2 || random() % 2 == 0)
+            {
+                Connect(rooms[row * 3 + column], rooms[(row + 1) * 3 + column], random() % 2 == 0);
+            }
+        }
+    }
+
+    for (const auto& district : districts)
+    {
+        if (district.region != Region::Ossuary && district.region != Region::Cathedral)
+        {
+            continue;
+        }
+        for (int dy : {-3, 3})
+        {
+            for (int dx : {-3, 3})
+            {
+                int x = district.center.x + dx, y = district.center.y + dy;
+                tiles[y * Width + x] = 0;
+            }
+        }
+    }
+
+    // Shallow pools follow continuous shapes; all water remains traversable.
+    for (const auto& district : districts)
+    {
+        if (district.region != Region::Flooded && district.region != Region::Garden)
+        {
+            continue;
+        }
+        for (int y = district.center.y - district.radiusY;
+             y <= district.center.y + district.radiusY; ++y)
+        {
+            for (int x = district.center.x - district.radiusX;
+                 x <= district.center.x + district.radiusX; ++x)
+            {
+                float dx = (x - district.center.x + 1.f) / (district.radiusX * .85f);
+                float dy = (y - district.center.y) / (district.radiusY * .7f);
+                float edge = 1.f + .13f * std::sin(x * 1.7f + y * .8f);
+                if (Walkable(x, y) && dx * dx + dy * dy < edge &&
+                    (district.region == Region::Flooded || x < district.center.x))
+                {
+                    tiles[y * Width + x] = 2;
+                }
+            }
+        }
+    }
+
     auto distances = Distances(rooms.front().x, rooms.front().y);
     for (int y = 1; y < Height - 1; ++y)
     {
@@ -192,7 +302,6 @@ void RandomLevelMap::Generate(std::uint32_t value)
             }
         }
     }
-
     for (int y = 1; y < Height - 1; ++y)
     {
         for (int x = 1; x < Width - 1; ++x)
@@ -200,11 +309,6 @@ void RandomLevelMap::Generate(std::uint32_t value)
             if (distances[y * Width + x] >= 0)
             {
                 reachable.push_back({x, y});
-                // Water is shallow and walkable. It cannot sever the route graph.
-                if (random() % 19 == 0)
-                {
-                    tiles[y * Width + x] = 2;
-                }
             }
         }
     }

@@ -7,13 +7,34 @@
 class RandomLevelMap
 {
   public:
-    static constexpr int Width = 36;
-    static constexpr int Height = 36;
+    static constexpr int Width = 48;
+    static constexpr int Height = 48;
 
     struct Cell
     {
         int x, y;
     };
+
+    enum class Region
+    {
+        Refuge,
+        Processional,
+        Ossuary,
+        Flooded,
+        Cathedral,
+        Garden
+    };
+
+    struct District
+    {
+        Cell center;
+        int radiusX, radiusY;
+        Region region;
+    };
+
+    std::vector<District> districts;
+    Region RegionAt(int x, int y) const;
+    const char* RegionName(int x, int y) const;
 
     std::array<unsigned char, Width * Height> tiles = {};
     std::vector<Cell> rooms;

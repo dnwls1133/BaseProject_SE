@@ -182,6 +182,8 @@ void Renderer::Begin(float t, Point worldOffset)
 {
     vertices.clear();
     clock = t;
+    glDisable(GL_SCISSOR_TEST);
+    clipEnabled = false;
     offset = worldOffset;
     material = Material::Plain;
     glBindFramebuffer(GL_FRAMEBUFFER, ready ? sceneFbo : 0);
@@ -306,6 +308,7 @@ void Renderer::Fullscreen(GLuint shader)
 
 void Renderer::FinishScene()
 {
+    ResetClipRect();
     Flush();
     material = Material::Plain;
     if (!ready)
@@ -344,6 +347,33 @@ void Renderer::FinishScene()
     glActiveTexture(GL_TEXTURE0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void Renderer::SetClipRect(int x, int y, int w, int h)
+{
+    if (clipEnabled && clipX == x && clipY == y && clipWidth == w && clipHeight == h)
+    {
+        return;
+    }
+    // Submit the old batch under its old clip before changing OpenGL state.
+    Flush();
+    clipEnabled = true;
+    clipX = x;
+    clipY = y;
+    clipWidth = w;
+    clipHeight = h;
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(x, height - y - h, std::max(0, w), std::max(0, h));
+}
+
+void Renderer::ResetClipRect()
+{
+    if (clipEnabled)
+    {
+        Flush();
+        glDisable(GL_SCISSOR_TEST);
+        clipEnabled = false;
+    }
 }
 
 Renderer::Label& Renderer::GetLabel(const std::string& text, int size)

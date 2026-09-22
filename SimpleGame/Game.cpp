@@ -136,6 +136,8 @@ void Game::ClearInput()
 
 void Game::Reset()
 {
+    scene.Clear();
+    footprintGroup = nullptr;
     player.x = cx = spawnX;
     player.y = cy = spawnY;
     time = elapsed = walkPhase = motion = reaction = stepTime = 0;
@@ -148,10 +150,13 @@ void Game::Reset()
     notice.clear();
     noticeTime = 0;
     ClearInput();
+    BuildScene();
 }
 
 bool Game::Load(const std::string& path)
 {
+    scene.Clear();
+    footprintGroup = nullptr;
     objects.clear();
     conversations.clear();
     std::ifstream file(path);
@@ -475,25 +480,12 @@ void Game::Update(float dt)
     elapsed += dt;
     noticeTime -= dt;
     reaction = std::max(0.f, reaction - dt * .15f);
-    terrain.Update(dt);
-    atmosphere.Update(dt);
-    hud.Update(dt);
-    for (auto& object : objects)
-    {
-        object.Update(dt);
-    }
-    player.Update(dt);
-
-    for (auto& f : footsteps)
-    {
-        f.Update(dt);
-    }
-    footsteps.erase(std::remove_if(footsteps.begin(), footsteps.end(),
-                                   [](const Footprint& f)
-                                   {
-                                       return f.IsDestroyed();
-                                   }),
-                    footsteps.end());
+    scene.Update(dt);
+    footsteps.remove_if(
+        [](const Footprint& footprint)
+        {
+            return footprint.IsDestroyed();
+        });
     cx += (player.x - cx) * (1 - std::exp(-dt * 5));
     cy += (player.y - cy) * (1 - std::exp(-dt * 5));
     RefreshTarget();
@@ -513,19 +505,6 @@ void Game::Render(Renderer& r)
         return;
     }
 
-    Scene scene;
-    scene.Add(terrain);
-    for (const auto& footprint : footsteps)
-    {
-        scene.Add(footprint);
-    }
-    for (const auto& object : objects)
-    {
-        scene.Add(object);
-    }
-    scene.Add(player);
-    scene.Add(atmosphere);
-    scene.Add(hud);
     scene.Render(r, time, {(cx - cy) * 32 - r.Width() * .5f, (cx + cy) * 16 - r.Height() * .49f});
 }
 
@@ -705,7 +684,63 @@ void Game::UpdatePlayer(float dt)
         if (stepTime > .55f)
         {
             stepTime = 0;
-            footsteps.push_back({this, player.x, player.y, 0});
+            SpawnFootprint(player.x, player.y);
         }
     }
+}
+
+void Game::BuildScene()
+{
+    auto& world = scene.CreateGroup(scene.Root(), "World");
+    auto& ground = scene.CreateGroup(world, "Terrain");
+    auto& footprints = scene.CreateGroup(world, "Footprints");
+    footprintGroup = &footprints;
+    auto& statics = scene.CreateGroup(world, "Village sectors");
+    auto& characters = scene.CreateGroup(world, "Characters");
+    auto& effects = scene.CreateGroup(world, "Atmosphere");
+    auto& ui = scene.CreateGroup(scene.Root(), "UI", true);
+
+    terrain.SetTickEnabled(false);
+    atmosphere.SetTickEnabled(false);
+    hud.SetTickEnabled(false);
+    terrain.SetRenderPasses(ActorPassBit(ActorPass::Ground));
+    atmosphere.SetRenderPasses(ActorPassBit(ActorPass::Effects));
+    hud.SetRenderPasses(ActorPassBit(ActorPass::UI));
+    player.SetRenderPasses(ActorPassBit(ActorPass::World));
+    player.SetRenderBounds({-130, -180, 130, 80});
+    scene.Attach(terrain, ground);
+    scene.Attach(player, characters);
+    scene.Attach(atmosphere, effects);
+    scene.Attach(hud, ui);
+
+    std::unordered_map<int, Scene::Node*> sectors;
+    for (auto& object : objects)
+    {
+        int key = static_cast<int>(object.x / 8) + static_cast<int>(object.y / 8) * 128;
+        auto& sector = sectors[key];
+        if (!sector)
+        {
+            sector = &scene.CreateGroup(statics, "Sector " + std::to_string(key));
+        }
+        unsigned passes = ActorPassBit(ActorPass::Shadow) | ActorPassBit(ActorPass::World);
+        if (object.type == "road" || object.type == "lore")
+        {
+            passes = 0;
+        }
+        if (object.type == "lamp")
+        {
+            passes |= ActorPassBit(ActorPass::Ground) | ActorPassBit(ActorPass::Effects);
+        }
+        object.SetTickEnabled(false);
+        object.SetRenderPasses(passes);
+        float margin = std::max(300.f, 180 + (object.w + object.h) * 32 + object.height);
+        object.SetRenderBounds({-margin, -margin, margin, margin});
+        scene.Attach(object, *sector);
+    }
+}
+
+void Game::SpawnFootprint(float x, float y)
+{
+    footsteps.emplace_back(this, x, y, 0);
+    scene.Attach(footsteps.back(), *footprintGroup);
 }
