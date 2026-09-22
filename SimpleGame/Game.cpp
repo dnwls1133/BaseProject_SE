@@ -640,8 +640,12 @@ void Game::DrawUI(Renderer& r)
 void Game::EnterFirstLevel()
 {
     ClearInput();
-    levelOne.Start(dataDirectory);
-    inFirstLevel = true;
+    inFirstLevel = levelOne.Start(dataDirectory);
+    if (!inFirstLevel)
+    {
+        notice = "레벨 데이터 로딩 실패 · " + levelOne.ContentError();
+        noticeTime = 12;
+    }
 }
 
 void Game::UpdatePlayer(float dt)

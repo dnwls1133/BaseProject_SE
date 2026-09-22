@@ -1,0 +1,4 @@
+# primitive material joint r g b a coordinates (local screen pixels)
+version 1
+quad 0 0 0.63 0.57 0.31 1 0 -21 9 -10 0 0 -7 -9
+triangle 0 0 0.31 0.3 0.19 1 0 -21 0 0 -7 -9

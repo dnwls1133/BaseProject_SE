@@ -13,6 +13,8 @@ This program is distributed WITHOUT ANY WARRANTY.
 #include <windows.h>
 #include <memory>
 #include <iostream>
+#include <chrono>
+#include <iomanip>
 #include "Renderer.h"
 #include "Game.h"
 std::unique_ptr<Renderer> renderer;
@@ -21,7 +23,13 @@ int lastTick = 0;
 
 void Display()
 {
+    using FrameClock = std::chrono::steady_clock;
+
     static std::uint64_t frameNumber = 0;
+    static std::uint64_t sampleFrames = 0;
+    static auto sampleStart = FrameClock::now();
+    static double averageFps = 0;
+    static bool hasFpsSample = false;
 
     if (renderer)
     {
@@ -29,8 +37,33 @@ void Display()
         game.Render(*renderer);
         glutSwapBuffers();
 
+        // Measure completed frames using real elapsed time, including frame pacing.
+        auto now = FrameClock::now();
+        double elapsed = std::chrono::duration<double>(now - sampleStart).count();
+        ++sampleFrames;
+        if (elapsed >= 1.0)
+        {
+            averageFps = static_cast<double>(sampleFrames) / elapsed;
+            hasFpsSample = true;
+            sampleFrames = 0;
+            sampleStart = now;
+        }
+
         std::cout << "[Frame " << ++frameNumber << "] Draw calls: " << renderer->GetDrawCallCount()
-                  << '\n';
+                  << " | FPS (1s avg): ";
+        if (hasFpsSample)
+        {
+            auto previousFlags = std::cout.flags();
+            auto previousPrecision = std::cout.precision();
+            std::cout << std::fixed << std::setprecision(1) << averageFps;
+            std::cout.flags(previousFlags);
+            std::cout.precision(previousPrecision);
+        }
+        else
+        {
+            std::cout << "collecting";
+        }
+        std::cout << '\n';
     }
 }
 

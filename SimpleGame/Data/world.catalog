@@ -1,0 +1,3 @@
+# Change entry to select another world without adding a C++ level class.
+version 1
+entry Levels/level1.world

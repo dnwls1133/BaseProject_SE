@@ -15,7 +15,13 @@ class LevelOne
     LevelOne(const LevelOne&) = delete;
     LevelOne& operator=(const LevelOne&) = delete;
 
-    void Start(const std::string& dataDirectory);
+    bool Start(const std::string& dataDirectory, const std::string& levelFile = "");
+
+    const std::string& ContentError() const
+    {
+        return contentError;
+    }
+
     void Key(unsigned char key, bool down);
     void ClearInput();
     void Update(float dt);
@@ -33,14 +39,15 @@ class LevelOne
 
         LevelOne* owner;
         int health = 0, maximumHealth = 0;
-        bool brute = false, crawler = false, dead = false;
+        EnemyDefinition type;
+        bool dead = false;
         float cooldown = 0, windup = 0, flash = 0, phase = 0;
         float attackX = 0, attackY = 0;
         float movement = 0, facing = 1, strikeTime = 0, collapse = 0;
 
         float WindupDuration() const
         {
-            return brute ? .95f : crawler ? .55f : .7f;
+            return type.windup;
         }
 
       protected:
@@ -80,8 +87,8 @@ class LevelOne
 
     struct Prop : Actor
     {
-        Prop(LevelOne* owner, float x, float y, ModelId model)
-            : Actor(x, y), owner(owner), model(model)
+        Prop(LevelOne* owner, float x, float y, const PropDefinition& type)
+            : Actor(x, y), owner(owner), model(type.model), type(type)
         {
             SetRenderPasses(ActorPassBit(ActorPass::Shadow) | ActorPassBit(ActorPass::World));
             SetRenderBounds({-220, -220, 220, 120});
@@ -89,6 +96,7 @@ class LevelOne
 
         LevelOne* owner;
         ModelId model;
+        PropDefinition type;
         float scale = 1, facing = 1;
 
       protected:
@@ -134,12 +142,14 @@ class LevelOne
 
     ModelCache modelCache;
     RandomLevelMap map;
+    LevelData content;
+    std::string contentRoot, worldFile, contentError;
     RpgStats stats;
     std::vector<Enemy> enemies;
     std::list<Drop> drops;
     std::vector<Prop> props;
     std::list<FloatingText> numbers;
-    std::array<int, RandomLevelMap::Width * RandomLevelMap::Height> distances = {};
+    std::vector<int> distances;
     bool keys[256] = {};
     bool started = false, paused = false, statPanel = false, completed = false;
     CallbackActor player, terrain, hud, navigation, minimap, menus, atmosphere;
@@ -159,7 +169,7 @@ class LevelOne
     std::string notice;
     float noticeTime = 0;
 
-    void Generate();
+    bool Generate();
     void Move(float& x, float& y, float dx, float dy);
     void Attack();
     void Kill(Enemy& enemy);

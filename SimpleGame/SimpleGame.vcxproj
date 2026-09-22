@@ -160,6 +160,8 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="LevelOne.h" />
+    <ClInclude Include="ContentData.h" />
+    <ClInclude Include="LevelData.h" />
     <ClInclude Include="ModelCache.h" />
     <ClInclude Include="RandomLevelMap.h" />
     <ClInclude Include="RpgStats.h" />
@@ -173,6 +175,7 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="LevelOne.cpp" />
+    <ClCompile Include="LevelData.cpp" />
     <ClCompile Include="ModelCache.cpp" />
     <ClCompile Include="RandomLevelMap.cpp" />
     <ClCompile Include="VillageArt.cpp" />
@@ -199,10 +202,14 @@
     <Link><AdditionalDependencies>opengl32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies></Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Target Name="CopyTutorialData" AfterTargets="Build">
-    <MakeDir Directories="$(TargetDir)Data" />
-    <Copy SourceFiles="$(ProjectDir)Data\village.level;$(ProjectDir)Data\dialogue.ko.txt"
-          DestinationFolder="$(TargetDir)Data"
+  <ItemGroup>
+    <GameContent Include="Data\**\*" Exclude="Data\Cache\**\*" />
+    <None Include="Data\**\*" Exclude="Data\village.level;Data\dialogue.ko.txt;Data\Cache\**\*" />
+  </ItemGroup>
+  <Target Name="CopyGameContent" AfterTargets="Build">
+    <MakeDir Directories="@(GameContent->'$(TargetDir)Data\%(RecursiveDir)')" />
+    <Copy SourceFiles="@(GameContent)"
+          DestinationFiles="@(GameContent->'$(TargetDir)Data\%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
   </Target>
   <ImportGroup Label="ExtensionTargets">

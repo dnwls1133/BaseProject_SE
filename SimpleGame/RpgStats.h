@@ -1,10 +1,11 @@
 #pragma once
+#include "LevelData.h"
 
 // All derived values have one source of truth for combat and the stat UI.
 class RpgStats
 {
   public:
-    static constexpr int MaximumLevel = 20;
+    RpgRules rules;
     int level = 1;
     int experience = 0;
     int totalExperience = 0;
@@ -19,27 +20,29 @@ class RpgStats
 
     int RequiredExperience() const
     {
-        return 60 + (level - 1) * 35;
+        return rules.experienceBase + (level - 1) * rules.experienceStep;
     }
 
     int MaximumHealth() const
     {
-        return 100 + (level - 1) * 5 + vitality * 15;
+        return rules.healthBase + (level - 1) * rules.healthPerLevel +
+               vitality * rules.healthPerVitality;
     }
 
     int Attack() const
     {
-        return 18 + (level - 1) * 2 + strength * 4;
+        return rules.attackBase + (level - 1) * rules.attackPerLevel +
+               strength * rules.attackPerStrength;
     }
 
     int Defense() const
     {
-        return 2 + resilience * 2;
+        return rules.defenseBase + resilience * rules.defensePerResilience;
     }
 
     int AddExperience(int amount)
     {
-        if (amount <= 0 || level >= MaximumLevel)
+        if (amount <= 0 || level >= rules.maximumLevel)
         {
             return 0;
         }
@@ -49,15 +52,15 @@ class RpgStats
         totalExperience += amount;
         int gainedLevels = 0;
 
-        while (level < MaximumLevel && experience >= RequiredExperience())
+        while (level < rules.maximumLevel && experience >= RequiredExperience())
         {
             experience -= RequiredExperience();
             ++level;
             ++gainedLevels;
-            points += 2;
+            points += rules.pointsPerLevel;
         }
 
-        if (level == MaximumLevel)
+        if (level == rules.maximumLevel)
         {
             experience = 0;
         }
@@ -80,7 +83,7 @@ class RpgStats
         else if (attribute == 2)
         {
             ++vitality;
-            health += 15;
+            health += rules.healthPerVitality;
         }
         else
         {
@@ -100,7 +103,7 @@ class RpgStats
         }
 
         --potions;
-        health += 40;
+        health += rules.healing;
         if (health > MaximumHealth())
         {
             health = MaximumHealth();

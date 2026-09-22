@@ -37,6 +37,7 @@ class ModelCache
               float movement = 0, float facing = 1, float flash = 0, float attack = 0,
               float scale = 1, float opacity = 1, float collapse = 0, float idleTime = 0) const;
     const std::string& Status() const;
+    ModelId Find(const std::string& name) const;
 
   private:
     struct Vertex
@@ -48,14 +49,13 @@ class ModelCache
 
     std::vector<std::vector<Vertex>> models;
     std::string status;
+    std::vector<std::string> names, rigs, recipes, sourcePaths;
+    std::uint32_t sourceHash = 0;
     bool initialized = false;
 
     bool Read(const std::string& path);
     bool Write(const std::string& path) const;
     void Build();
-    void BuildPilgrim();
-    void BuildCreatures();
-    void BuildEnvironment();
     void Segment(ModelId model, Point a, Point b, float width, Color color, std::uint32_t joint = 0,
                  Material material = Material::Plain);
     void Triangle(ModelId model, Point a, Point b, Point c, Color color,

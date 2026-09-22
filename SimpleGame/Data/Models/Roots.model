@@ -1,0 +1,16 @@
+# primitive material joint r g b a coordinates (local screen pixels)
+version 1
+triangle 0 0 0.59 0.56 0.41 1 0 0 -19 -20 -22 -2
+ellipse 0 0 0.6 0.04 0.09 1 -19 -20 3 5
+triangle 0 0 0.59 0.56 0.41 1 0 0 -12 -32 -15 -2
+ellipse 0 0 0.6 0.04 0.09 1 -12 -32 3 5
+triangle 0 0 0.59 0.56 0.41 1 0 0 -5 -44 -8 -2
+ellipse 0 0 0.6 0.04 0.09 1 -5 -44 3 5
+triangle 0 0 0.59 0.56 0.41 1 0 0 2 -20 -1 -2
+ellipse 0 0 0.6 0.04 0.09 1 2 -20 3 5
+triangle 0 0 0.59 0.56 0.41 1 0 0 9 -32 6 -2
+ellipse 0 0 0.6 0.04 0.09 1 9 -32 3 5
+triangle 0 0 0.59 0.56 0.41 1 0 0 16 -44 13 -2
+ellipse 0 0 0.6 0.04 0.09 1 16 -44 3 5
+triangle 0 0 0.59 0.56 0.41 1 0 0 23 -20 20 -2
+ellipse 0 0 0.6 0.04 0.09 1 23 -20 3 5

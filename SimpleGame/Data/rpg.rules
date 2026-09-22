@@ -1,0 +1,5 @@
+# Growth: maxLevel xpBase xpStep points hpBase hpPerLevel hpPerVitality atkBase atkPerLevel atkPerStrength defBase defPerResilience heal
+# Combat: moveSpeed attackMoveSpeed range duration cooldown hitTime invulnerability minimumPotions exchangeCost dropPeriod
+version 1
+growth 20 60 35 2 100 5 15 18 2 4 2 2 40
+combat 3.7 1.5 2.15 0.36 0.55 0.10 0.65 3 3 3

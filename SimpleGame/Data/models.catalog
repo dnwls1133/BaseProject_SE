@@ -1,0 +1,23 @@
+# model name rig relative_file; preserve the first 19 engine IDs in this order.
+version 1
+model Pilgrim pilgrim Models/Pilgrim.model
+model Infected creature Models/Infected.model
+model Brute creature Models/Brute.model
+model Pillar static Models/Pillar.model
+model Roots static Models/Roots.model
+model Brazier static Models/Brazier.model
+model Shrine static Models/Shrine.model
+model Potion static Models/Potion.model
+model Fragment static Models/Fragment.model
+model Crawler creature Models/Crawler.model
+model BrokenWall static Models/BrokenWall.model
+model Arch static Models/Arch.model
+model Statue static Models/Statue.model
+model Grave static Models/Grave.model
+model Cart static Models/Cart.model
+model FungalColony static Models/FungalColony.model
+model Debris static Models/Debris.model
+model Corpse static Models/Corpse.model
+model Fence static Models/Fence.model
+model DeadTree static Models/DeadTree.model
+model BlightedTree static Models/BlightedTree.model

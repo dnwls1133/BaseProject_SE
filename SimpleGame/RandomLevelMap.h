@@ -1,5 +1,5 @@
 #pragma once
-#include <array>
+#include "LevelData.h"
 #include <cstdint>
 #include <random>
 #include <vector>
@@ -7,8 +7,8 @@
 class RandomLevelMap
 {
   public:
-    static constexpr int Width = 48;
-    static constexpr int Height = 48;
+    int Width = 80;
+    int Height = 64;
 
     struct Cell
     {
@@ -25,31 +25,30 @@ class RandomLevelMap
         Garden
     };
 
-    struct District
+    struct District : RegionDefinition
     {
         Cell center;
-        int radiusX, radiusY;
         Region region;
     };
 
     std::vector<District> districts;
+    std::vector<PropPlacement> placements;
+    const District& DistrictAt(int x, int y) const;
     Region RegionAt(int x, int y) const;
     const char* RegionName(int x, int y) const;
 
-    std::array<unsigned char, Width * Height> tiles = {};
-    std::vector<Cell> rooms;
+    std::vector<unsigned char> tiles;
     std::vector<Cell> reachable;
     std::uint32_t seed = 0;
 
-    void Generate(std::uint32_t value);
+    void Generate(std::uint32_t value, const LevelData& definition);
     bool Walkable(int x, int y) const;
     bool CanStand(float x, float y, float radius = .23f) const;
     bool CanTravel(float ax, float ay, float bx, float by) const;
     bool Visible(float ax, float ay, float bx, float by) const;
-    std::array<int, Width * Height> Distances(int x, int y) const;
+    std::vector<int> Distances(int x, int y) const;
     int Tile(int x, int y) const;
 
   private:
-    void Carve(int x, int y, int radius);
-    void Connect(Cell a, Cell b, bool horizontalFirst);
+    void Paint(int x, int y, int radius, unsigned char tile);
 };

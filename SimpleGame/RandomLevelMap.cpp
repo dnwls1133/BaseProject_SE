@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "RandomLevelMap.h"
+#include "ContentData.h"
 #include <algorithm>
 #include <cmath>
 #include <queue>
@@ -61,11 +62,9 @@ bool RandomLevelMap::Visible(float ax, float ay, float bx, float by) const
     return true;
 }
 
-std::array<int, RandomLevelMap::Width * RandomLevelMap::Height> RandomLevelMap::Distances(
-    int x, int y) const
+std::vector<int> RandomLevelMap::Distances(int x, int y) const
 {
-    std::array<int, Width * Height> distance;
-    distance.fill(-1);
+    std::vector<int> distance(Width * Height, -1);
     if (!Walkable(x, y))
     {
         return distance;
@@ -92,7 +91,7 @@ std::array<int, RandomLevelMap::Width * RandomLevelMap::Height> RandomLevelMap::
     return distance;
 }
 
-void RandomLevelMap::Carve(int x, int y, int radius)
+void RandomLevelMap::Paint(int x, int y, int radius, unsigned char tile)
 {
     for (int dy = -radius; dy <= radius; ++dy)
     {
@@ -101,47 +100,15 @@ void RandomLevelMap::Carve(int x, int y, int radius)
             int nx = x + dx, ny = y + dy;
             if (nx > 0 && ny > 0 && nx < Width - 1 && ny < Height - 1)
             {
-                tiles[ny * Width + nx] = 1;
+                tiles[ny * Width + nx] = tile;
             }
         }
     }
 }
 
-void RandomLevelMap::Connect(Cell a, Cell b, bool horizontalFirst)
+const RandomLevelMap::District& RandomLevelMap::DistrictAt(int x, int y) const
 {
-    // Three-cell-wide corridors keep a finite-radius actor from corner trapping.
-    auto horizontal = [&]()
-    {
-        while (a.x != b.x)
-        {
-            Carve(a.x, a.y, 1);
-            a.x += a.x < b.x ? 1 : -1;
-        }
-    };
-    auto vertical = [&]()
-    {
-        while (a.y != b.y)
-        {
-            Carve(a.x, a.y, 1);
-            a.y += a.y < b.y ? 1 : -1;
-        }
-    };
-    if (horizontalFirst)
-    {
-        horizontal();
-        vertical();
-    }
-    else
-    {
-        vertical();
-        horizontal();
-    }
-    Carve(b.x, b.y, 1);
-}
-
-RandomLevelMap::Region RandomLevelMap::RegionAt(int x, int y) const
-{
-    Region result = Region::Refuge;
+    const District* result = &districts.front();
     int nearest = Width * Width + Height * Height;
     for (const auto& district : districts)
     {
@@ -150,166 +117,153 @@ RandomLevelMap::Region RandomLevelMap::RegionAt(int x, int y) const
         if (distance < nearest)
         {
             nearest = distance;
-            result = district.region;
+            result = &district;
         }
     }
-    return result;
+    return *result;
+}
+
+RandomLevelMap::Region RandomLevelMap::RegionAt(int x, int y) const
+{
+    return DistrictAt(x, y).region;
 }
 
 const char* RandomLevelMap::RegionName(int x, int y) const
 {
-    switch (RegionAt(x, y))
-    {
-    case Region::Refuge:
-        return "꺼져가는 성소";
-    case Region::Processional:
-        return "부서진 순례길";
-    case Region::Ossuary:
-        return "이름 없는 매장지";
-    case Region::Flooded:
-        return "성혈이 고인 수로";
-    case Region::Cathedral:
-        return "무너진 대성당";
-    case Region::Garden:
-        return "우화의 정원";
-    }
-    return "성혈의 사냥터";
+    return DistrictAt(x, y).name.c_str();
 }
 
-void RandomLevelMap::Generate(std::uint32_t value)
+void RandomLevelMap::Generate(std::uint32_t value, const LevelData& definition)
 {
     seed = value;
+    Width = definition.width;
+    Height = definition.height;
     std::mt19937 random(seed);
-    tiles.fill(0);
-    rooms.clear();
+    tiles.assign(Width * Height, 0);
     districts.clear();
     reachable.clear();
-    const Region themes[] = {Region::Refuge,  Region::Processional, Region::Ossuary,
-                             Region::Flooded, Region::Cathedral,    Region::Garden,
-                             Region::Ossuary, Region::Garden,       Region::Flooded};
-
-    // Recognizable districts keep their roles; proportions and connecting streets vary per run.
-    for (int row = 0; row < 3; ++row)
+    placements.clear();
+    for (const auto& region : definition.regions)
     {
-        for (int column = 0; column < 3; ++column)
+        District district;
+        static_cast<RegionDefinition&>(district) = region;
+        district.center = {region.x, region.y};
+        district.region = static_cast<Region>(region.style);
+        districts.push_back(district);
+    }
+    // The whole interior is traversable countryside, independent of roads and landmarks.
+    for (int y = 1; y < Height - 1; ++y)
+    {
+        for (int x = 1; x < Width - 1; ++x)
         {
-            Cell center{8 + column * 16 + static_cast<int>(random() % 3) - 1,
-                        8 + row * 16 + static_cast<int>(random() % 3) - 1};
-            int rx = 4 + random() % 3, ry = 4 + random() % 3;
-            Region region = themes[row * 3 + column];
-            if (region == Region::Processional)
+            tiles[y * Width + x] = 3;
+        }
+    }
+    for (const auto& patch : definition.patches)
+    {
+        for (int y = std::max(1, patch.y - patch.ry); y <= std::min(Height - 2, patch.y + patch.ry);
+             ++y)
+        {
+            for (int x = std::max(1, patch.x - patch.rx);
+                 x <= std::min(Width - 2, patch.x + patch.rx); ++x)
             {
-                rx = 6;
-                ry = 3 + random() % 2;
-            }
-            else if (region == Region::Cathedral)
-            {
-                rx = ry = 6;
-            }
-            rooms.push_back(center);
-            districts.push_back({center, rx, ry, region});
-            for (int dy = -ry; dy <= ry; ++dy)
-            {
-                for (int dx = -rx; dx <= rx; ++dx)
+                float dx = (x - patch.x) / static_cast<float>(patch.rx);
+                float dy = (y - patch.y) / static_cast<float>(patch.ry);
+                float edge = patch.tile == 1 ? 1.f : 1.f + .12f * std::sin(x * 1.7f + y * .8f);
+                if (dx * dx + dy * dy <= edge)
                 {
-                    bool floor = std::abs(dx) + std::abs(dy) <= rx + ry - 2;
-                    if (region == Region::Garden)
-                    {
-                        float nx = dx / static_cast<float>(rx), ny = dy / static_cast<float>(ry);
-                        floor = nx * nx + ny * ny <= 1.08f;
-                    }
-                    else if (region == Region::Cathedral)
-                    {
-                        floor = std::abs(dx) <= 2 || std::abs(dy) <= 2 ||
-                                std::abs(dx) + std::abs(dy) <= 8;
-                    }
-                    if (floor)
-                    {
-                        Carve(center.x + dx, center.y + dy, 0);
-                    }
+                    tiles[y * Width + x] = static_cast<unsigned char>(patch.tile);
                 }
             }
         }
     }
-
-    // A connected backbone plus cross streets gives loops without sealed rooms.
-    for (std::size_t i = 1; i < rooms.size(); ++i)
+    // Roads paint routes through terrain; they are never the only traversable strips.
+    for (const auto& road : definition.roads)
     {
-        std::size_t parent = i % 3 == 0 ? i - 3 : i - 1;
-        Connect(rooms[parent], rooms[i], random() % 2 == 0);
-    }
-    for (int row = 0; row < 2; ++row)
-    {
-        for (int column = 1; column < 3; ++column)
+        int steps = std::max(std::abs(road.bx - road.ax), std::abs(road.by - road.ay));
+        for (int i = 0; i <= steps; ++i)
         {
-            if (column == 2 || random() % 2 == 0)
+            float t = steps > 0 ? i / static_cast<float>(steps) : 0;
+            int x = static_cast<int>(std::round(road.ax + (road.bx - road.ax) * t));
+            int y = static_cast<int>(std::round(road.ay + (road.by - road.ay) * t));
+            Paint(x, y, road.radius, 4);
+        }
+    }
+    Paint(definition.startX, definition.startY, 2, 1);
+    auto place = [&](const PropPlacement& prop)
+    {
+        placements.push_back(prop);
+        if (definition.Prop(prop.id).blocking)
+        {
+            tiles[static_cast<int>(prop.y) * Width + static_cast<int>(prop.x)] = 0;
+        }
+    };
+    for (const auto& prop : definition.placements)
+    {
+        place(prop);
+    }
+    for (const auto& scatter : definition.scatter)
+    {
+        int added = 0;
+        for (int attempt = 0; attempt < scatter.count * 30 && added < scatter.count; ++attempt)
+        {
+            int x = scatter.x + static_cast<int>(random() % (scatter.rx * 2 + 1)) - scatter.rx;
+            int y = scatter.y + static_cast<int>(random() % (scatter.ry * 2 + 1)) - scatter.ry;
+            if (x < 2 || y < 2 || x >= Width - 2 || y >= Height - 2 ||
+                (Tile(x, y) != 3 && Tile(x, y) != 0) ||
+                std::hypot(static_cast<float>(x - definition.startX),
+                           static_cast<float>(y - definition.startY)) < 5)
             {
-                Connect(rooms[row * 3 + column], rooms[(row + 1) * 3 + column], random() % 2 == 0);
+                continue;
             }
+            bool free = std::all_of(placements.begin(), placements.end(),
+                                    [&](const PropPlacement& other)
+                                    {
+                                        return std::hypot(other.x - x - .5f, other.y - y - .5f) >=
+                                               scatter.spacing;
+                                    });
+            if (!free)
+            {
+                continue;
+            }
+            place({scatter.id, x + .5f, y + .5f, .75f + random() % 5 * .1f,
+                   random() % 2 ? 1.f : -1.f});
+            ++added;
         }
     }
-
-    for (const auto& district : districts)
+    ContentData::Require(CanStand(definition.startX + .5f, definition.startY + .5f),
+                         "world spawn is blocked");
+    auto distance = Distances(definition.startX, definition.startY);
+    for (int y = 1; y < Height - 1; ++y)
     {
-        if (district.region != Region::Ossuary && district.region != Region::Cathedral)
+        for (int x = 1; x < Width - 1; ++x)
         {
-            continue;
-        }
-        for (int dy : {-3, 3})
-        {
-            for (int dx : {-3, 3})
+            if (distance[y * Width + x] >= 0)
             {
-                int x = district.center.x + dx, y = district.center.y + dy;
+                reachable.push_back({x, y});
+            }
+            else if (Walkable(x, y))
+            {
+                // Remove isolated pockets without carving through a blocking landmark.
                 tiles[y * Width + x] = 0;
             }
         }
     }
-
-    // Shallow pools follow continuous shapes; all water remains traversable.
-    for (const auto& district : districts)
+    for (const auto& prop : placements)
     {
-        if (district.region != Region::Flooded && district.region != Region::Garden)
+        if (definition.Prop(prop.id).role == "shrine")
         {
-            continue;
-        }
-        for (int y = district.center.y - district.radiusY;
-             y <= district.center.y + district.radiusY; ++y)
-        {
-            for (int x = district.center.x - district.radiusX;
-                 x <= district.center.x + district.radiusX; ++x)
+            bool accessible = false;
+            for (const auto& cell : reachable)
             {
-                float dx = (x - district.center.x + 1.f) / (district.radiusX * .85f);
-                float dy = (y - district.center.y) / (district.radiusY * .7f);
-                float edge = 1.f + .13f * std::sin(x * 1.7f + y * .8f);
-                if (Walkable(x, y) && dx * dx + dy * dy < edge &&
-                    (district.region == Region::Flooded || x < district.center.x))
+                if (std::hypot(cell.x + .5f - prop.x, cell.y + .5f - prop.y) <= 2 &&
+                    Visible(cell.x + .5f, cell.y + .5f, prop.x, prop.y))
                 {
-                    tiles[y * Width + x] = 2;
+                    accessible = true;
+                    break;
                 }
             }
-        }
-    }
-
-    auto distances = Distances(rooms.front().x, rooms.front().y);
-    for (int y = 1; y < Height - 1; ++y)
-    {
-        for (int x = 1; x < Width - 1; ++x)
-        {
-            if (Walkable(x, y) && distances[y * Width + x] < 0)
-            {
-                Connect({x, y}, rooms.front(), true);
-                distances = Distances(rooms.front().x, rooms.front().y);
-            }
-        }
-    }
-    for (int y = 1; y < Height - 1; ++y)
-    {
-        for (int x = 1; x < Width - 1; ++x)
-        {
-            if (distances[y * Width + x] >= 0)
-            {
-                reachable.push_back({x, y});
-            }
+            ContentData::Require(accessible, "world shrine is inaccessible");
         }
     }
 }

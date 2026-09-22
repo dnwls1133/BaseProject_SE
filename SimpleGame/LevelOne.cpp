@@ -1,17 +1,12 @@
 #include "stdafx.h"
 #include "LevelOne.h"
+#include "ContentData.h"
+#include <iostream>
 #include "Scene.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <random>
-
-namespace
-{
-constexpr float AttackDuration = .36f;
-constexpr float AttackRange = 2.15f;
-constexpr float EnemyRange = 1.45f;
-} // namespace
 
 LevelOne::LevelOne()
 {
@@ -78,29 +73,79 @@ void LevelOne::Notify(const std::string& text)
     noticeTime = 4;
 }
 
-void LevelOne::Start(const std::string& dataDirectory)
+bool LevelOne::Start(const std::string& dataDirectory, const std::string& levelFile)
 {
-    if (started)
+    try
     {
-        return;
+        std::string entry = levelFile;
+        if (entry.empty())
+        {
+            ContentData::Load(ContentData::Path(dataDirectory, "world.catalog"),
+                              [&](const std::string& command, ContentData::Row& row)
+                              {
+                                  ContentData::Require(command == "entry" && entry.empty(),
+                                                       "one world entry required");
+                                  entry = row.Word();
+                              });
+            ContentData::Require(!entry.empty(), "world.catalog: missing entry");
+        }
+        if (started && contentRoot == dataDirectory && worldFile == entry)
+        {
+            return true;
+        }
+        modelCache.Initialize(dataDirectory);
+        contentRoot = dataDirectory;
+        worldFile = entry;
+        if (!Generate())
+        {
+            return false;
+        }
+        started = true;
+        Notify(content.introduction);
+        return true;
     }
-    modelCache.Initialize(dataDirectory);
-    started = true;
-    Generate();
-    Notify("첫 레벨 · 변이체를 처치하고 경험치로 능력치를 성장시키세요.");
+    catch (const std::exception& error)
+    {
+        contentError = error.what();
+        std::cerr << "Content load error: " << contentError << std::endl;
+        return false;
+    }
 }
 
-void LevelOne::Generate()
+bool LevelOne::Generate()
 {
+    // Read and resolve a complete candidate before invalidating any scene references.
+    LevelData nextContent;
+    RandomLevelMap nextMap;
+    auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    auto seed =
+        static_cast<std::uint32_t>(ticks) ^ static_cast<std::uint32_t>((expedition + 1) * 7919);
+    try
+    {
+        nextContent.Load(contentRoot, worldFile, modelCache);
+        ContentData::Require(stats.level <= nextContent.rules.maximumLevel,
+                             "growth limit below current level");
+        nextMap.Generate(seed, nextContent);
+    }
+    catch (const std::exception& error)
+    {
+        contentError = error.what();
+        std::cerr << "Content load error: " << contentError << std::endl;
+        Notify("외부 데이터 로딩 실패 · 기존 월드를 유지합니다. 콘솔의 파일명과 행을 확인하세요.");
+        return false;
+    }
+    contentError.clear();
     scene.Clear();
     lootGroup = numberGroup = minimapGroup = nullptr;
-    auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    auto seed = static_cast<std::uint32_t>(ticks) ^ static_cast<std::uint32_t>(++expedition * 7919);
-    map.Generate(seed);
+    content = std::move(nextContent);
+    map = std::move(nextMap);
+    stats.rules = content.rules;
+    completed = stats.level >= content.goalLevel && stats.allocated >= content.goalAllocated &&
+                pickups >= content.goalPickups;
+    ++expedition;
     std::mt19937 random(seed ^ 0xBAADF00Du);
-    auto start = map.rooms.front();
-    player.x = cx = start.x + .5f;
-    player.y = cy = start.y + .5f;
+    player.x = cx = content.startX + .5f;
+    player.y = cy = content.startY + .5f;
     enemies.clear();
     drops.clear();
     props.clear();
@@ -109,20 +154,20 @@ void LevelOne::Generate()
     phase = movement = 0;
     paused = statPanel = false;
     stats.health = stats.MaximumHealth();
-    stats.potions = std::max(stats.potions, 3);
+    stats.potions = std::max(stats.potions, stats.rules.minimumPotions);
     ClearInput();
 
     std::vector<RandomLevelMap::Cell> candidates = map.reachable;
     std::shuffle(candidates.begin(), candidates.end(), random);
-    // Three opponents per district, with one additional guardian in the cathedral.
-    // Keep the whole first courtyard safe and spread encounters across the expedition.
-    for (std::size_t districtIndex = 1; districtIndex < map.districts.size(); ++districtIndex)
+    for (const auto& district : map.districts)
     {
-        const auto& district = map.districts[districtIndex];
-        int count = 0;
-        int target = district.region == RandomLevelMap::Region::Cathedral ? 4 : 3;
+        std::size_t count = 0;
         for (const auto& cell : candidates)
         {
+            if (count >= district.population.size())
+            {
+                break;
+            }
             float x = cell.x + .5f, y = cell.y + .5f;
             if (std::abs(cell.x - district.center.x) > district.radiusX - 1 ||
                 std::abs(cell.y - district.center.y) > district.radiusY - 1 ||
@@ -140,155 +185,39 @@ void LevelOne::Generate()
                 continue;
             }
             Enemy enemy(this);
+            enemy.type = content.Enemy(district.population[count]);
             enemy.SetPosition(x, y);
-            enemy.brute = count == 2;
-            enemy.crawler =
-                !enemy.brute && (district.region == RandomLevelMap::Region::Garden ||
-                                 district.region == RandomLevelMap::Region::Flooded || count == 1);
-            enemy.maximumHealth = enemy.health = enemy.brute ? 88 : enemy.crawler ? 36 : 48;
+            enemy.maximumHealth = enemy.health = enemy.type.health;
             enemy.phase = static_cast<float>(random() % 100);
             enemies.push_back(enemy);
-            if (++count == target)
-            {
-                break;
-            }
+            ++count;
         }
     }
-
-    SpawnDrop(player.x + 1, player.y, true);
-    auto place = [&](float x, float y, ModelId model, float size = 1.f, float direction = 1.f)
+    // Keep the teaching item on valid ground even when the authored start changes.
+    for (const auto& cell : map.reachable)
     {
-        props.emplace_back(this, x, y, model);
-        Prop& prop = props.back();
-        prop.scale = size;
-        prop.facing = direction;
-        // Flat remains belong under feet, not on top of passing actors.
-        if (model == ModelId::Debris || model == ModelId::Corpse)
+        if (std::hypot(cell.x + .5f - player.x, cell.y + .5f - player.y) <= 1.5f &&
+            map.CanStand(cell.x + .5f, cell.y + .5f))
+        {
+            SpawnDrop(cell.x + .5f, cell.y + .5f, true);
+            break;
+        }
+    }
+    for (const auto& placement : map.placements)
+    {
+        const auto& type = content.Prop(placement.id);
+        props.emplace_back(this, placement.x, placement.y, type);
+        auto& prop = props.back();
+        prop.scale = placement.scale;
+        prop.facing = placement.facing;
+        if (type.ground)
         {
             prop.SetRenderPasses(ActorPassBit(ActorPass::Ground));
-        }
-    };
-    place(player.x + 1.5f, player.y, ModelId::Shrine);
-
-    // Landmarks are deliberately composed on the far rim of each courtyard.
-    // Only low litter goes on walkable cells; structures never create invisible collision.
-    for (const auto& district : map.districts)
-    {
-        float y = district.center.y + .5f;
-        int back = district.center.y - district.radiusY - 1;
-        ModelId landmark = ModelId::Arch;
-        if (district.region == RandomLevelMap::Region::Ossuary)
-        {
-            landmark = ModelId::Statue;
-        }
-        else if (district.region == RandomLevelMap::Region::Garden ||
-                 district.region == RandomLevelMap::Region::Flooded)
-        {
-            landmark = ModelId::FungalColony;
-        }
-        bool placedLandmark = false;
-        for (int dx : {0, -3, 3})
-        {
-            int bx = district.center.x + dx;
-            if (!map.Walkable(bx, back))
-            {
-                place(bx + .5f, back + .5f, placedLandmark ? ModelId::Pillar : landmark,
-                      placedLandmark ? .9f : 1.2f);
-                placedLandmark = true;
-            }
-        }
-        if (district.region == RandomLevelMap::Region::Ossuary ||
-            district.region == RandomLevelMap::Region::Cathedral)
-        {
-            for (int dy : {-3, 3})
-            {
-                for (int dx : {-3, 3})
-                {
-                    int bx = district.center.x + dx, by = district.center.y + dy;
-                    if (!map.Walkable(bx, by))
-                    {
-                        place(bx + .5f, by + .5f,
-                              district.region == RandomLevelMap::Region::Cathedral
-                                  ? ModelId::Pillar
-                                  : ModelId::Grave);
-                    }
-                }
-            }
-        }
-        // Braziers mark the mouth of the court from both sides, off the passage itself.
-        for (int side : {-1, 1})
-        {
-            int bx = district.center.x + side * (district.radiusX + 1);
-            if (!map.Walkable(bx, district.center.y))
-            {
-                place(bx + .5f, y, ModelId::Brazier);
-            }
-        }
-        if (district.region != RandomLevelMap::Region::Refuge)
-        {
-            for (int i = 0; i < 3; ++i)
-            {
-                int px = district.center.x - 2 + i * 2;
-                int py = district.center.y + (i % 2 ? 2 : -2);
-                if (map.Walkable(px, py) && map.Tile(px, py) != 2)
-                {
-                    place(px + .5f, py + .5f, i == 1 ? ModelId::Corpse : ModelId::Debris,
-                          .7f + (random() % 4) * .1f, i % 2 ? -1.f : 1.f);
-                }
-            }
-        }
-    }
-
-    for (int y = 1; y < RandomLevelMap::Height - 1; ++y)
-    {
-        for (int x = 1; x < RandomLevelMap::Width - 1; ++x)
-        {
-            bool edge = map.Walkable(x - 1, y) || map.Walkable(x + 1, y) ||
-                        map.Walkable(x, y - 1) || map.Walkable(x, y + 1);
-            if (map.Walkable(x, y) || !edge || random() % 3 == 0)
-            {
-                continue;
-            }
-            // Leave room around landmarks and neighboring large silhouettes.
-            bool free =
-                std::all_of(props.begin(), props.end(),
-                            [&](const Prop& prop)
-                            {
-                                return std::hypot(prop.x - x - .5f, prop.y - y - .5f) > 1.35f;
-                            });
-            if (!free)
-            {
-                continue;
-            }
-            auto region = map.RegionAt(x, y);
-            unsigned variation = random() % 6;
-            ModelId model = variation < 3 ? ModelId::BrokenWall : ModelId::Debris;
-            if (region == RandomLevelMap::Region::Ossuary)
-            {
-                model = variation < 3    ? ModelId::Grave
-                        : variation == 3 ? ModelId::Cart
-                                         : ModelId::Fence;
-            }
-            else if (region == RandomLevelMap::Region::Garden ||
-                     region == RandomLevelMap::Region::Flooded)
-            {
-                model = variation < 3    ? ModelId::FungalColony
-                        : variation == 3 ? ModelId::Roots
-                                         : ModelId::Corpse;
-            }
-            else if (variation == 4)
-            {
-                model = ModelId::Cart;
-            }
-            else if (variation == 5)
-            {
-                model = ModelId::Pillar;
-            }
-            place(x + .5f, y + .5f, model, .75f + (random() % 5) * .1f, random() % 2 ? 1.f : -1.f);
         }
     }
     distances = map.Distances(static_cast<int>(player.x), static_cast<int>(player.y));
     BuildScene();
+    return true;
 }
 
 void LevelOne::Key(unsigned char key, bool down)
@@ -308,7 +237,10 @@ void LevelOne::Key(unsigned char key, bool down)
     {
         if (key == 'r')
         {
-            Generate();
+            if (!Generate())
+            {
+                return;
+            }
             Notify("다시 일어섰습니다. 획득한 경험치와 능력치는 유지됩니다.");
         }
         return;
@@ -360,7 +292,7 @@ void LevelOne::Key(unsigned char key, bool down)
     {
         if (stats.Heal())
         {
-            Notify("성혈 회복약 사용 · 체력 40 회복");
+            Notify("성혈 회복약 사용 · 체력 " + std::to_string(stats.rules.healing) + " 회복");
         }
         else
         {
@@ -378,7 +310,10 @@ void LevelOne::Key(unsigned char key, bool down)
                                    });
         if (atShrine || cleared)
         {
-            Generate();
+            if (!Generate())
+            {
+                return;
+            }
             Notify("새 지형이 생성되었습니다. 경험치·능력치·소지품은 유지됩니다.");
         }
         else
@@ -408,9 +343,9 @@ void LevelOne::Kill(Enemy& enemy)
     }
     enemy.dead = true;
     ++kills;
-    int reward = enemy.brute ? 45 : enemy.crawler ? 24 : 28;
+    int reward = enemy.type.experience;
     int levels = stats.AddExperience(reward);
-    SpawnDrop(enemy.x, enemy.y, kills % 3 == 1);
+    SpawnDrop(enemy.x, enemy.y, (kills - 1) % stats.rules.dropPeriod == 0);
     SpawnNumber(enemy.x, enemy.y, 1.6f, "+" + std::to_string(reward) + " 경험치", true);
     if (levels > 0)
     {
@@ -429,10 +364,10 @@ void LevelOne::Attack()
         float dx = enemy.x - player.x, dy = enemy.y - player.y;
         float distance = std::hypot(dx, dy);
         float alignment = distance > .01f ? (dx * attackAimX + dy * attackAimY) / distance : 1;
-        if (distance <= AttackRange && alignment >= .15f &&
+        if (distance <= stats.rules.attackRange && alignment >= .15f &&
             map.Visible(player.x, player.y, enemy.x, enemy.y))
         {
-            int damage = std::max(1, stats.Attack() - (enemy.brute ? 5 : 1));
+            int damage = std::max(1, stats.Attack() - enemy.type.defense);
             enemy.health = std::max(0, enemy.health - damage);
             enemy.flash = .18f;
             enemy.cooldown = std::max(enemy.cooldown, .4f);
@@ -472,7 +407,8 @@ void LevelOne::Interact()
         else
         {
             ++stats.fragments;
-            Notify("성혈 파편 획득 · 시작 제단에서 3개로 회복약을 교환할 수 있습니다.");
+            Notify("성혈 파편 획득 · 제단에서 " + std::to_string(stats.rules.exchangeCost) +
+                   "개로 회복약을 교환합니다.");
         }
         return;
     }
@@ -480,11 +416,12 @@ void LevelOne::Interact()
     if (shrine && std::hypot(player.x - shrine->x, player.y - shrine->y) <= 3)
     {
         stats.health = stats.MaximumHealth();
-        if (stats.fragments >= 3)
+        if (stats.fragments >= stats.rules.exchangeCost)
         {
-            stats.fragments -= 3;
+            stats.fragments -= stats.rules.exchangeCost;
             ++stats.potions;
-            Notify("제단에서 휴식 · 파편 3개를 회복약 1개로 교환했습니다.");
+            Notify("제단에서 휴식 · 파편 " + std::to_string(stats.rules.exchangeCost) +
+                   "개를 회복약으로 교환했습니다.");
         }
         else
         {
@@ -495,14 +432,21 @@ void LevelOne::Interact()
 
 const LevelOne::Prop* LevelOne::FindShrine() const
 {
+    const Prop* nearest = nullptr;
+    float best = 1000000.f;
     for (const auto& prop : props)
     {
-        if (prop.IsActive() && prop.model == ModelId::Shrine)
+        if (prop.IsActive() && prop.type.role == "shrine")
         {
-            return &prop;
+            float distance = std::hypot(prop.x - player.x, prop.y - player.y);
+            if (distance < best)
+            {
+                nearest = &prop;
+                best = distance;
+            }
         }
     }
-    return nullptr;
+    return nearest;
 }
 
 void LevelOne::UpdateNavigation(float dt)
@@ -546,24 +490,21 @@ void LevelOne::UpdateEnemy(Enemy& enemy, float dt)
         if (enemy.windup == 0)
         {
             bool hit =
-                std::hypot(player.x - enemy.attackX, player.y - enemy.attackY) < EnemyRange &&
+                std::hypot(player.x - enemy.attackX, player.y - enemy.attackY) < enemy.type.range &&
                 map.Visible(enemy.x, enemy.y, player.x, player.y);
             if (hit && hurtTime <= 0)
             {
-                int damage = std::max(1, (enemy.brute     ? 22
-                                          : enemy.crawler ? 10
-                                                          : 13) -
-                                             stats.Defense());
+                int damage = std::max(1, enemy.type.attack - stats.Defense());
                 stats.health = std::max(0, stats.health - damage);
-                hurtTime = .65f;
+                hurtTime = stats.rules.invulnerability;
                 SpawnNumber(player.x, player.y, .8f, "-" + std::to_string(damage), false);
             }
-            enemy.cooldown = enemy.brute ? 1.5f : enemy.crawler ? 1.f : 1.25f;
+            enemy.cooldown = enemy.type.cooldown;
             enemy.strikeTime = .24f;
         }
         return;
     }
-    if (distance < 1.35f && enemy.cooldown <= 0 &&
+    if (distance < enemy.type.range - .1f && enemy.cooldown <= 0 &&
         map.Visible(player.x, player.y, enemy.x, enemy.y))
     {
         enemy.attackX = player.x;
@@ -572,8 +513,8 @@ void LevelOne::UpdateEnemy(Enemy& enemy, float dt)
         return;
     }
     int ex = static_cast<int>(enemy.x), ey = static_cast<int>(enemy.y);
-    int cost = distances[ey * RandomLevelMap::Width + ex];
-    if (cost < 0 || cost > 11 || distance < 1 || enemy.flash > 0)
+    int cost = distances[ey * map.Width + ex];
+    if (cost < 0 || cost > enemy.type.aggro || distance < 1 || enemy.flash > 0)
     {
         return;
     }
@@ -587,11 +528,11 @@ void LevelOne::UpdateEnemy(Enemy& enemy, float dt)
         for (const auto& direction : directions)
         {
             int nx = ex + direction[0], ny = ey + direction[1];
-            if (map.Walkable(nx, ny) && distances[ny * RandomLevelMap::Width + nx] < best &&
-                distances[ny * RandomLevelMap::Width + nx] >= 0 &&
+            if (map.Walkable(nx, ny) && distances[ny * map.Width + nx] < best &&
+                distances[ny * map.Width + nx] >= 0 &&
                 map.CanTravel(enemy.x, enemy.y, nx + .5f, ny + .5f))
             {
-                best = distances[ny * RandomLevelMap::Width + nx];
+                best = distances[ny * map.Width + nx];
                 tx = nx + .5f;
                 ty = ny + .5f;
             }
@@ -600,14 +541,14 @@ void LevelOne::UpdateEnemy(Enemy& enemy, float dt)
     float dx = tx - enemy.x, dy = ty - enemy.y, length = std::hypot(dx, dy);
     if (length > .05f)
     {
-        float speed = enemy.brute ? 1.15f : enemy.crawler ? 2.1f : 1.65f;
+        float speed = enemy.type.speed;
         float step = std::min(length, speed * dt);
         float oldX = enemy.x, oldY = enemy.y;
         Move(enemy.x, enemy.y, dx / length * step, dy / length * step);
         float moved = std::hypot(enemy.x - oldX, enemy.y - oldY);
         if (moved > .001f)
         {
-            enemy.phase += moved * (enemy.crawler ? 7.f : 4.5f);
+            enemy.phase += moved * enemy.type.gait;
             enemy.movement = std::min(1.f, enemy.movement + dt * 14);
         }
     }
@@ -636,10 +577,11 @@ void LevelOne::Update(float dt)
     cx += (player.x - cx) * (1 - std::exp(-dt * 6));
     cy += (player.y - cy) * (1 - std::exp(-dt * 6));
 
-    if (!completed && stats.level >= 3 && stats.allocated > 0 && pickups > 0)
+    if (!completed && stats.level >= content.goalLevel &&
+        stats.allocated >= content.goalAllocated && pickups >= content.goalPickups)
     {
         completed = true;
-        Notify("첫 레벨 목표 달성! 전투와 성장을 계속하거나 제단에서 새 사냥터를 만드세요.");
+        Notify("현재 지역 목표 달성! 전투와 성장을 계속하거나 제단에서 새 사냥터를 만드세요.");
     }
 }
 
@@ -660,9 +602,9 @@ void LevelOne::Render(Renderer& r)
 void LevelOne::DrawGround(Renderer& r)
 {
     using Region = RandomLevelMap::Region;
-    for (int y = 0; y < RandomLevelMap::Height; ++y)
+    for (int y = 0; y < map.Height; ++y)
     {
-        for (int x = 0; x < RandomLevelMap::Width; ++x)
+        for (int x = 0; x < map.Width; ++x)
         {
             Point p = Project(x + .5f, y + .5f, 0, r);
             if (p.x < -70 || p.x > r.Width() + 70 || p.y < -60 || p.y > r.Height() + 60)
@@ -670,36 +612,28 @@ void LevelOne::DrawGround(Renderer& r)
                 continue;
             }
             int tile = map.Tile(x, y);
-            auto region = map.RegionAt(x, y);
+            const auto& regionData = map.DistrictAt(x, y);
+            auto region = regionData.region;
             std::uint32_t hash = (static_cast<std::uint32_t>(x) * 73856093u) ^
                                  (static_cast<std::uint32_t>(y) * 19349663u) ^ map.seed;
             hash = (hash ^ (hash >> 13)) * 1274126177u;
             float variation = .87f + (hash % 23) * .01f;
-            Color color(.29f, .31f, .27f);
-            if (region == Region::Ossuary)
-            {
-                color = Color(.30f, .28f, .24f);
-            }
-            else if (region == Region::Cathedral || region == Region::Refuge)
-            {
-                color = Color(.34f, .36f, .33f);
-            }
-            else if (region == Region::Garden)
-            {
-                color = Color(.25f, .29f, .23f);
-            }
-            else if (region == Region::Flooded)
-            {
-                color = Color(.23f, .29f, .28f);
-            }
+            Color color = regionData.floor;
             if (tile == 2)
             {
-                color =
-                    region == Region::Garden ? Color(.25f, .105f, .14f) : Color(.105f, .24f, .25f);
+                color = regionData.water;
             }
             else if (tile == 0)
             {
-                color = Color(.065f, .085f, .077f);
+                color = Color(.09f, .12f, .105f);
+            }
+            else if (tile == 4)
+            {
+                color = Color(color.r * .92f + .025f, color.g * .84f, color.b * .75f);
+            }
+            else if (tile == 3)
+            {
+                color = Color(color.r * .76f, color.g * .85f, color.b * .72f);
             }
             color.r *= variation;
             color.g *= variation;
@@ -718,31 +652,41 @@ void LevelOne::DrawGround(Renderer& r)
                 continue;
             }
 
-            // Worn curb stones describe the traversable edge, even in dark areas.
-            auto curb = [&](Point from, Point to)
+            // Curbs belong to surviving paving, not the open meadow boundary.
+            if (tile == 1)
             {
-                r.Line({from.x, from.y + 3}, {to.x, to.y + 3}, 5, Color(.09f, .12f, .11f));
-                r.Line(from, to, 2.4f, Color(.40f, .41f, .33f, .75f));
-            };
-            if (!map.Walkable(x - 1, y))
-            {
-                curb(a, d);
+                auto curb = [&](Point from, Point to)
+                {
+                    r.Line({from.x, from.y + 2}, {to.x, to.y + 2}, 3, Color(.09f, .12f, .11f));
+                    r.Line(from, to, 1.5f, Color(.40f, .41f, .33f, .5f));
+                };
+                if (map.Tile(x - 1, y) != 1)
+                {
+                    curb(a, d);
+                }
+                if (map.Tile(x + 1, y) != 1)
+                {
+                    curb(b, c);
+                }
+                if (map.Tile(x, y - 1) != 1)
+                {
+                    curb(a, b);
+                }
+                if (map.Tile(x, y + 1) != 1)
+                {
+                    curb(d, c);
+                }
             }
-            if (!map.Walkable(x + 1, y))
+            if (tile == 3 && hash % 3 == 0)
             {
-                curb(b, c);
-            }
-            if (!map.Walkable(x, y - 1))
-            {
-                curb(a, b);
-            }
-            if (!map.Walkable(x, y + 1))
-            {
-                curb(d, c);
+                float offset = static_cast<float>((hash >> 8) % 25) - 12;
+                Color grass(color.r + .07f, color.g + .08f, color.b + .045f, .45f);
+                r.Line({p.x + offset, p.y + 4}, {p.x + offset - 3, p.y - 2}, 1, grass);
+                r.Line({p.x + offset, p.y + 4}, {p.x + offset + 2, p.y - 4}, 1, grass);
             }
             if (tile == 2)
             {
-                if (map.Tile(x, y - 1) == 1)
+                if (map.Tile(x, y - 1) != 2 && map.Walkable(x, y - 1))
                 {
                     r.Line(a, b, 1.3f, Color(.47f, .55f, .47f, .4f));
                 }
@@ -757,7 +701,7 @@ void LevelOne::DrawGround(Renderer& r)
                 {
                     continue;
                 }
-                if (std::abs(x - district.center.x) <= district.radiusX &&
+                if (tile == 1 && std::abs(x - district.center.x) <= district.radiusX &&
                     std::abs(y - district.center.y) <= district.radiusY &&
                     (x == district.center.x || y == district.center.y))
                 {
@@ -767,7 +711,7 @@ void LevelOne::DrawGround(Renderer& r)
                     break;
                 }
             }
-            if (hash % 5 == 0)
+            if (tile == 1 && hash % 5 == 0)
             {
                 float offset = static_cast<float>((hash >> 8) % 17) - 8;
                 r.Line({p.x - 18, p.y - 5}, {p.x + offset, p.y + 1}, 1.2f,
@@ -797,8 +741,7 @@ void LevelOne::DrawAtmosphere(Renderer& r)
             continue;
         }
         bool fungal = district.region == RandomLevelMap::Region::Garden;
-        r.Effect(p.x - 440, p.y - 145, 880, 310, Material::Mist,
-                 fungal ? Color(.43f, .23f, .27f, .15f) : Color(.36f, .45f, .43f, .17f));
+        r.Effect(p.x - 440, p.y - 145, 880, 310, Material::Mist, district.fog);
         // Sparse drifting ash/spores. The aggregate atmosphere actor owns this visual layer.
         for (int i = 0; i < 9; ++i)
         {
@@ -821,7 +764,7 @@ void LevelOne::DrawPlayer(Renderer& r, ActorPass pass)
         r.Effect(p.x - 30, p.y - 8, 70, 27, Material::SoftLight, Color(0, 0, 0, .85f));
         return;
     }
-    float attack = attackTime > 0 ? 1 - attackTime / AttackDuration : 0;
+    float attack = attackTime > 0 ? 1 - attackTime / stats.rules.attackDuration : 0;
     modelCache.Draw(r, ModelId::Pilgrim, p, phase, movement, facing, hurtTime * .4f, attack, 1, 1,
                     0, time);
     if (attackTime > 0)
@@ -831,10 +774,10 @@ void LevelOne::DrawPlayer(Renderer& r, ActorPass pass)
         for (int i = 0; i < 12; ++i)
         {
             float a = end - i * .08f, b = a - .08f;
-            r.Line(Project(player.x + std::cos(a) * AttackRange,
-                           player.y + std::sin(a) * AttackRange, 22, r),
-                   Project(player.x + std::cos(b) * AttackRange,
-                           player.y + std::sin(b) * AttackRange, 22, r),
+            r.Line(Project(player.x + std::cos(a) * stats.rules.attackRange,
+                           player.y + std::sin(a) * stats.rules.attackRange, 22, r),
+                   Project(player.x + std::cos(b) * stats.rules.attackRange,
+                           player.y + std::sin(b) * stats.rules.attackRange, 22, r),
                    3, Color(.95f, .80f, .55f, (1 - i / 12.f) * .7f));
         }
     }
@@ -845,32 +788,30 @@ void LevelOne::DrawEnemy(Renderer& r, const Enemy& enemy, ActorPass pass)
     Point p = Project(enemy.x, enemy.y, 0, r);
     if (pass == ActorPass::Shadow)
     {
-        float width = enemy.brute ? 110.f : enemy.crawler ? 105.f : 76.f;
+        float width = enemy.type.shadow;
         r.Effect(p.x - width * .5f + 6, p.y - 10, width, 33, Material::SoftLight,
                  Color(0, 0, 0, .85f));
         if (enemy.windup > 0 && !enemy.dead)
         {
             Point warning = Project(enemy.attackX, enemy.attackY, 0, r);
             float progress = 1 - enemy.windup / enemy.WindupDuration();
-            r.Effect(warning.x - EnemyRange * 45, warning.y - EnemyRange * 23, EnemyRange * 90,
-                     EnemyRange * 46, Material::SoftLight,
+            r.Effect(warning.x - enemy.type.range * 45, warning.y - enemy.type.range * 23,
+                     enemy.type.range * 90, enemy.type.range * 46, Material::SoftLight,
                      Color(.95f, .035f, .07f, .25f + progress * .55f));
             for (int i = 0; i < 32; ++i)
             {
                 float a = i * 6.2831853f / 32, b = (i + 1) * 6.2831853f / 32;
-                r.Line({warning.x + std::cos(a) * EnemyRange * 45,
-                        warning.y + std::sin(a) * EnemyRange * 23},
-                       {warning.x + std::cos(b) * EnemyRange * 45,
-                        warning.y + std::sin(b) * EnemyRange * 23},
+                r.Line({warning.x + std::cos(a) * enemy.type.range * 45,
+                        warning.y + std::sin(a) * enemy.type.range * 23},
+                       {warning.x + std::cos(b) * enemy.type.range * 45,
+                        warning.y + std::sin(b) * enemy.type.range * 23},
                        1.5f, Color(.85f, .17f, .15f, .25f + progress * .55f));
             }
         }
     }
     else if (pass == ActorPass::World || pass == ActorPass::Ground)
     {
-        ModelId model = enemy.brute     ? ModelId::Brute
-                        : enemy.crawler ? ModelId::Crawler
-                                        : ModelId::Infected;
+        ModelId model = enemy.type.model;
         float attack = enemy.windup > 0 ? .15f + .35f * (1 - enemy.windup / enemy.WindupDuration())
                        : enemy.strikeTime > 0 ? 1 - .5f * enemy.strikeTime / .24f
                                               : 0;
@@ -890,13 +831,11 @@ void LevelOne::DrawEnemy(Renderer& r, const Enemy& enemy, ActorPass pass)
         {
             return;
         }
-        p = Project(enemy.x, enemy.y, enemy.brute ? 116.f : enemy.crawler ? 67.f : 108.f, r);
+        p = Project(enemy.x, enemy.y, enemy.type.barHeight, r);
         r.Rect(p.x - 25, p.y, 50, 5, Color(.06f, .07f, .07f, .9f));
         r.Rect(p.x - 24, p.y + 1, 48.f * enemy.health / enemy.maximumHealth, 3,
-               enemy.brute ? Color(.77f, .35f, .21f) : Color(.72f, .16f, .17f));
-        const char* name = enemy.brute     ? "우화한 종지기"
-                           : enemy.crawler ? "기어오는 성혈"
-                                           : "가시 순례자";
+               Color(.72f, .16f, .17f));
+        const std::string& name = enemy.type.name;
         r.Text(p.x - r.TextWidth(name, 13) * .5f, p.y - 5, name, Color(.78f, .73f, .62f), 13);
     }
 }
@@ -911,16 +850,16 @@ void LevelOne::DrawProp(Renderer& r, const Prop& prop, ActorPass pass)
     }
     if (pass == ActorPass::Shadow)
     {
-        float width = prop.model == ModelId::Arch ? 160.f : 100.f;
+        float width = prop.type.shadow * prop.scale;
         r.Effect(p.x - width * .5f + 18, p.y - 13, width, 48, Material::SoftLight,
                  Color(0, 0, 0, .75f));
-        if (prop.model == ModelId::Brazier || prop.model == ModelId::Shrine)
+        if (prop.type.role == "brazier" || prop.type.role == "shrine")
         {
             float pulse = .36f + std::sin(time * 3.7f + prop.x) * .035f;
             r.Effect(p.x - 145, p.y - 65, 290, 130, Material::SoftLight,
                      Color(.95f, .40f, .12f, pulse));
         }
-        else if (prop.model == ModelId::FungalColony)
+        else if (prop.type.role == "fungal")
         {
             r.Effect(p.x - 70, p.y - 25, 140, 50, Material::SoftLight,
                      Color(.65f, .075f, .15f, .2f));
@@ -931,18 +870,17 @@ void LevelOne::DrawProp(Renderer& r, const Prop& prop, ActorPass pass)
     {
         Point hero = Project(player.x, player.y, 30, r);
         float opacity = 1;
-        bool tall = prop.model == ModelId::Arch || prop.model == ModelId::BrokenWall ||
-                    prop.model == ModelId::Statue || prop.model == ModelId::FungalColony ||
-                    prop.model == ModelId::Pillar;
+        bool tall = prop.type.tall;
         if (tall && player.Depth() < prop.Depth() && std::abs(hero.x - p.x) < 72 * prop.scale &&
             hero.y < p.y && hero.y > p.y - 145 * prop.scale)
         {
             opacity = .35f;
         }
         modelCache.Draw(r, prop.model, p, 0, 0, prop.facing, 0, 0, prop.scale, opacity);
-        if (prop.model == ModelId::Brazier)
+        if (prop.type.role == "brazier")
         {
-            r.Effect(p.x - 23, p.y - 87, 46, 60, Material::Flame, Color(1, .5f, .18f));
+            r.Effect(p.x - 23 * prop.scale, p.y - 87 * prop.scale, 46 * prop.scale, 60 * prop.scale,
+                     Material::Flame, Color(1, .5f, .18f));
             r.Effect(p.x - 47, p.y - 96, 94, 94, Material::SoftLight,
                      Color(1.4f, .47f, .13f, .12f));
         }
@@ -976,14 +914,14 @@ void LevelOne::DrawUI(Renderer& r)
     r.Rect(34, 82, 280, 9, Color(.13f, .08f, .08f));
     r.Rect(34, 82, 280.f * stats.health / stats.MaximumHealth(), 9, Color(.65f, .13f, .16f));
     r.Text(34, 118,
-           stats.level >= RpgStats::MaximumLevel
+           stats.level >= stats.rules.maximumLevel
                ? "최대 레벨"
                : "경험치 " + std::to_string(stats.experience) + " / " +
                      std::to_string(stats.RequiredExperience()),
            muted, 17);
     r.Rect(34, 130, 280, 5, Color(.12f, .14f, .12f));
     r.Rect(34, 130,
-           stats.level >= RpgStats::MaximumLevel
+           stats.level >= stats.rules.maximumLevel
                ? 280.f
                : 280.f * stats.experience / stats.RequiredExperience(),
            5, gold);
@@ -991,7 +929,9 @@ void LevelOne::DrawUI(Renderer& r)
     r.Text(332, 116, "방어 " + std::to_string(stats.Defense()), ink, 17);
     r.Text(24, 183,
            completed ? "성장 목표 달성 · 자유롭게 경험치를 모으세요"
-                     : "목표: 레벨 3 달성 · 아이템 획득 · 능력치 배분",
+                     : "목표: 레벨 " + std::to_string(content.goalLevel) + " · 아이템 " +
+                           std::to_string(content.goalPickups) + "개 · 능력치 " +
+                           std::to_string(content.goalAllocated) + "포인트 배분",
            gold, 18);
     if (noticeTime > 0)
     {
@@ -1011,17 +951,20 @@ void LevelOne::DrawMinimap(Renderer& r)
     const Color gold(.78f, .64f, .39f), muted(.60f, .65f, .61f);
     if (r.Width() >= 900)
     {
-        constexpr float cellSize = 122.f / RandomLevelMap::Width;
+        float cellSize = 122.f / std::max(map.Width, map.Height);
         float mx = r.Width() - 172.f, my = 24;
         r.Panel(mx - 12, my - 8, 158, 176);
-        for (int y = 0; y < RandomLevelMap::Height; ++y)
+        for (int y = 0; y < map.Height; ++y)
         {
-            for (int x = 0; x < RandomLevelMap::Width; ++x)
+            for (int x = 0; x < map.Width; ++x)
             {
                 if (map.Walkable(x, y))
                 {
                     r.Rect(mx + x * cellSize, my + y * cellSize, cellSize, cellSize,
-                           map.Tile(x, y) == 2 ? Color(.19f, .35f, .36f) : Color(.28f, .31f, .26f));
+                           map.Tile(x, y) == 2   ? Color(.19f, .35f, .36f)
+                           : map.Tile(x, y) == 4 ? Color(.49f, .40f, .25f)
+                           : map.Tile(x, y) == 1 ? Color(.40f, .41f, .34f)
+                                                 : Color(.23f, .29f, .22f));
                 }
             }
         }
@@ -1037,7 +980,14 @@ void LevelOne::DrawMinimap(Renderer& r)
         {
             r.Rect(mx + player.x * cellSize - 2, my + player.y * cellSize - 2, 4, 4, gold);
         }
+        const Prop* shrine = FindShrine();
+        if (shrine)
+        {
+            r.Rect(mx + shrine->x * cellSize - 2, my + shrine->y * cellSize - 2, 4, 4,
+                   Color(.3f, .85f, .8f));
+        }
         r.Text(mx, my + 145, "노랑: 나  빨강: 적", muted, 14);
+        r.Text(mx, my + 161, "청록: 휴식 제단", muted, 13);
     }
 }
 
@@ -1052,12 +1002,22 @@ void LevelOne::DrawMenus(Renderer& r)
         r.Panel(x, y, width, 354);
         r.Text(x + 24, y + 43, "능력치 배분  ·  남은 포인트 " + std::to_string(stats.points), gold,
                23);
-        r.Text(x + 24, y + 87, "레벨업마다 2포인트 · 레벨당 체력 +5 / 공격 +2", muted, 18);
-        r.Text(x + 24, y + 140, "[1] 힘 " + std::to_string(stats.strength) + "   → 공격력 +4", ink,
-               22);
-        r.Text(x + 24, y + 195, "[2] 생명 " + std::to_string(stats.vitality) + "   → 최대 체력 +15",
+        r.Text(x + 24, y + 87,
+               "레벨업 " + std::to_string(stats.rules.pointsPerLevel) + "포인트 · 체력 +" +
+                   std::to_string(stats.rules.healthPerLevel) + " / 공격 +" +
+                   std::to_string(stats.rules.attackPerLevel),
+               muted, 18);
+        r.Text(x + 24, y + 140,
+               "[1] 힘 " + std::to_string(stats.strength) + "   → 공격력 +" +
+                   std::to_string(stats.rules.attackPerStrength),
                ink, 22);
-        r.Text(x + 24, y + 250, "[3] 저항 " + std::to_string(stats.resilience) + "   → 방어력 +2",
+        r.Text(x + 24, y + 195,
+               "[2] 생명 " + std::to_string(stats.vitality) + "   → 최대 체력 +" +
+                   std::to_string(stats.rules.healthPerVitality),
+               ink, 22);
+        r.Text(x + 24, y + 250,
+               "[3] 저항 " + std::to_string(stats.resilience) + "   → 방어력 +" +
+                   std::to_string(stats.rules.defensePerResilience),
                ink, 22);
         r.Text(x + 24, y + 316, "[Tab / ESC] 돌아가기 · 능력치 창에서는 전투가 멈춥니다.", muted,
                17);
@@ -1067,7 +1027,7 @@ void LevelOne::DrawMenus(Renderer& r)
         r.Rect(0, 0, static_cast<float>(r.Width()), static_cast<float>(r.Height()),
                Color(0, 0, 0, .78f));
         r.Panel(50, 160, std::min(740.f, r.Width() - 100.f), 252);
-        r.Text(76, 210, stats.health <= 0 ? "육체가 무너졌습니다" : "잠시 멈춘 사냥", gold, 25);
+        r.Text(76, 210, stats.health <= 0 ? "육체가 무너졌습니다" : content.title, gold, 25);
         r.WrappedText(76, 260, r.Width() - 152.f,
                       stats.health <= 0
                           ? "[R] 재도전 · 획득한 경험치와 능력치는 유지되고 맵은 새로 생성됩니다."
@@ -1083,8 +1043,8 @@ void LevelOne::UpdatePlayer(float dt)
     attackCooldown = std::max(0.f, attackCooldown - dt);
     if (keys[' '] && attackCooldown <= 0)
     {
-        attackTime = AttackDuration;
-        attackCooldown = .55f;
+        attackTime = stats.rules.attackDuration;
+        attackCooldown = stats.rules.attackCooldown;
         attackResolved = false;
         attackAimX = aimX;
         attackAimY = aimY;
@@ -1101,7 +1061,7 @@ void LevelOne::UpdatePlayer(float dt)
         {
             facing = sx > 0 ? 1.f : -1.f;
         }
-        float speed = attackTime > 0 ? 1.5f : 3.7f;
+        float speed = attackTime > 0 ? stats.rules.attackMoveSpeed : stats.rules.moveSpeed;
         Move(player.x, player.y, aimX * speed * dt, aimY * speed * dt);
     }
     float moved = std::hypot(player.x - oldX, player.y - oldY);
@@ -1110,7 +1070,7 @@ void LevelOne::UpdatePlayer(float dt)
     if (attackTime > 0)
     {
         attackTime = std::max(0.f, attackTime - dt);
-        if (!attackResolved && attackTime <= AttackDuration - .10f)
+        if (!attackResolved && attackTime <= stats.rules.attackDuration - stats.rules.attackHitTime)
         {
             attackResolved = true;
             Attack();

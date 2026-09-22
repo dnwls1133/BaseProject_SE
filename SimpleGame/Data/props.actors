@@ -1,0 +1,17 @@
+# id model role ground blocking tall shadowWidth
+version 1
+prop pillar Pillar static 0 1 1 100
+prop wall BrokenWall static 0 1 1 110
+prop arch Arch static 0 1 1 160
+prop statue Statue static 0 1 1 100
+prop grave Grave static 0 1 0 65
+prop cart Cart static 0 1 0 110
+prop fence Fence static 0 1 0 90
+prop fungal FungalColony fungal 0 1 1 100
+prop roots Roots static 0 1 0 85
+prop brazier Brazier brazier 0 1 0 80
+prop shrine Shrine shrine 0 0 0 100
+prop debris Debris static 1 0 0 60
+prop corpse Corpse static 1 0 0 65
+prop dead_tree DeadTree static 0 1 1 130
+prop blighted_tree BlightedTree fungal 0 1 1 135
