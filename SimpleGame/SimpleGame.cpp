@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright 2022 Lee Taek Hee (Tech University of Korea)
 This program is free software: you can redistribute it and/or modify
 it under the terms of the What The Hell License. Do it plz.
@@ -14,7 +14,7 @@ This program is distributed WITHOUT ANY WARRANTY.
 #include <memory>
 #include <iostream>
 #include <chrono>
-#include <iomanip>
+#include "Profiler.h"
 #include "Renderer.h"
 #include "Game.h"
 std::unique_ptr<Renderer> renderer;
@@ -23,57 +23,55 @@ int lastTick = 0;
 
 void Display()
 {
-    using FrameClock = std::chrono::steady_clock;
-
-    static std::uint64_t frameNumber = 0;
-    static std::uint64_t sampleFrames = 0;
-    static auto sampleStart = FrameClock::now();
-    static double averageFps = 0;
-    static bool hasFpsSample = false;
-
     if (renderer)
     {
+        Profile::BeginFrame();
         renderer->ResetDrawCallCount();
-        game.Render(*renderer);
-        glutSwapBuffers();
-
-        // Measure completed frames using real elapsed time, including frame pacing.
-        auto now = FrameClock::now();
-        double elapsed = std::chrono::duration<double>(now - sampleStart).count();
-        ++sampleFrames;
-        if (elapsed >= 1.0)
         {
-            averageFps = static_cast<double>(sampleFrames) / elapsed;
-            hasFpsSample = true;
-            sampleFrames = 0;
-            sampleStart = now;
+            PROFILE_SCOPE(Render);
+            game.Render(*renderer);
         }
-
-        std::cout << "[Frame " << ++frameNumber << "] Draw calls: " << renderer->GetDrawCallCount()
-                  << " | FPS (1s avg): ";
-        if (hasFpsSample)
         {
-            auto previousFlags = std::cout.flags();
-            auto previousPrecision = std::cout.precision();
-            std::cout << std::fixed << std::setprecision(1) << averageFps;
-            std::cout.flags(previousFlags);
-            std::cout.precision(previousPrecision);
+            PROFILE_SCOPE(Swap);
+            glutSwapBuffers();
         }
-        else
-        {
-            std::cout << "collecting";
-        }
-        std::cout << '\n';
+        Profile::Presented();
+        Profile::EndFrame();
     }
 }
 
+Profile::Clock::time_point nextTickDue;
+Profile::Clock::time_point previousTick;
+bool hasPreviousTick = false;
+
 void Tick(int)
 {
+    auto tickStart = Profile::Clock::now();
+    Profile::Add(Profile::Metric::Ticks);
+    Profile::Add(
+        Profile::Metric::TimerLate,
+        std::max(0.0, std::chrono::duration<double, std::milli>(tickStart - nextTickDue).count()));
+    if (hasPreviousTick)
+    {
+        Profile::Add(Profile::Metric::TickInterval,
+                     std::chrono::duration<double, std::milli>(tickStart - previousTick).count());
+    }
+    previousTick = tickStart;
+    hasPreviousTick = true;
     int now = glutGet(GLUT_ELAPSED_TIME);
-    float dt = std::min(.05f, (now - lastTick) / 1000.f);
+    float elapsed = (now - lastTick) / 1000.f;
+    float dt = std::min(.05f, elapsed);
+    if (elapsed > .05f)
+    {
+        Profile::Add(Profile::Metric::DtClamps);
+    }
     lastTick = now;
-    game.Update(dt);
+    {
+        PROFILE_SCOPE(Update);
+        game.Update(dt);
+    }
     glutPostRedisplay();
+    nextTickDue = Profile::Clock::now() + std::chrono::milliseconds(16);
     glutTimerFunc(16, Tick, 0);
 }
 
@@ -97,6 +95,7 @@ void Reshape(int w, int h)
 
 void Close()
 {
+    Profile::Shutdown();
     renderer.reset();
 }
 
@@ -127,10 +126,12 @@ int main(int argc, char** argv)
         std::cerr << "OpenGL 3.3 compatibility support required.\n";
         return 1;
     }
+    Profile::Initialize();
     renderer.reset(new Renderer(1280, 800));
     if (!renderer->IsInitialized())
     {
         std::cerr << "Renderer initialization failed.\n";
+        Profile::Shutdown();
         return 1;
     }
     // Prefer packaged data beside the executable; fall back to project working directories.
@@ -153,9 +154,11 @@ int main(int argc, char** argv)
     if (!loaded)
     {
         std::cerr << "Cannot load Data/village.level. Check project data deployment.\n";
+        Profile::Shutdown();
         renderer.reset();
         return 1;
     }
+    Profile::StartGameplay();
     glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
     glutIgnoreKeyRepeat(1);
     glutDisplayFunc(Display);
@@ -165,7 +168,9 @@ int main(int argc, char** argv)
     glutCloseFunc(Close);
     glutEntryFunc(WindowEntry);
     lastTick = glutGet(GLUT_ELAPSED_TIME);
+    nextTickDue = Profile::Clock::now() + std::chrono::milliseconds(16);
     glutTimerFunc(16, Tick, 0);
     glutMainLoop();
+    Profile::Shutdown();
     return 0;
 }

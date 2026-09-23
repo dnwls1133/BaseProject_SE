@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Profiler.h"
 #include "LevelOne.h"
 #include "ContentData.h"
 #include <iostream>
@@ -107,6 +108,7 @@ bool LevelOne::Start(const std::string& dataDirectory, const std::string& levelF
     catch (const std::exception& error)
     {
         contentError = error.what();
+        Profile::Event("content_error", contentError);
         std::cerr << "Content load error: " << contentError << std::endl;
         return false;
     }
@@ -114,12 +116,14 @@ bool LevelOne::Start(const std::string& dataDirectory, const std::string& levelF
 
 bool LevelOne::Generate()
 {
+    PROFILE_SCOPE(WorldGenerate);
     // Read and resolve a complete candidate before invalidating any scene references.
     LevelData nextContent;
     RandomLevelMap nextMap;
     auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     auto seed =
         static_cast<std::uint32_t>(ticks) ^ static_cast<std::uint32_t>((expedition + 1) * 7919);
+    Profile::Event("world_generate", worldFile + " seed=" + std::to_string(seed));
     try
     {
         nextContent.Load(contentRoot, worldFile, modelCache);
@@ -132,6 +136,7 @@ bool LevelOne::Generate()
         contentError = error.what();
         std::cerr << "Content load error: " << contentError << std::endl;
         Notify("외부 데이터 로딩 실패 · 기존 월드를 유지합니다. 콘솔의 파일명과 행을 확인하세요.");
+        Profile::Event("content_error", contentError);
         return false;
     }
     contentError.clear();
@@ -139,6 +144,7 @@ bool LevelOne::Generate()
     lootGroup = numberGroup = minimapGroup = nullptr;
     content = std::move(nextContent);
     map = std::move(nextMap);
+    BuildMinimapBackground();
     stats.rules = content.rules;
     completed = stats.level >= content.goalLevel && stats.allocated >= content.goalAllocated &&
                 pickups >= content.goalPickups;
@@ -355,6 +361,7 @@ void LevelOne::Kill(Enemy& enemy)
 
 void LevelOne::Attack()
 {
+    PROFILE_SCOPE(Combat);
     for (auto& enemy : enemies)
     {
         if (!enemy.IsActive() || enemy.dead)
@@ -461,6 +468,8 @@ void LevelOne::UpdateNavigation(float dt)
 
 void LevelOne::UpdateEnemy(Enemy& enemy, float dt)
 {
+    PROFILE_SCOPE(Enemies);
+    Profile::Add(Profile::Metric::EnemyUpdates);
     constexpr int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     if (enemy.dead)
@@ -593,6 +602,13 @@ Point LevelOne::Project(float x, float y, float z, Renderer& r) const
 
 void LevelOne::Render(Renderer& r)
 {
+    Profile::Set(Profile::Metric::MapWidth, map.Width);
+    Profile::Set(Profile::Metric::MapHeight, map.Height);
+    Profile::Set(Profile::Metric::EnemyCount, double(enemies.size()));
+    Profile::Set(Profile::Metric::PropCount, double(props.size()));
+    Profile::Set(Profile::Metric::DropCount, double(drops.size()));
+    Profile::Set(Profile::Metric::NumberCount, double(numbers.size()));
+    Profile::Set(Profile::Metric::Paused, paused || statPanel || stats.health <= 0 ? 1 : 0);
     minimap.SetVisible(r.Width() >= 900);
     minimap.SetPosition(r.Width() - 184.f, 16);
     minimapGroup->SetClipRect({minimap.x, minimap.y, minimap.x + 158, minimap.y + 176});
@@ -601,6 +617,8 @@ void LevelOne::Render(Renderer& r)
 
 void LevelOne::DrawGround(Renderer& r)
 {
+    PROFILE_SCOPE(Ground);
+    Profile::Add(Profile::Metric::GroundTilesScanned, double(map.Width) * map.Height);
     using Region = RandomLevelMap::Region;
     for (int y = 0; y < map.Height; ++y)
     {
@@ -611,6 +629,7 @@ void LevelOne::DrawGround(Renderer& r)
             {
                 continue;
             }
+            Profile::Add(Profile::Metric::GroundTilesVisible);
             int tile = map.Tile(x, y);
             const auto& regionData = map.DistrictAt(x, y);
             auto region = regionData.region;
@@ -732,6 +751,7 @@ void LevelOne::DrawGround(Renderer& r)
 
 void LevelOne::DrawAtmosphere(Renderer& r)
 {
+    PROFILE_SCOPE(Atmosphere);
     for (std::size_t index = 0; index < map.districts.size(); ++index)
     {
         const auto& district = map.districts[index];
@@ -946,28 +966,56 @@ void LevelOne::DrawUI(Renderer& r)
            gold, 17);
 }
 
+void LevelOne::BuildMinimapBackground()
+{
+    Profile::Add(Profile::Metric::MinimapCacheBuild);
+    Profile::Add(Profile::Metric::MinimapTiles, double(map.Width) * map.Height);
+    // Terrain changes only when the map is replaced. Merge equal-color horizontal runs.
+    minimapBackground.clear();
+    const float cellSize = 122.f / std::max(map.Width, map.Height);
+    for (int y = 0; y < map.Height; ++y)
+    {
+        int x = 0;
+        while (x < map.Width)
+        {
+            const int tile = map.Tile(x, y);
+            if (tile == 0)
+            {
+                ++x;
+                continue;
+            }
+            const int begin = x++;
+            while (x < map.Width && map.Tile(x, y) == tile)
+            {
+                ++x;
+            }
+            const Color color = tile == 2   ? Color(.19f, .35f, .36f)
+                                : tile == 4 ? Color(.49f, .40f, .25f)
+                                : tile == 1 ? Color(.40f, .41f, .34f)
+                                            : Color(.23f, .29f, .22f);
+            const float left = begin * cellSize, right = x * cellSize;
+            const float top = y * cellSize, bottom = (y + 1) * cellSize;
+            for (Point point : {Point{left, top}, Point{right, top}, Point{right, bottom},
+                                Point{left, top}, Point{right, bottom}, Point{left, bottom}})
+            {
+                minimapBackground.push_back(
+                    {point.x, point.y, color.r, color.g, color.b, color.a, 0, 0, 0});
+            }
+        }
+    }
+}
+
 void LevelOne::DrawMinimap(Renderer& r)
 {
+    PROFILE_SCOPE(Minimap);
+    Profile::Set(Profile::Metric::MinimapCacheVertices, double(minimapBackground.size()));
     const Color gold(.78f, .64f, .39f), muted(.60f, .65f, .61f);
     if (r.Width() >= 900)
     {
         float cellSize = 122.f / std::max(map.Width, map.Height);
         float mx = r.Width() - 172.f, my = 24;
         r.Panel(mx - 12, my - 8, 158, 176);
-        for (int y = 0; y < map.Height; ++y)
-        {
-            for (int x = 0; x < map.Width; ++x)
-            {
-                if (map.Walkable(x, y))
-                {
-                    r.Rect(mx + x * cellSize, my + y * cellSize, cellSize, cellSize,
-                           map.Tile(x, y) == 2   ? Color(.19f, .35f, .36f)
-                           : map.Tile(x, y) == 4 ? Color(.49f, .40f, .25f)
-                           : map.Tile(x, y) == 1 ? Color(.40f, .41f, .34f)
-                                                 : Color(.23f, .29f, .22f));
-                }
-            }
-        }
+        r.AppendMesh(minimapBackground, {mx, my});
         for (const auto& enemy : enemies)
         {
             if (enemy.IsVisible() && !enemy.dead)
@@ -1039,6 +1087,7 @@ void LevelOne::DrawMenus(Renderer& r)
 
 void LevelOne::UpdatePlayer(float dt)
 {
+    PROFILE_SCOPE(Player);
     hurtTime = std::max(0.f, hurtTime - dt);
     attackCooldown = std::max(0.f, attackCooldown - dt);
     if (keys[' '] && attackCooldown <= 0)

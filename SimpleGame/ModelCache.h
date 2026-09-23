@@ -48,6 +48,7 @@ class ModelCache
     };
 
     std::vector<std::vector<Vertex>> models;
+    std::vector<std::vector<Renderer::MeshVertex>> staticMeshes;
     std::string status;
     std::vector<std::string> names, rigs, recipes, sourcePaths;
     std::uint32_t sourceHash = 0;

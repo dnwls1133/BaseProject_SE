@@ -138,6 +138,7 @@ void Scene::UpdateNode(Node& node, float dt)
 
 void Scene::Update(float dt)
 {
+    PROFILE_SCOPE(SceneUpdate);
     ApplyStates(root, true, true);
     statistics.updatedActors = 0;
     updating = true;
@@ -158,6 +159,7 @@ void Scene::Update(float dt)
     }
     pending.clear();
     RemoveDestroyed();
+    Profile::Add(Profile::Metric::ActorsUpdated, double(statistics.updatedActors));
 }
 
 void Scene::Prune(Node& node)
@@ -262,27 +264,39 @@ void Scene::Collect(Node& node, SceneRect clip)
 
 void Scene::Render(Renderer& renderer, float time, Point worldOffset)
 {
-    ApplyStates(root, true, true);
-    RefreshBounds(root, worldOffset);
-    statistics.visibleActors = statistics.culledActors = statistics.culledGroups = 0;
-    renderList.clear();
     SceneRect viewport{0, 0, static_cast<float>(renderer.Width()),
                        static_cast<float>(renderer.Height())};
-    Collect(root, viewport);
-
-    worldList.clear();
-    for (const auto& entry : renderList)
     {
-        if (entry.actor->RendersIn(ActorPass::World))
+        PROFILE_SCOPE(ScenePrepare);
+        ApplyStates(root, true, true);
+        RefreshBounds(root, worldOffset);
+        statistics.visibleActors = statistics.culledActors = statistics.culledGroups = 0;
+        renderList.clear();
+        Collect(root, viewport);
+
+        worldList.clear();
+        for (const auto& entry : renderList)
         {
-            worldList.push_back(entry);
+            if (entry.actor->RendersIn(ActorPass::World))
+            {
+                worldList.push_back(entry);
+            }
+        }
+        {
+            PROFILE_SCOPE(SceneSort);
+            std::stable_sort(worldList.begin(), worldList.end(),
+                             [](const RenderEntry& a, const RenderEntry& b)
+                             {
+                                 return a.actor->Depth() < b.actor->Depth();
+                             });
         }
     }
-    std::stable_sort(worldList.begin(), worldList.end(),
-                     [](const RenderEntry& a, const RenderEntry& b)
-                     {
-                         return a.actor->Depth() < b.actor->Depth();
-                     });
+    Profile::Set(Profile::Metric::ActorsVisible, double(statistics.visibleActors));
+    Profile::Set(Profile::Metric::ActorsCulled, double(statistics.culledActors));
+    Profile::Set(Profile::Metric::GroupsCulled, double(statistics.culledGroups));
+    constexpr Profile::Metric passMetrics[] = {
+        Profile::Metric::GroundPass,  Profile::Metric::ShadowPass,  Profile::Metric::WorldPass,
+        Profile::Metric::EffectsPass, Profile::Metric::OverlayPass, Profile::Metric::UiPass};
 
     renderer.Begin(time, worldOffset);
     for (ActorPass pass : {ActorPass::Ground, ActorPass::Shadow, ActorPass::World,
@@ -292,6 +306,7 @@ void Scene::Render(Renderer& renderer, float time, Point worldOffset)
         {
             renderer.FinishScene();
         }
+        Profile::Scope passScope(passMetrics[static_cast<unsigned>(pass)]);
         const auto& entries = pass == ActorPass::World ? worldList : renderList;
         for (const auto& entry : entries)
         {
@@ -315,11 +330,13 @@ void Scene::Render(Renderer& renderer, float time, Point worldOffset)
                                      std::max(0, bottom - top));
             }
             renderer.SetMaterial(Material::Plain);
+            Profile::Add(Profile::Metric::ActorCallbacks);
             entry.actor->Render(renderer, pass);
         }
     }
     renderer.ResetClipRect();
-    renderer.Flush();
+    renderer.Flush(Profile::Metric::FlushFrameEnd);
+    Profile::EndGpuFrame();
 }
 
 const Scene::Statistics& Scene::GetStatistics() const

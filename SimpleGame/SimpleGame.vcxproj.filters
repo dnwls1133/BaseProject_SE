@@ -28,6 +28,7 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Game.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="Profiler.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="Actor.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="Scene.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="ContentData.h"><Filter>헤더 파일</Filter></ClInclude>
@@ -49,6 +50,7 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="Profiler.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="Actor.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="Scene.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="LevelData.cpp"><Filter>소스 파일</Filter></ClCompile>

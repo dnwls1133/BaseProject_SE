@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Profiler.h"
 #include "LevelData.h"
 #include "ContentData.h"
 #include <algorithm>
@@ -41,6 +42,7 @@ const PropDefinition& LevelData::Prop(const std::string& id) const
 
 void LevelData::Load(const std::string& root, const std::string& relative, const ModelCache& models)
 {
+    PROFILE_SCOPE(LevelLoad);
     LevelData loaded;
     std::string enemyFile, propFile, ruleFile;
     std::set<std::string> singleton;

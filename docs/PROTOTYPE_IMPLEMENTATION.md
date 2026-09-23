@@ -71,3 +71,21 @@ Windows의 맑은 고딕 계열 글꼴을 GDI로 2배 크기에 래스터화한 
 - Brute.model과 Crawler.model의 해당 부위를 기존 Plain 재질로 변경했다. 도형별 밝고 어두운 뼈 색, 실루엣, 관절, 감염 조직 표현은 유지하며 건물용 타일 무늬만 제거한다. 별도 모델 생성 코드·셰이더·캐시 형식은 추가하지 않는다. 외부 데이터 내용 해시로 다음 시작 시 캐시를 갱신한다.
 - SimpleGame.cpp의 Display에서 steady_clock의 실제 경과 시간과 화면 교체가 끝난 프레임 수로 약 1초 평균 FPS를 계산한다. 기존 프레임별 draw call 로그에 FPS를 함께 표시하며 첫 측정 전에는 collecting으로 표시한다. FPS는 약 1초마다 갱신하며 게임 업데이트의 제한된 dt나 GPU 단독 처리 시간으로 계산하지 않는다.
 - 빌드·실행·테스트는 수행하지 않았다. 사용자는 변경된 모델 데이터를 배포하고 재시작한 뒤 종지기·기어오는 성혈의 몸에 타일 줄눈이 없는지, 이동·피격·사망에서도 정상적으로 보이는지, 콘솔에 FPS가 표시되는지 확인한다. 사용자 제보와 화면상 현상이 일치하는지는 실행 확인 전이다.
+
+
+## 성능 계측 확장 — 2026-09-23
+
+Profiler.h/.cpp를 추가하여 약 1초 단위 CPU/GPU·draw call·정점·배치 분리·모델별 비용·지형·미니맵·AI·로딩·캐시·메모리 통계를 JSONL로 저장한다. 이전 프레임별 콘솔 FPS/draw call 출력은 주기적 요약으로 대체했다. 상세 범위, 파일 위치, 비활성화 방법, 통계 해석과 제한은 PERFORMANCE_PROFILING.md/.txt를 따른다. 빌드·실행·테스트·성능 실측은 하지 않았다.
+
+
+## 실측 로그 기반 1차 최적화 — 2026-09-23
+
+사용자가 제공한 Debug 1280×800 Intel UHD 로그(1,120프레임)는 평균 38.02 FPS, CPU 렌더 24.66ms, 정적 모델 13.89ms, 미니맵 3.77ms를 기록했다. 프로파일러의 보고 처리도 일부 프레임에서 6~12ms였다. 아래 변경 이후 성능은 아직 실측하지 않았다.
+
+- `Profiler::Report`: 게임 스레드는 프레임 통계 버퍼와 모델별 합계를 소유권 교환으로 스냅샷에 전달한다. 작업 스레드가 백분위 계산·JSON 구성·프로세스 통계 조회·파일/콘솔 출력을 처리한다. 표본 버퍼는 재사용하고 기존 8개 큐 상한과 종료 시 배출 정책을 유지한다. CPU/GPU 표본과 최악 프레임 값은 독립된 스냅샷으로 전달하므로 작업 스레드가 게임의 실시간 누적 배열에 접근하지 않는다.
+- `ModelCache::Initialize/Draw`, `Renderer::AppendMesh`: 정적 모델은 로딩 시 렌더러 정점 형식으로 한 번 포장한다. 정지 상태에서는 관절 행렬·삼각형별 도형 호출을 건너뛰고 기존 배치에 연속 복사한 뒤 위치·좌우 반전·크기·불투명도를 적용한다. 이동/공격/피격/쓰러짐 값이 필요한 경우 기존 경로를 사용한다. 원본 형상·색·재질과 Actor 깊이 순서·가림 처리를 유지한다. GPU 상주 캐시나 인스턴싱을 구현한 것은 아니며 정점 업로드는 계속 발생한다. 디스크 모델 캐시 형식은 바뀌지 않는다.
+- `LevelOne::BuildMinimapBackground/DrawMinimap`: 맵 생성 시 같은 타일의 가로 연속 구간을 사각형으로 합쳐 배경 정점을 캐싱한다. 프레임마다 전체 타일을 스캔하지 않고 캐시를 배치에 추가한다. 플레이어·적·제단 표시는 기존대로 갱신하며 창 크기 변경 시 위치도 따라간다. R 맵 재생성 성공 시 캐시를 다시 만든다.
+- 비교 지표: cpu_static_model_draw_ms, cpu_minimap_build_ms, cpu_profiler_collect_report_ms, submitted_vertex_count, vertex_upload_bytes, frame_present_interval_ms의 mean/p95/max. static_model_fast_path_count로 빠른 경로 사용 횟수를 기록한다. minimap_cache_build_count는 맵별 재생성 횟수, minimap_cached_vertex_count는 현재 캐시 크기다. minimap_tile_scanned_count는 이제 캐시 생성 때만 증가한다. 단순 위치 변환은 여전히 수행하므로 static_model_transformed_vertex_count가 0이 될 것으로 기대하지 않는다.
+- 프로세스 CPU/메모리 샘플은 작업 스레드의 조회 시점 값이다. process_sample_elapsed_ms로 원본 프레임 구간 종료 시각과 구분한다. log_writer_last_record_ms에는 이제 통계·JSON 준비 비용도 포함된다. session.report_processing은 background_snapshot_v2로 기록한다.
+- 텍스트 아틀라스, 고정 UI 라벨 사전 준비, GPU 정적 배칭/인스턴싱, 지형 캐싱, 타이머 변경, 후처리 변경은 이번 범위에 포함하지 않았다. draw call 감소나 60 FPS 달성을 실측 없이 주장하지 않는다.
+- 빌드·실행·테스트는 하지 않았다. 사용자는 정적 소품의 형태·가림, 미니맵의 이동 표식·창 크기 변경·R 재생성, 새 JSONL 출력을 확인한다.

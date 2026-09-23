@@ -1,5 +1,6 @@
 #pragma once
 #include "Dependencies/glew.h"
+#include "Profiler.h"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -36,6 +37,14 @@ enum class Material
 class Renderer
 {
   public:
+    struct MeshVertex
+    {
+        float x, y, r, g, b, a, u, v, kind;
+    };
+
+    void AppendMesh(const std::vector<MeshVertex>& mesh, Point position, float scaleX = 1,
+                    float scaleY = 1, float opacity = 1);
+
     Renderer(int width, int height);
     ~Renderer();
     Renderer(const Renderer&) = delete;
@@ -60,7 +69,7 @@ class Renderer
 
     void Begin(float time = 0, Point worldOffset = {0, 0});
     void FinishScene();
-    void Flush();
+    void Flush(Profile::Metric reason = Profile::Metric::FlushOther);
     void SetClipRect(int x, int y, int w, int h);
     void ResetClipRect();
     void Triangle(Point a, Point b, Point c, Color color);
@@ -93,10 +102,7 @@ class Renderer
     }
 
   private:
-    struct Vertex
-    {
-        float x, y, r, g, b, a, u, v, kind;
-    };
+    using Vertex = MeshVertex;
 
     struct Label
     {
@@ -112,8 +118,10 @@ class Renderer
     int width = 1, height = 1, bloomWidth = 1, bloomHeight = 1, samples = 1;
     bool ready = false;
     bool clipEnabled = false;
+    bool profileGpuBegun = false;
     int clipX = 0, clipY = 0, clipWidth = 0, clipHeight = 0;
     std::uint64_t drawCallCount = 0;
+    std::size_t labelCacheBytes = 0;
     float clock = 0;
     Point offset = {0, 0};
     Material material = Material::Plain;

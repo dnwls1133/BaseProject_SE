@@ -123,6 +123,7 @@ void Renderer::ReleaseTargets()
 
 void Renderer::Resize(int w, int h)
 {
+    Profile::Event("viewport_resize", std::to_string(w) + "x" + std::to_string(h));
     width = std::max(1, w);
     height = std::max(1, h);
     ReleaseTargets();
@@ -180,6 +181,14 @@ void Renderer::Resize(int w, int h)
 
 void Renderer::Begin(float t, Point worldOffset)
 {
+    profileGpuBegun = false;
+    Profile::Set(Profile::Metric::ViewWidth, width);
+    Profile::Set(Profile::Metric::ViewHeight, height);
+    Profile::Set(Profile::Metric::MsaaSamples, samples);
+    Profile::Set(Profile::Metric::TargetBytes, double(width) * height * 8 * (samples + 1) +
+                                                   double(bloomWidth) * bloomHeight * 16);
+    Profile::Set(Profile::Metric::LabelCacheBytes, double(labelCacheBytes));
+    Profile::Set(Profile::Metric::LabelCacheEntries, double(labels.size()));
     vertices.clear();
     clock = t;
     glDisable(GL_SCISSOR_TEST);
@@ -200,6 +209,26 @@ void Renderer::Begin(float t, Point worldOffset)
 void Renderer::Push(Point p, Color c, float u, float v, float kind)
 {
     vertices.push_back({p.x, p.y, c.r, c.g, c.b, c.a, u, v, kind < 0 ? (float)material : kind});
+}
+
+void Renderer::AppendMesh(const std::vector<MeshVertex>& mesh, Point position, float scaleX,
+                          float scaleY, float opacity)
+{
+    if (mesh.empty())
+    {
+        return;
+    }
+    // Keep painter order and the existing single batch. No per-triangle calls or joint work.
+    const std::size_t first = vertices.size();
+    vertices.insert(vertices.end(), mesh.begin(), mesh.end());
+    Vertex* output = vertices.data() + first;
+    const Vertex* end = output + mesh.size();
+    for (; output != end; ++output)
+    {
+        output->x = position.x + output->x * scaleX;
+        output->y = position.y + output->y * scaleY;
+        output->a *= opacity;
+    }
 }
 
 void Renderer::Triangle(Point a, Point b, Point c, Color k)
@@ -270,12 +299,20 @@ void Renderer::SoftEllipse(float x, float y, float rx, float ry, Color k)
     }
 }
 
-void Renderer::Flush()
+void Renderer::Flush(Profile::Metric reason)
 {
     if (vertices.empty() || !program)
     {
         return;
     }
+    PROFILE_SCOPE(Flush);
+    Profile::Add(reason);
+    Profile::Add(Profile::Metric::GeometryDraws);
+    Profile::Add(Profile::Metric::DrawCalls);
+    Profile::Add(Profile::Metric::Vertices, double(vertices.size()));
+    Profile::Add(Profile::Metric::UploadBytes, double(vertices.size() * sizeof(Vertex)));
+    Profile::Maximum(Profile::Metric::MaxBatchVertices, double(vertices.size()));
+    Profile::Set(Profile::Metric::VertexCapacity, double(vertices.capacity() * sizeof(Vertex)));
     glUseProgram(program);
     glUniform2f(glGetUniformLocation(program, "viewport"), (float)width, (float)height);
     glUniform2f(glGetUniformLocation(program, "worldOffset"), offset.x, offset.y);
@@ -283,14 +320,22 @@ void Renderer::Flush()
     glUniform1f(glGetUniformLocation(program, "effectTime"), clock);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(),
-                 GL_STREAM_DRAW);
+    {
+        PROFILE_SCOPE(Upload);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(),
+                     GL_STREAM_DRAW);
+    }
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
+    if (!profileGpuBegun)
+    {
+        Profile::BeginGpuFrame();
+        profileGpuBegun = true;
+    }
     ++drawCallCount;
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size());
     vertices.clear();
@@ -299,6 +344,8 @@ void Renderer::Flush()
 
 void Renderer::Fullscreen(GLuint shader)
 {
+    Profile::Add(Profile::Metric::DrawCalls);
+    Profile::Add(Profile::Metric::FullscreenDraws);
     glUseProgram(shader);
     glBindVertexArray(vao);
     ++drawCallCount;
@@ -308,16 +355,28 @@ void Renderer::Fullscreen(GLuint shader)
 
 void Renderer::FinishScene()
 {
+    PROFILE_SCOPE(Postprocess);
     ResetClipRect();
-    Flush();
+    Flush(Profile::Metric::FlushPost);
+    if (!profileGpuBegun)
+    {
+        Profile::BeginGpuFrame();
+        profileGpuBegun = true;
+    }
+    Profile::GpuMarker(1);
     material = Material::Plain;
     if (!ready)
     {
         return;
     }
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFbo);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFbo);
-    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    {
+        PROFILE_SCOPE(Resolve);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFbo);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFbo);
+        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT,
+                          GL_NEAREST);
+    }
+    Profile::GpuMarker(2);
     glDisable(GL_BLEND);
     glActiveTexture(GL_TEXTURE0);
     glViewport(0, 0, bloomWidth, bloomHeight);
@@ -331,6 +390,7 @@ void Renderer::FinishScene()
         glUniform2f(glGetUniformLocation(blurProgram, "direction"), i ? 0.f : 1.f / bloomWidth,
                     i ? 1.f / bloomHeight : 0.f);
         Fullscreen(blurProgram);
+        Profile::GpuMarker(3 + i);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
@@ -344,6 +404,7 @@ void Renderer::FinishScene()
     glUniform2f(glGetUniformLocation(postProgram, "texel"), 1.f / width, 1.f / height);
     glUniform1f(glGetUniformLocation(postProgram, "time"), clock);
     Fullscreen(postProgram);
+    Profile::GpuMarker(5);
     glActiveTexture(GL_TEXTURE0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -356,7 +417,8 @@ void Renderer::SetClipRect(int x, int y, int w, int h)
         return;
     }
     // Submit the old batch under its old clip before changing OpenGL state.
-    Flush();
+    Profile::Add(Profile::Metric::ClipChanges);
+    Flush(Profile::Metric::FlushClip);
     clipEnabled = true;
     clipX = x;
     clipY = y;
@@ -370,7 +432,8 @@ void Renderer::ResetClipRect()
 {
     if (clipEnabled)
     {
-        Flush();
+        Profile::Add(Profile::Metric::ClipChanges);
+        Flush(Profile::Metric::FlushClip);
         glDisable(GL_SCISSOR_TEST);
         clipEnabled = false;
     }
@@ -382,17 +445,22 @@ Renderer::Label& Renderer::GetLabel(const std::string& text, int size)
     auto found = labels.find(key);
     if (found != labels.end())
     {
+        Profile::Add(Profile::Metric::LabelHits);
         return found->second;
     }
 
+    Profile::Add(Profile::Metric::LabelMisses);
+    PROFILE_SCOPE(LabelBuild);
     if (labels.size() > 512)
     {
-        Flush();
+        Profile::Add(Profile::Metric::LabelEvictions, double(labels.size()));
+        Flush(Profile::Metric::FlushLabelEviction);
         for (auto& entry : labels)
         {
             glDeleteTextures(1, &entry.second.texture);
         }
         labels.clear();
+        labelCacheBytes = 0;
     }
     Label label;
     HDC dc = (HDC)fontDC;
@@ -446,6 +514,10 @@ Renderer::Label& Renderer::GetLabel(const std::string& text, int size)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         label.width = w;
         label.height = h;
+        labelCacheBytes += static_cast<std::size_t>(w) * h * 4;
+        Profile::Add(Profile::Metric::LabelUploadBytes, double(w) * h * 4);
+        Profile::Set(Profile::Metric::LabelCacheBytes, double(labelCacheBytes));
+        Profile::Set(Profile::Metric::LabelCacheEntries, double(labels.size() + 1));
         SelectObject(dc, oldBitmap);
         DeleteObject(bitmap);
     }
@@ -461,11 +533,13 @@ float Renderer::TextWidth(const std::string& s, int size)
 
 void Renderer::Text(float x, float baseline, const std::string& s, Color c, int size)
 {
+    PROFILE_SCOPE(Text);
     if (s.empty())
     {
         return;
     }
-    Flush();
+    Profile::Add(Profile::Metric::TextCalls);
+    Flush(Profile::Metric::FlushText);
     Label& label = GetLabel(s, size);
     if (!label.texture)
     {
@@ -480,7 +554,7 @@ void Renderer::Text(float x, float baseline, const std::string& s, Color c, int 
     Push({x, y}, c, 0, 0, 6);
     Push({x + w, y + h}, c, 1, 1, 6);
     Push({x, y + h}, c, 0, 1, 6);
-    Flush();
+    Flush(Profile::Metric::FlushText);
 }
 
 void Renderer::WrappedText(float x, float y, float maxWidth, const std::string& s, Color c,
@@ -532,6 +606,25 @@ void Renderer::Panel(float x, float y, float w, float h)
 
 void Renderer::Effect(float x, float y, float w, float h, Material effect, Color color)
 {
+    Profile::Add(Profile::Metric::Effects);
+    if (Profile::Enabled())
+    {
+        float visibleWidth = std::max(0.f, std::min(float(width), x + w) - std::max(0.f, x));
+        float visibleHeight = std::max(0.f, std::min(float(height), y + h) - std::max(0.f, y));
+        Profile::Add(Profile::Metric::EffectPixels, double(visibleWidth) * visibleHeight);
+        if (effect == Material::Mist)
+        {
+            Profile::Add(Profile::Metric::MistPixels, double(visibleWidth) * visibleHeight);
+        }
+        else if (effect == Material::SoftLight)
+        {
+            Profile::Add(Profile::Metric::LightPixels, double(visibleWidth) * visibleHeight);
+        }
+        else if (effect == Material::Flame)
+        {
+            Profile::Add(Profile::Metric::FlamePixels, double(visibleWidth) * visibleHeight);
+        }
+    }
     float kind = static_cast<float>(effect);
     Push({x, y}, color, 0, 0, kind);
     Push({x + w, y}, color, 1, 0, kind);

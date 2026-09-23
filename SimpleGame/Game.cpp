@@ -282,6 +282,7 @@ bool Game::Load(const std::string& path)
     }
     dataDirectory = base;
     Reset();
+    EnterFirstLevel();
     return true;
 }
 
@@ -499,6 +500,7 @@ Point Game::Project(float x, float y, float z, Renderer& r) const
 
 void Game::Render(Renderer& r)
 {
+    Profile::Set(Profile::Metric::LevelOne, inFirstLevel ? 1 : 0);
     if (inFirstLevel)
     {
         levelOne.Render(r);

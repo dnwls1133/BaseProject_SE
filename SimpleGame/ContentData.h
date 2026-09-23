@@ -1,4 +1,5 @@
 #pragma once
+#include "Profiler.h"
 #include <cmath>
 #include <filesystem>
 #include <fstream>
@@ -32,6 +33,7 @@ inline std::string Path(const std::string& root, const std::string& relative)
 
 inline std::string Read(const std::string& path)
 {
+    PROFILE_SCOPE(Load);
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     Require(static_cast<bool>(file), path + ": cannot open content file");
     auto size = file.tellg();
@@ -44,6 +46,7 @@ inline std::string Read(const std::string& path)
     {
         text.erase(0, 3);
     }
+    Profile::Add(Profile::Metric::ContentBytes, double(text.size()));
     return text;
 }
 

@@ -148,6 +148,8 @@ class LevelOne
     std::vector<Enemy> enemies;
     std::list<Drop> drops;
     std::vector<Prop> props;
+    std::vector<Renderer::MeshVertex> minimapBackground;
+    void BuildMinimapBackground();
     std::list<FloatingText> numbers;
     std::vector<int> distances;
     bool keys[256] = {};

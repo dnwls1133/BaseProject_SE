@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Profiler.h"
 #include "RandomLevelMap.h"
 #include "ContentData.h"
 #include <algorithm>
@@ -17,6 +18,8 @@ bool RandomLevelMap::Walkable(int x, int y) const
 
 bool RandomLevelMap::CanStand(float x, float y, float radius) const
 {
+    PROFILE_SCOPE(Collision);
+    Profile::Add(Profile::Metric::CollisionCalls);
     for (int cy = static_cast<int>(std::floor(y - radius));
          cy <= static_cast<int>(std::floor(y + radius)); ++cy)
     {
@@ -48,6 +51,8 @@ bool RandomLevelMap::CanTravel(float ax, float ay, float bx, float by) const
 
 bool RandomLevelMap::Visible(float ax, float ay, float bx, float by) const
 {
+    PROFILE_SCOPE(Visibility);
+    Profile::Add(Profile::Metric::VisibilityCalls);
     float distance = std::hypot(bx - ax, by - ay);
     int steps = std::max(1, static_cast<int>(std::ceil(distance * 8)));
     for (int i = 0; i <= steps; ++i)
@@ -64,6 +69,8 @@ bool RandomLevelMap::Visible(float ax, float ay, float bx, float by) const
 
 std::vector<int> RandomLevelMap::Distances(int x, int y) const
 {
+    PROFILE_SCOPE(Navigation);
+    Profile::Add(Profile::Metric::NavigationBuilds);
     std::vector<int> distance(Width * Height, -1);
     if (!Walkable(x, y))
     {
@@ -76,6 +83,7 @@ std::vector<int> RandomLevelMap::Distances(int x, int y) const
     constexpr int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
     while (!pending.empty())
     {
+        Profile::Add(Profile::Metric::NavigationVisited);
         Cell cell = pending.front();
         pending.pop();
         for (const auto& direction : directions)
@@ -135,6 +143,7 @@ const char* RandomLevelMap::RegionName(int x, int y) const
 
 void RandomLevelMap::Generate(std::uint32_t value, const LevelData& definition)
 {
+    PROFILE_SCOPE(TerrainGenerate);
     seed = value;
     Width = definition.width;
     Height = definition.height;

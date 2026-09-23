@@ -73,20 +73,42 @@ void ModelCache::Initialize(const std::string& directory)
     {
         ContentData::Require(names[i] == required[i], catalogPath + ": preserve core model order");
     }
+    Profile::Event("model_catalog", "source_hash=" + std::to_string(sourceHash) +
+                                        " model_count=" + std::to_string(names.size()));
     std::string folder = ContentData::Path(directory, "Cache");
     std::string path = ContentData::Path(folder, "level1_models.bin");
     if (Read(path))
     {
+        Profile::Add(Profile::Metric::CacheHit);
+        Profile::Event("model_cache", "hit");
         status = "외부 모델 캐시 불러옴";
     }
     else
     {
+        Profile::Add(Profile::Metric::CacheMiss);
+        Profile::Event("model_cache", "miss_rebuild");
         Build();
         std::error_code error;
         std::filesystem::create_directories(folder, error);
         bool saved = !error && Write(path);
         status =
             saved ? "외부 모델 로딩 및 캐시 갱신 완료" : "외부 모델 로딩 완료 · 캐시 저장 실패";
+    }
+    // Pack static models once in the renderer's layout after either cache load or build.
+    staticMeshes.assign(models.size(), {});
+    for (std::size_t index = 0; index < models.size(); ++index)
+    {
+        if (rigs[index] != "static")
+        {
+            continue;
+        }
+        auto& mesh = staticMeshes[index];
+        mesh.reserve(models[index].size());
+        for (const auto& vertex : models[index])
+        {
+            mesh.push_back({vertex.x, vertex.y, vertex.r, vertex.g, vertex.b, vertex.a, 0, 0,
+                            static_cast<float>(vertex.material)});
+        }
     }
     recipes.clear();
     initialized = true;
@@ -101,6 +123,7 @@ ModelId ModelCache::Find(const std::string& name) const
 
 bool ModelCache::Read(const std::string& path)
 {
+    PROFILE_SCOPE(CacheRead);
     static_assert(std::is_trivially_copyable<Vertex>::value, "Cache records must be plain data");
     std::ifstream file(path, std::ios::binary);
     if (!file)
@@ -159,6 +182,7 @@ bool ModelCache::Read(const std::string& path)
 
 bool ModelCache::Write(const std::string& path) const
 {
+    PROFILE_SCOPE(CacheWrite);
     std::string temporary = path + "." + std::to_string(GetCurrentProcessId()) + ".tmp";
     std::ofstream file(temporary, std::ios::binary | std::ios::trunc);
     if (!file)
@@ -223,6 +247,7 @@ void ModelCache::Ellipse(ModelId model, float x, float y, float rx, float ry, Co
 
 void ModelCache::Build()
 {
+    PROFILE_SCOPE(CacheBuild);
     models.assign(names.size(), {});
     for (std::size_t index = 0; index < recipes.size(); ++index)
     {
@@ -313,7 +338,23 @@ void ModelCache::Draw(Renderer& renderer, ModelId id, Point position, float phas
     {
         return;
     }
+    PROFILE_SCOPE(ModelDraw);
+    Profile::Scope staticScope(Profile::Metric::StaticModelDraw, rigs[index] == "static");
     const auto& model = models[index];
+    Profile::ModelScope modelScope(names[index], model.size(), rigs[index] == "static");
+    Profile::Add(Profile::Metric::ModelCalls);
+    Profile::Add(Profile::Metric::ModelVertices, double(model.size()));
+    if (rigs[index] == "static")
+    {
+        Profile::Add(Profile::Metric::StaticVertices, double(model.size()));
+    }
+    if (rigs[index] == "static" && movement == 0 && attack == 0 && flash == 0 && collapse == 0)
+    {
+        Profile::Add(Profile::Metric::StaticFastPath);
+        renderer.AppendMesh(staticMeshes[index], position, facing * scale, scale, opacity);
+        renderer.SetMaterial(Material::Plain);
+        return;
+    }
     bool creature = rigs[index] == "creature";
     float swing = std::sin(phase) * movement;
     float strike = std::sin(attack * 3.14159265f);
