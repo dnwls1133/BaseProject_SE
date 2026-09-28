@@ -2,6 +2,7 @@
 #include "ModelCache.h"
 #include "Actor.h"
 #include "Scene.h"
+#include "WorldSimulation.h"
 #include <list>
 #include "RandomLevelMap.h"
 #include "RpgStats.h"
@@ -143,6 +144,7 @@ class LevelOne
     ModelCache modelCache;
     RandomLevelMap map;
     LevelData content;
+    WorldSimulation simulation;
     std::string contentRoot, worldFile, contentError;
     RpgStats stats;
     std::vector<Enemy> enemies;

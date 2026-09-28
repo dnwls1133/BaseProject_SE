@@ -33,6 +33,7 @@
     <ClInclude Include="Scene.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="ContentData.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="LevelData.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="WorldSimulation.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="LevelOne.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="ModelCache.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="RandomLevelMap.h"><Filter>헤더 파일</Filter></ClInclude>
@@ -54,6 +55,7 @@
     <ClCompile Include="Actor.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="Scene.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="LevelData.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="WorldSimulation.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="LevelOne.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="ModelCache.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="RandomLevelMap.cpp"><Filter>소스 파일</Filter></ClCompile>

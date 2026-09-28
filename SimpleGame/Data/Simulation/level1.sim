@@ -1,0 +1,17 @@
+# Regional indices, not player inventory. Changes are per world hour.
+version 1
+# clock: starting minute of day, world minutes per gameplay second
+clock 360 2
+# region: world region ID, food ratio, infection ratio, food/hour, infection/hour
+region refuge .65 .22 -.08 .04
+region pilgrimage .50 .32 -.10 .06
+region graves .46 .38 -.10 .08
+region marsh .42 .50 -.10 .08
+region cathedral .54 .42 -.12 .06
+region growth .48 .68 -.08 .10
+region burial .48 .35 -.10 .06
+region redfield .45 .60 -.10 .08
+region shallows .52 .48 -.12 .06
+# event: ID, food <= threshold, infection >= threshold, cooldown world minutes,
+# food change, infection change, Korean message. Cooldown is per region.
+event fungal_provisions .35 .40 180 .18 .06 "균사 식량 출현 · 굶주림 완화, 감염 증가"

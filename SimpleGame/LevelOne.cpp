@@ -120,6 +120,7 @@ bool LevelOne::Generate()
     // Read and resolve a complete candidate before invalidating any scene references.
     LevelData nextContent;
     RandomLevelMap nextMap;
+    WorldSimulation nextSimulation = simulation;
     auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     auto seed =
         static_cast<std::uint32_t>(ticks) ^ static_cast<std::uint32_t>((expedition + 1) * 7919);
@@ -129,6 +130,8 @@ bool LevelOne::Generate()
         nextContent.Load(contentRoot, worldFile, modelCache);
         ContentData::Require(stats.level <= nextContent.rules.maximumLevel,
                              "growth limit below current level");
+        nextSimulation.Load(contentRoot, nextContent.simulationFile, nextContent.regions,
+                            nextContent.sourceFile);
         nextMap.Generate(seed, nextContent);
     }
     catch (const std::exception& error)
@@ -144,6 +147,7 @@ bool LevelOne::Generate()
     lootGroup = numberGroup = minimapGroup = nullptr;
     content = std::move(nextContent);
     map = std::move(nextMap);
+    simulation = std::move(nextSimulation);
     BuildMinimapBackground();
     stats.rules = content.rules;
     completed = stats.level >= content.goalLevel && stats.allocated >= content.goalAllocated &&
@@ -571,6 +575,7 @@ void LevelOne::Update(float dt)
     }
     time += dt;
     noticeTime -= dt;
+    simulation.Update(dt);
     scene.Update(dt);
     numbers.remove_if(
         [](const FloatingText& number)
@@ -609,6 +614,8 @@ void LevelOne::Render(Renderer& r)
     Profile::Set(Profile::Metric::DropCount, double(drops.size()));
     Profile::Set(Profile::Metric::NumberCount, double(numbers.size()));
     Profile::Set(Profile::Metric::Paused, paused || statPanel || stats.health <= 0 ? 1 : 0);
+    simulation.RecordMetrics(
+        map.DistrictAt(static_cast<int>(player.x), static_cast<int>(player.y)).id);
     minimap.SetVisible(r.Width() >= 900);
     minimap.SetPosition(r.Width() - 184.f, 16);
     minimapGroup->SetClipRect({minimap.x, minimap.y, minimap.x + 158, minimap.y + 176});
@@ -956,6 +963,30 @@ void LevelOne::DrawUI(Renderer& r)
     if (noticeTime > 0)
     {
         r.WrappedText(24, 217, r.Width() - 48.f, notice, ink, 17);
+    }
+    const auto& district = map.DistrictAt(static_cast<int>(player.x), static_cast<int>(player.y));
+    if (const auto* region = simulation.FindRegion(district.id))
+    {
+        const auto minute = simulation.Minute();
+        const float baseline = r.Height() - 143.f;
+        r.Panel(18, r.Height() - 166.f, r.Width() - 36.f, 82);
+        // Split changing labels so every world minute does not create a unique HUD texture.
+        r.Text(30, baseline,
+               "세계 " + std::to_string(minute / 1440 + 1) + "일 " +
+                   std::to_string((minute / 60) % 24) + "시",
+               muted, 16);
+        r.Text(164, baseline, std::to_string(minute % 60) + "분", muted, 16);
+        r.Text(224, baseline,
+               "식량 " + std::to_string(static_cast<int>(std::lround(region->food * 100))) + "%",
+               muted, 16);
+        r.Text(330, baseline,
+               "감염 " + std::to_string(static_cast<int>(std::lround(region->infection * 100))) +
+                   "%",
+               muted, 16);
+        if (!simulation.News().empty())
+        {
+            r.WrappedText(30, r.Height() - 117.f, r.Width() - 60.f, simulation.News(), gold, 15);
+        }
     }
     r.Text(24, r.Height() - 64.f, "WASD 이동 · Space 공격 · E 획득/제단 · Q 회복 · Tab 능력치", ink,
            17);

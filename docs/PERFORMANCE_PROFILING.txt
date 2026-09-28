@@ -95,3 +95,10 @@ p95는 관측 표본의 nearest-rank 95백분위다. 약 1초 표본 수로 계�
 - 프로세스 CPU/메모리 샘플은 작업 스레드의 조회 시점 값이다. process_sample_elapsed_ms로 원본 프레임 구간 종료 시각과 구분한다. log_writer_last_record_ms에는 이제 통계·JSON 준비 비용도 포함된다. session.report_processing은 background_snapshot_v2로 기록한다.
 - 텍스트 아틀라스, 고정 UI 라벨 사전 준비, GPU 정적 배칭/인스턴싱, 지형 캐싱, 타이머 변경, 후처리 변경은 이번 범위에 포함하지 않았다. draw call 감소나 60 FPS 달성을 실측 없이 주장하지 않는다.
 - 빌드·실행·테스트는 하지 않았다. 사용자는 정적 소품의 형태·가림, 미니맵의 이동 표식·창 크기 변경·R 재생성, 새 JSONL 출력을 확인한다.
+
+## 월드 시뮬레이션 계측 — 2026-09-28
+cpu_world_simulation_ms, world_minute_tick_count, world_event_count를 추가했다.
+world_absolute_minute, world_simulated_region_count, player_region_food_ratio, player_region_infection_ratio는 게이지다.
+world_player_region, world_region_state, world_event 이벤트의 detail에 지역/사건 ID와 단위가 명시된 상태를 기록한다.
+전체 규약은 docs/WORLD_SIMULATION.md를 따른다. 게이지 sum을 누적 자원으로 보지 않으며 상위 update 시간과 중복 합산하지 않는다.
+새 계측의 실행 로그·성능 수치는 아직 확인하지 않았다.

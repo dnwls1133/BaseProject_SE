@@ -68,7 +68,8 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
                               loaded.startY = row.Integer(2, 157);
                           }
                           else if (command == "title" || command == "introduction" ||
-                                   command == "enemies" || command == "props" || command == "rules")
+                                   command == "enemies" || command == "props" || command == "rules" ||
+                                   command == "simulation")
                           {
                               once(command);
                               std::string value = row.Word();
@@ -79,6 +80,10 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
                               else if (command == "introduction")
                               {
                                   loaded.introduction = value;
+                              }
+                              else if (command == "simulation")
+                              {
+                                  loaded.simulationFile = value;
                               }
                               else if (command == "enemies")
                               {

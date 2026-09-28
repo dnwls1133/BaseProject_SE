@@ -107,3 +107,8 @@ Visual Studio의 `CopyGameContent`가 원본 `SimpleGame/Data`의 하위 폴더�
 - 배포 파일 복사는 다음 사용자 빌드 시 자동 수행한다. 단순 데이터 수정은 사용자가 실행 Data 폴더로 직접 복사해도 된다.
 
 빌드·실행·테스트·화면 확인은 수행하지 않았다. 사용자가 직접 길 밖 이동, 폐허/수변의 충돌, 적 배치·전투·성장, 제단 재로딩, 모델 캐시 상태를 확인한다. 기존 시각 품질을 기준으로 만들었으나 야외 지형과 데이터 로더 변경 후 화면은 아직 확인 전이다.
+
+## 지역 시뮬레이션 데이터 — 2026-09-28
+.world의 선택적 `simulation Simulation/level1.sim` 레코드가 시간/지역 상태/조건부 사건 정의를 연결한다.
+clock, region, event 레코드의 형식과 유효 범위는 docs/WORLD_SIMULATION.md를 따른다.
+기존 ContentData, CopyGameContent와 R 로딩을 재사용한다. 같은 월드 재로딩에서는 지역 상태를 유지하며 초기값 변경은 재시작으로 확인한다.

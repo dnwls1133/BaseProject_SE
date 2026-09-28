@@ -7,6 +7,7 @@ start 12 15
 enemies enemies.actors
 props props.actors
 rules rpg.rules
+simulation Simulation/level1.sim
 goal 3 1 1
 
 # Region: id style name centerX centerY radiusX radiusY floorRGB waterRGB fogRGBA populationCount enemyIDs...

@@ -89,3 +89,8 @@ Profiler.h/.cpp를 추가하여 약 1초 단위 CPU/GPU·draw call·정점·배�
 - 프로세스 CPU/메모리 샘플은 작업 스레드의 조회 시점 값이다. process_sample_elapsed_ms로 원본 프레임 구간 종료 시각과 구분한다. log_writer_last_record_ms에는 이제 통계·JSON 준비 비용도 포함된다. session.report_processing은 background_snapshot_v2로 기록한다.
 - 텍스트 아틀라스, 고정 UI 라벨 사전 준비, GPU 정적 배칭/인스턴싱, 지형 캐싱, 타이머 변경, 후처리 변경은 이번 범위에 포함하지 않았다. draw call 감소나 60 FPS 달성을 실측 없이 주장하지 않는다.
 - 빌드·실행·테스트는 하지 않았다. 사용자는 정적 소품의 형태·가림, 미니맵의 이동 표식·창 크기 변경·R 재생성, 새 JSONL 출력을 확인한다.
+
+## 월드 시뮬레이션 기반 — 2026-09-28
+WorldSimulation, Simulation/level1.sim, LevelOne 진행/HUD 연결, 프로파일 계측을 추가했다.
+범위는 세계 시간·지역 식량/감염·조건부 사건 1종까지다. 자율 NPC/세력/동적 퀘스트/세이브는 미구현이다.
+상세는 docs/WORLD_SIMULATION.md를 따른다. OpenGL 3.3·freeglut을 유지하며 빌드·실행·테스트는 수행하지 않았다.

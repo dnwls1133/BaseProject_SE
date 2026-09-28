@@ -163,6 +163,7 @@
     <ClInclude Include="LevelOne.h" />
     <ClInclude Include="ContentData.h" />
     <ClInclude Include="LevelData.h" />
+    <ClInclude Include="WorldSimulation.h" />
     <ClInclude Include="ModelCache.h" />
     <ClInclude Include="RandomLevelMap.h" />
     <ClInclude Include="RpgStats.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="LevelOne.cpp" />
     <ClCompile Include="LevelData.cpp" />
+    <ClCompile Include="WorldSimulation.cpp" />
     <ClCompile Include="ModelCache.cpp" />
     <ClCompile Include="RandomLevelMap.cpp" />
     <ClCompile Include="VillageArt.cpp" />

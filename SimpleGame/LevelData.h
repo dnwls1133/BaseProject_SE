@@ -70,7 +70,7 @@ struct LevelData
 {
     int width = 80, height = 64, startX = 12, startY = 15;
     int goalLevel = 3, goalPickups = 1, goalAllocated = 1;
-    std::string title, introduction, sourceFile;
+    std::string title, introduction, sourceFile, simulationFile;
     RpgRules rules;
     std::vector<RegionDefinition> regions;
     std::vector<EnemyDefinition> enemies;

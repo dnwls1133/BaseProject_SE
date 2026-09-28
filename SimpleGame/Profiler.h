@@ -101,6 +101,13 @@
     X(TerrainGenerate, cpu_terrain_generate_ms)                                                    \
     X(Load, cpu_content_read_ms)                                                                   \
     X(ContentBytes, content_read_bytes)                                                            \
+    X(WorldSimulation, cpu_world_simulation_ms)                                                    \
+    X(WorldMinuteTicks, world_minute_tick_count)                                                   \
+    X(WorldEvents, world_event_count)                                                              \
+    X(WorldMinute, world_absolute_minute)                                                          \
+    X(SimulationRegions, world_simulated_region_count)                                             \
+    X(RegionFood, player_region_food_ratio)                                                        \
+    X(RegionInfection, player_region_infection_ratio)                                              \
     X(WorldGenerate, cpu_world_generate_ms)                                                        \
     X(CacheRead, cpu_model_cache_read_ms)                                                          \
     X(CacheBuild, cpu_model_cache_build_ms)                                                        \
