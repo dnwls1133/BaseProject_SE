@@ -14,6 +14,7 @@ This program is distributed WITHOUT ANY WARRANTY.
 #include <memory>
 #include <iostream>
 #include <chrono>
+#include <cmath>
 #include "Profiler.h"
 #include "Renderer.h"
 #include "Game.h"
@@ -71,8 +72,18 @@ void Tick(int)
         game.Update(dt);
     }
     glutPostRedisplay();
-    nextTickDue = Profile::Clock::now() + std::chrono::milliseconds(16);
-    glutTimerFunc(16, Tick, 0);
+    // Keep an absolute cadence: update cost must not be added to every interval.
+    const auto period = std::chrono::microseconds(16667);
+    nextTickDue += period;
+    const auto afterUpdate = Profile::Clock::now();
+    if (nextTickDue < afterUpdate - period)
+    {
+        nextTickDue = afterUpdate;
+    }
+    const double remaining =
+        std::chrono::duration<double, std::milli>(nextTickDue - afterUpdate).count();
+    const unsigned delay = static_cast<unsigned>(std::max(1.0, std::ceil(remaining)));
+    glutTimerFunc(delay, Tick, 0);
 }
 
 void KeyDown(unsigned char k, int, int)
@@ -112,7 +123,7 @@ int main(int argc, char** argv)
     glutInit(&argc, argv);
     glutInitContextVersion(3, 3);
     glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(1280, 800);
     glutCreateWindow("HolyBloodPrototype");
     HWND window = FindWindowA(nullptr, "HolyBloodPrototype");
@@ -168,8 +179,8 @@ int main(int argc, char** argv)
     glutCloseFunc(Close);
     glutEntryFunc(WindowEntry);
     lastTick = glutGet(GLUT_ELAPSED_TIME);
-    nextTickDue = Profile::Clock::now() + std::chrono::milliseconds(16);
-    glutTimerFunc(16, Tick, 0);
+    nextTickDue = Profile::Clock::now() + std::chrono::milliseconds(17);
+    glutTimerFunc(17, Tick, 0);
     glutMainLoop();
     Profile::Shutdown();
     return 0;

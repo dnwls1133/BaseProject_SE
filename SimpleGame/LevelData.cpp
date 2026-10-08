@@ -52,130 +52,134 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
     {
         Require(singleton.insert(command).second, "duplicate record: " + command);
     };
-    ContentData::Load(path,
-                      [&](const std::string& command, Row& row)
-                      {
-                          if (command == "size")
-                          {
-                              once(command);
-                              loaded.width = row.Integer(24, 160);
-                              loaded.height = row.Integer(24, 160);
-                          }
-                          else if (command == "start")
-                          {
-                              once(command);
-                              loaded.startX = row.Integer(2, 157);
-                              loaded.startY = row.Integer(2, 157);
-                          }
-                          else if (command == "title" || command == "introduction" ||
-                                   command == "enemies" || command == "props" || command == "rules" ||
-                                   command == "simulation")
-                          {
-                              once(command);
-                              std::string value = row.Word();
-                              if (command == "title")
-                              {
-                                  loaded.title = value;
-                              }
-                              else if (command == "introduction")
-                              {
-                                  loaded.introduction = value;
-                              }
-                              else if (command == "simulation")
-                              {
-                                  loaded.simulationFile = value;
-                              }
-                              else if (command == "enemies")
-                              {
-                                  enemyFile = value;
-                              }
-                              else if (command == "props")
-                              {
-                                  propFile = value;
-                              }
-                              else
-                              {
-                                  ruleFile = value;
-                              }
-                          }
-                          else if (command == "goal")
-                          {
-                              once(command);
-                              loaded.goalLevel = row.Integer(1, 100);
-                              loaded.goalPickups = row.Integer(0, 10000);
-                              loaded.goalAllocated = row.Integer(0, 100);
-                          }
-                          else if (command == "region")
-                          {
-                              RegionDefinition region;
-                              region.id = row.Word();
-                              Require(singleton.insert("region:" + region.id).second,
-                                      "duplicate region");
-                              region.style = row.Integer(0, 5);
-                              region.name = row.Word();
-                              region.x = row.Integer(2, 157);
-                              region.y = row.Integer(2, 157);
-                              region.radiusX = row.Integer(2, 40);
-                              region.radiusY = row.Integer(2, 40);
-                              region.floor = ReadColor(row);
-                              region.water = ReadColor(row);
-                              region.fog = ReadColor(row, true);
-                              int count = row.Integer(0, 16);
-                              for (int i = 0; i < count; ++i)
-                              {
-                                  region.population.push_back(row.Word());
-                              }
-                              loaded.regions.push_back(region);
-                              Require(loaded.regions.size() <= 64, "too many regions");
-                          }
-                          else if (command == "patch")
-                          {
-                              TerrainPatch patch;
-                              patch.tile = row.Integer(0, 4);
-                              patch.x = row.Integer(1, 158);
-                              patch.y = row.Integer(1, 158);
-                              patch.rx = row.Integer(1, 40);
-                              patch.ry = row.Integer(1, 40);
-                              loaded.patches.push_back(patch);
-                          }
-                          else if (command == "road")
-                          {
-                              WorldRoad road;
-                              road.ax = row.Integer(2, 157);
-                              road.ay = row.Integer(2, 157);
-                              road.bx = row.Integer(2, 157);
-                              road.by = row.Integer(2, 157);
-                              road.radius = row.Integer(1, 4);
-                              loaded.roads.push_back(road);
-                          }
-                          else if (command == "place")
-                          {
-                              PropPlacement prop;
-                              prop.id = row.Word();
-                              prop.x = row.Number(1, 158);
-                              prop.y = row.Number(1, 158);
-                              prop.scale = row.Number(.5f, 1.3f);
-                              prop.facing = static_cast<float>(row.Integer(-1, 1));
-                              Require(prop.facing != 0, "facing must be -1 or 1");
-                              loaded.placements.push_back(prop);
-                          }
-                          else if (command == "scatter")
-                          {
-                              PropScatter scatter;
-                              scatter.id = row.Word();
-                              scatter.x = row.Integer(2, 157);
-                              scatter.y = row.Integer(2, 157);
-                              scatter.rx = row.Integer(1, 40);
-                              scatter.ry = row.Integer(1, 40);
-                              scatter.count = row.Integer(1, 100);
-                              scatter.spacing = row.Number(1.5f, 8);
-                              loaded.scatter.push_back(scatter);
-                          }
-                          else
-                          {
-                              Require(false, "unknown world record: " + command);
-                          }
-                      });
+    ContentData::Load(
+        path,
+        [&](const std::string& command, Row& row)
+        {
+            if (command == "size")
+            {
+                once(command);
+                loaded.width = row.Integer(24, 256);
+                loaded.height = row.Integer(24, 256);
+            }
+            else if (command == "start")
+            {
+                once(command);
+                loaded.startX = row.Integer(2, 253);
+                loaded.startY = row.Integer(2, 253);
+            }
+            else if (command == "title" || command == "introduction" || command == "enemies" ||
+                     command == "props" || command == "rules" || command == "simulation" ||
+                     command == "society")
+            {
+                once(command);
+                std::string value = row.Word();
+                if (command == "title")
+                {
+                    loaded.title = value;
+                }
+                else if (command == "introduction")
+                {
+                    loaded.introduction = value;
+                }
+                else if (command == "society")
+                {
+                    loaded.societyFile = value;
+                }
+                else if (command == "simulation")
+                {
+                    loaded.simulationFile = value;
+                }
+                else if (command == "enemies")
+                {
+                    enemyFile = value;
+                }
+                else if (command == "props")
+                {
+                    propFile = value;
+                }
+                else
+                {
+                    ruleFile = value;
+                }
+            }
+            else if (command == "goal")
+            {
+                once(command);
+                loaded.goalLevel = row.Integer(1, 100);
+                loaded.goalPickups = row.Integer(0, 10000);
+                loaded.goalAllocated = row.Integer(0, 100);
+            }
+            else if (command == "region")
+            {
+                RegionDefinition region;
+                region.id = row.Word();
+                Require(singleton.insert("region:" + region.id).second, "duplicate region");
+                region.style = row.Integer(0, 5);
+                region.name = row.Word();
+                region.x = row.Integer(2, 253);
+                region.y = row.Integer(2, 253);
+                region.radiusX = row.Integer(2, 40);
+                region.radiusY = row.Integer(2, 40);
+                region.floor = ReadColor(row);
+                region.water = ReadColor(row);
+                region.fog = ReadColor(row, true);
+                int count = row.Integer(0, 16);
+                for (int i = 0; i < count; ++i)
+                {
+                    region.population.push_back(row.Word());
+                }
+                loaded.regions.push_back(region);
+                Require(loaded.regions.size() <= 64, "too many regions");
+            }
+            else if (command == "patch")
+            {
+                TerrainPatch patch;
+                patch.tile = row.Integer(0, 4);
+                patch.x = row.Integer(1, 254);
+                patch.y = row.Integer(1, 254);
+                patch.rx = row.Integer(1, 40);
+                patch.ry = row.Integer(1, 40);
+                loaded.patches.push_back(patch);
+            }
+            else if (command == "road")
+            {
+                WorldRoad road;
+                road.ax = row.Integer(2, 253);
+                road.ay = row.Integer(2, 253);
+                road.bx = row.Integer(2, 253);
+                road.by = row.Integer(2, 253);
+                road.radius = row.Integer(1, 4);
+                loaded.roads.push_back(road);
+            }
+            else if (command == "place")
+            {
+                PropPlacement prop;
+                prop.id = row.Word();
+                prop.x = row.Number(1, 254);
+                prop.y = row.Number(1, 254);
+                prop.scale = row.Number(.5f, 1.3f);
+                prop.facing = static_cast<float>(row.Integer(-1, 1));
+                Require(prop.facing != 0, "facing must be -1 or 1");
+                loaded.placements.push_back(prop);
+            }
+            else if (command == "scatter")
+            {
+                PropScatter scatter;
+                scatter.id = row.Word();
+                scatter.x = row.Integer(2, 253);
+                scatter.y = row.Integer(2, 253);
+                scatter.rx = row.Integer(1, 96);
+                scatter.ry = row.Integer(1, 96);
+                scatter.count = row.Integer(1, 100);
+                scatter.spacing = row.Number(1.5f, 8);
+                loaded.scatter.push_back(scatter);
+            }
+            else
+            {
+                Require(false, "unknown world record: " + command);
+            }
+        });
     for (const char* required :
          {"size", "start", "title", "introduction", "enemies", "props", "rules", "goal"})
     {
@@ -192,6 +196,26 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
     ContentData::Load(ContentData::Path(root, enemyFile),
                       [&](const std::string& command, Row& row)
                       {
+                          if (command == "rival")
+                          {
+                              const std::string a = row.Word(), b = row.Word();
+                              Require(a != b, "self rival is invalid");
+                              loaded.Enemy(a);
+                              loaded.Enemy(b);
+                              for (auto& definition : loaded.enemies)
+                              {
+                                  if (definition.id == a || definition.id == b)
+                                  {
+                                      const std::string other = definition.id == a ? b : a;
+                                      Require(std::find(definition.rivals.begin(),
+                                                        definition.rivals.end(),
+                                                        other) == definition.rivals.end(),
+                                              "duplicate rival");
+                                      definition.rivals.push_back(other);
+                                  }
+                              }
+                              return;
+                          }
                           Require(command == "enemy", "enemy record required");
                           EnemyDefinition enemy;
                           enemy.id = row.Word();
@@ -214,27 +238,43 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
                           loaded.enemies.push_back(enemy);
                       });
     ids.clear();
-    ContentData::Load(ContentData::Path(root, propFile),
-                      [&](const std::string& command, Row& row)
-                      {
-                          Require(command == "prop", "prop record required");
-                          PropDefinition prop;
-                          prop.id = row.Word();
-                          prop.modelName = row.Word();
-                          prop.role = row.Word();
-                          Require(ids.insert(prop.id).second, "duplicate prop ID");
-                          prop.model = models.Find(prop.modelName);
-                          Require(prop.role == "static" || prop.role == "shrine" ||
-                                      prop.role == "brazier" || prop.role == "fungal",
-                                  "unknown prop role");
-                          prop.ground = row.Integer(0, 1) != 0;
-                          prop.blocking = row.Integer(0, 1) != 0;
-                          prop.tall = row.Integer(0, 1) != 0;
-                          prop.shadow = row.Number(20, 180);
-                          Require(!prop.ground || !prop.blocking,
-                                  "ground decoration cannot block movement");
-                          loaded.props.push_back(prop);
-                      });
+    ContentData::Load(
+        ContentData::Path(root, propFile),
+        [&](const std::string& command, Row& row)
+        {
+            if (command == "footprint")
+            {
+                const std::string id = row.Word();
+                loaded.Prop(id);
+                const int radius = row.Integer(1, 3);
+                Require(singleton.insert("footprint:" + id).second, "duplicate footprint");
+                for (auto& definition : loaded.props)
+                {
+                    if (definition.id == id)
+                    {
+                        Require(definition.blocking, "footprint requires blocker");
+                        definition.footprint = radius;
+                    }
+                }
+                return;
+            }
+            Require(command == "prop", "prop record required");
+            PropDefinition prop;
+            prop.id = row.Word();
+            prop.modelName = row.Word();
+            prop.role = row.Word();
+            Require(ids.insert(prop.id).second, "duplicate prop ID");
+            prop.model = models.Find(prop.modelName);
+            Require(prop.role == "static" || prop.role == "shrine" || prop.role == "brazier" ||
+                        prop.role == "fungal",
+                    "unknown prop role");
+            prop.ground = row.Integer(0, 1) != 0;
+            prop.blocking = row.Integer(0, 1) != 0;
+            prop.tall = row.Integer(0, 1) != 0;
+            prop.shadow = row.Number(20, 180);
+            Require(!prop.ground || !prop.blocking, "ground decoration cannot block movement");
+            loaded.props.push_back(prop);
+        });
     ids.clear();
     ContentData::Load(ContentData::Path(root, ruleFile),
                       [&](const std::string& command, Row& row)
@@ -313,5 +353,14 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
     Require(loaded.placements.size() <= 1000 && loaded.scatter.size() <= 100 &&
                 loaded.patches.size() <= 256 && loaded.roads.size() <= 256,
             path + ": excessive placement count");
+    for (const auto& source :
+         {path, ContentData::Path(root, enemyFile), ContentData::Path(root, propFile),
+          ContentData::Path(root, ruleFile)})
+    {
+        for (unsigned char byte : ContentData::Read(source))
+        {
+            loaded.contentHash = (loaded.contentHash ^ byte) * 16777619u;
+        }
+    }
     *this = std::move(loaded);
 }

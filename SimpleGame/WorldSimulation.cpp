@@ -7,6 +7,8 @@
 #include <cmath>
 #include <set>
 #include <utility>
+#include <iomanip>
+#include <ostream>
 
 const WorldSimulation::RegionState* WorldSimulation::FindRegion(const std::string& id) const
 {
@@ -137,8 +139,8 @@ void WorldSimulation::AdvanceMinute()
     Profile::Add(Profile::Metric::WorldMinuteTicks);
     for (auto& region : regions)
     {
-        region.food = std::clamp(region.food + region.foodPerHour / 60, 0.0, 1.0);
-        region.infection = std::clamp(region.infection + region.infectionPerHour / 60, 0.0, 1.0);
+        ChangeRegion(region.id, region.foodPerHour / 60, region.infectionPerHour / 60,
+                     "environment", "시간에 따른 자원 변화");
         if (minute % 60 == 0)
         {
             Profile::Event("world_region_state",
@@ -153,8 +155,7 @@ void WorldSimulation::AdvanceMinute()
         }
 
         const double oldFood = region.food, oldInfection = region.infection;
-        region.food = std::clamp(region.food + foodEffect, 0.0, 1.0);
-        region.infection = std::clamp(region.infection + infectionEffect, 0.0, 1.0);
+        ChangeRegion(region.id, foodEffect, infectionEffect, eventId, "조건부 지역 사건");
         region.nextEventMinute = minute + cooldownMinutes;
         lastNews = region.name + " · " + eventMessage;
         newsTime = 18;
@@ -192,4 +193,85 @@ const std::string& WorldSimulation::News() const
 {
     static const std::string empty;
     return newsTime > 0 ? lastNews : empty;
+}
+
+void WorldSimulation::ChangeRegion(const std::string& id, double food, double infection,
+                                   const std::string& actor, const std::string& reason,
+                                   std::uint64_t cause)
+{
+    auto it = std::find_if(regions.begin(), regions.end(),
+                           [&](const RegionState& region)
+                           {
+                               return region.id == id;
+                           });
+    ContentData::Require(it != regions.end(), "unknown changed region: " + id);
+    ContentData::Require(std::isfinite(food) && std::isfinite(infection),
+                         "invalid resource change");
+    const double beforeFood = it->food, beforeInfection = it->infection;
+    it->food = std::clamp(it->food + food, 0.0, 1.0);
+    it->infection = std::clamp(it->infection + infection, 0.0, 1.0);
+    Profile::Event("world_resource_change",
+                   "region_id=" + id + " actor_id=" + actor + " cause_id=" + std::to_string(cause) +
+                       " world_minute=" + std::to_string(minute) +
+                       " food_before_ratio=" + std::to_string(beforeFood) +
+                       " food_after_ratio=" + std::to_string(it->food) +
+                       " infection_before_ratio=" + std::to_string(beforeInfection) +
+                       " infection_after_ratio=" + std::to_string(it->infection) +
+                       " reason=" + reason);
+}
+
+void WorldSimulation::Write(std::ostream& stream) const
+{
+    stream << "sim_clock " << minute << ' ' << remainder << ' ' << newsTime << ' '
+           << std::quoted(lastNews.empty() ? "-" : lastNews) << '\n';
+    for (const auto& r : regions)
+    {
+        stream << "sim_region " << std::quoted(r.id) << ' ' << r.food << ' ' << r.infection << ' '
+               << r.nextEventMinute << '\n';
+    }
+}
+
+void WorldSimulation::BeginRestore()
+{
+    restoredRecords.clear();
+}
+
+bool WorldSimulation::ReadRow(const std::string& command, ContentData::Row& row)
+{
+    if (command == "sim_clock")
+    {
+        ContentData::Require(restoredRecords.insert(command).second, "duplicate saved clock");
+        minute = row.Unsigned();
+        remainder = row.Decimal(0, 1000000);
+        newsTime = row.Number(0, 18);
+        lastNews = row.Word();
+        if (lastNews == "-")
+        {
+            lastNews.clear();
+        }
+        return true;
+    }
+    if (command == "sim_region")
+    {
+        const std::string id = row.Word();
+        ContentData::Require(restoredRecords.insert(command + id).second, "duplicate saved region");
+        auto it = std::find_if(regions.begin(), regions.end(),
+                               [&](const RegionState& r)
+                               {
+                                   return r.id == id;
+                               });
+        ContentData::Require(it != regions.end(), "unknown saved region");
+        it->food = row.Decimal(0, 1);
+        it->infection = row.Decimal(0, 1);
+        it->nextEventMinute = row.Unsigned();
+        return true;
+    }
+    return false;
+}
+
+void WorldSimulation::FinishRestore() const
+{
+    ContentData::Require(restoredRecords.size() == regions.size() + 1 &&
+                             restoredRecords.count("sim_clock"),
+                         "incomplete simulation save");
 }

@@ -95,6 +95,7 @@ bool LevelOne::Start(const std::string& dataDirectory, const std::string& levelF
             return true;
         }
         modelCache.Initialize(dataDirectory);
+        meshCache3D.Load(dataDirectory);
         contentRoot = dataDirectory;
         worldFile = entry;
         if (!Generate())
@@ -103,6 +104,7 @@ bool LevelOne::Start(const std::string& dataDirectory, const std::string& levelF
         }
         started = true;
         Notify(content.introduction);
+        RestoreWorld(true);
         return true;
     }
     catch (const std::exception& error)
@@ -114,16 +116,25 @@ bool LevelOne::Start(const std::string& dataDirectory, const std::string& levelF
     }
 }
 
-bool LevelOne::Generate()
+bool LevelOne::Generate(std::uint32_t fixedSeed)
 {
     PROFILE_SCOPE(WorldGenerate);
     // Read and resolve a complete candidate before invalidating any scene references.
     LevelData nextContent;
     RandomLevelMap nextMap;
     WorldSimulation nextSimulation = simulation;
+    WorldSociety nextSociety = society;
     auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     auto seed =
         static_cast<std::uint32_t>(ticks) ^ static_cast<std::uint32_t>((expedition + 1) * 7919);
+    if (fixedSeed != 0)
+    {
+        seed = fixedSeed;
+    }
+    if (seed == 0)
+    {
+        seed = 1;
+    }
     Profile::Event("world_generate", worldFile + " seed=" + std::to_string(seed));
     try
     {
@@ -133,6 +144,16 @@ bool LevelOne::Generate()
         nextSimulation.Load(contentRoot, nextContent.simulationFile, nextContent.regions,
                             nextContent.sourceFile);
         nextMap.Generate(seed, nextContent);
+        ContentData::Require(nextContent.societyFile.empty() || !nextContent.simulationFile.empty(),
+                             "society requires a world simulation file");
+        nextSociety.Load(contentRoot, nextContent.societyFile, nextContent, modelCache,
+                         seed ^ 0x8734u, nextSimulation.Minute());
+        nextSociety.ReconcilePositions(nextMap);
+        for (const auto& place : nextSociety.LifePlaces())
+        {
+            ContentData::Require(meshCache3D.Find(place.model) >= 0,
+                                 "unknown activity model: " + place.model);
+        }
     }
     catch (const std::exception& error)
     {
@@ -147,7 +168,10 @@ bool LevelOne::Generate()
     lootGroup = numberGroup = minimapGroup = nullptr;
     content = std::move(nextContent);
     map = std::move(nextMap);
+    terrain3D.Build(map);
     simulation = std::move(nextSimulation);
+    society = std::move(nextSociety);
+    society.ResetWildlifeTargets();
     BuildMinimapBackground();
     stats.rules = content.rules;
     completed = stats.level >= content.goalLevel && stats.allocated >= content.goalAllocated &&
@@ -190,6 +214,14 @@ bool LevelOne::Generate()
                                     {
                                         return std::hypot(x - other.x, y - other.y) >= 3;
                                     });
+            for (const auto& place : society.LifePlaces())
+            {
+                if (std::hypot(x - place.position.x, y - place.position.y) < 9)
+                {
+                    free = false;
+                    break;
+                }
+            }
             if (!free)
             {
                 continue;
@@ -197,6 +229,10 @@ bool LevelOne::Generate()
             Enemy enemy(this);
             enemy.type = content.Enemy(district.population[count]);
             enemy.SetPosition(x, y);
+            enemy.homeX = x;
+            enemy.homeY = y;
+            enemy.route = {x, y};
+            enemy.decisionTime = static_cast<float>(enemies.size() % 10) * .05f;
             enemy.maximumHealth = enemy.health = enemy.type.health;
             enemy.phase = static_cast<float>(random() % 100);
             enemies.push_back(enemy);
@@ -220,12 +256,25 @@ bool LevelOne::Generate()
         auto& prop = props.back();
         prop.scale = placement.scale;
         prop.facing = placement.facing;
+        prop.placedParts =
+            meshCache3D.Place(int(prop.model), {prop.x, Terrain3D::Height(prop.x, prop.y), prop.y},
+                              prop.facing < 0 ? 3.14159f : 0, prop.scale);
+        Vec3 minimum, maximum;
+        meshCache3D.Bounds(static_cast<int>(prop.model), minimum, maximum);
+        const float extentX = std::max(std::abs(minimum.x), std::abs(maximum.x)) * prop.scale;
+        const float extentZ = std::max(std::abs(minimum.z), std::abs(maximum.z)) * prop.scale;
+        prop.bounds3DMin = {-extentX, minimum.y * prop.scale - 1, -extentZ};
+        prop.bounds3DMax = {extentX, maximum.y * prop.scale + 1, extentZ};
         if (type.ground)
         {
             prop.SetRenderPasses(ActorPassBit(ActorPass::Ground));
         }
     }
     distances = map.Distances(static_cast<int>(player.x), static_cast<int>(player.y));
+    CreateCitizens();
+    CloseConversation();
+    focusedNpc = -1;
+    journalOpen = false;
     BuildScene();
     return true;
 }
@@ -239,6 +288,11 @@ void LevelOne::Key(unsigned char key, bool down)
     bool previous = keys[key];
     keys[key] = down;
     if (!down || previous)
+    {
+        return;
+    }
+
+    if (SocietyKey(key))
     {
         return;
     }
@@ -345,13 +399,21 @@ void LevelOne::Move(float& x, float& y, float dx, float dy)
     }
 }
 
-void LevelOne::Kill(Enemy& enemy)
+void LevelOne::Kill(Enemy& enemy, bool playerCredit)
 {
     if (!enemy.IsActive() || enemy.dead)
     {
         return;
     }
     enemy.dead = true;
+    enemy.health = 0;
+    enemy.windup = 0;
+    society.MonsterKilled(map.DistrictAt(static_cast<int>(enemy.x), static_cast<int>(enemy.y)).id,
+                          playerCredit);
+    if (!playerCredit)
+    {
+        return;
+    }
     ++kills;
     int reward = enemy.type.experience;
     int levels = stats.AddExperience(reward);
@@ -365,6 +427,23 @@ void LevelOne::Kill(Enemy& enemy)
 
 void LevelOne::Attack()
 {
+    // Deliberate hostile action: hold X while attacking to include inhabitants.
+    if (keys['x'])
+    {
+        for (std::size_t i = 0; i < society.Npcs().size(); ++i)
+        {
+            const auto& npc = society.Npcs()[i];
+            const float dx = npc.x - player.x, dy = npc.y - player.y;
+            const float distance = std::hypot(dx, dy);
+            const float alignment =
+                distance > .01f ? (dx * attackAimX + dy * attackAimY) / distance : 1;
+            if (npc.Alive() && distance <= stats.rules.attackRange && alignment >= .15f &&
+                map.Visible(player.x, player.y, npc.x, npc.y))
+            {
+                society.PlayerAttack(static_cast<int>(i), stats.Attack(), simulation);
+            }
+        }
+    }
     PROFILE_SCOPE(Combat);
     for (auto& enemy : enemies)
     {
@@ -470,103 +549,6 @@ void LevelOne::UpdateNavigation(float dt)
     }
 }
 
-void LevelOne::UpdateEnemy(Enemy& enemy, float dt)
-{
-    PROFILE_SCOPE(Enemies);
-    Profile::Add(Profile::Metric::EnemyUpdates);
-    constexpr int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-    if (enemy.dead)
-    {
-        enemy.collapse = std::min(1.f, enemy.collapse + dt * 3.5f);
-        if (enemy.collapse >= 1)
-        {
-            enemy.SetRenderPasses(ActorPassBit(ActorPass::Ground));
-            enemy.SetTickEnabled(false);
-        }
-        return;
-    }
-    if (!enemy.IsActive() || !player.IsActive())
-    {
-        return;
-    }
-    enemy.movement *= std::exp(-dt * 10);
-    enemy.phase += dt * .9f;
-    enemy.strikeTime = std::max(0.f, enemy.strikeTime - dt);
-    enemy.facing = player.x - player.y > enemy.x - enemy.y ? 1.f : -1.f;
-    enemy.flash = std::max(0.f, enemy.flash - dt);
-    enemy.cooldown = std::max(0.f, enemy.cooldown - dt);
-    float distance = std::hypot(player.x - enemy.x, player.y - enemy.y);
-    if (enemy.windup > 0)
-    {
-        enemy.windup = std::max(0.f, enemy.windup - dt);
-        if (enemy.windup == 0)
-        {
-            bool hit =
-                std::hypot(player.x - enemy.attackX, player.y - enemy.attackY) < enemy.type.range &&
-                map.Visible(enemy.x, enemy.y, player.x, player.y);
-            if (hit && hurtTime <= 0)
-            {
-                int damage = std::max(1, enemy.type.attack - stats.Defense());
-                stats.health = std::max(0, stats.health - damage);
-                hurtTime = stats.rules.invulnerability;
-                SpawnNumber(player.x, player.y, .8f, "-" + std::to_string(damage), false);
-            }
-            enemy.cooldown = enemy.type.cooldown;
-            enemy.strikeTime = .24f;
-        }
-        return;
-    }
-    if (distance < enemy.type.range - .1f && enemy.cooldown <= 0 &&
-        map.Visible(player.x, player.y, enemy.x, enemy.y))
-    {
-        enemy.attackX = player.x;
-        enemy.attackY = player.y;
-        enemy.windup = enemy.WindupDuration();
-        return;
-    }
-    int ex = static_cast<int>(enemy.x), ey = static_cast<int>(enemy.y);
-    int cost = distances[ey * map.Width + ex];
-    if (cost < 0 || cost > enemy.type.aggro || distance < 1 || enemy.flash > 0)
-    {
-        return;
-    }
-    float tx = player.x, ty = player.y;
-    if (!map.CanTravel(enemy.x, enemy.y, player.x, player.y))
-    {
-        // Center first if the actor's radius cannot safely cut the next corner.
-        tx = ex + .5f;
-        ty = ey + .5f;
-        int best = cost;
-        for (const auto& direction : directions)
-        {
-            int nx = ex + direction[0], ny = ey + direction[1];
-            if (map.Walkable(nx, ny) && distances[ny * map.Width + nx] < best &&
-                distances[ny * map.Width + nx] >= 0 &&
-                map.CanTravel(enemy.x, enemy.y, nx + .5f, ny + .5f))
-            {
-                best = distances[ny * map.Width + nx];
-                tx = nx + .5f;
-                ty = ny + .5f;
-            }
-        }
-    }
-    float dx = tx - enemy.x, dy = ty - enemy.y, length = std::hypot(dx, dy);
-    if (length > .05f)
-    {
-        float speed = enemy.type.speed;
-        float step = std::min(length, speed * dt);
-        float oldX = enemy.x, oldY = enemy.y;
-        Move(enemy.x, enemy.y, dx / length * step, dy / length * step);
-        float moved = std::hypot(enemy.x - oldX, enemy.y - oldY);
-        if (moved > .001f)
-        {
-            enemy.phase += moved * enemy.type.gait;
-            enemy.movement = std::min(1.f, enemy.movement + dt * 14);
-        }
-    }
-}
-
 void LevelOne::Update(float dt)
 {
     if (paused || statPanel || stats.health <= 0)
@@ -576,7 +558,41 @@ void LevelOne::Update(float dt)
     time += dt;
     noticeTime -= dt;
     simulation.Update(dt);
+    society.Update(dt, simulation, map, {player.x, player.y});
+    BuildEcologyIndex();
     scene.Update(dt);
+    focusedNpc = -1;
+    float nearestNpcDistance = 3.5f;
+    for (std::size_t i = 0; i < society.Npcs().size(); ++i)
+    {
+        const auto& npc = society.Npcs()[i];
+        const float distance = std::hypot(npc.x - player.x, npc.y - player.y);
+        if (npc.Alive() && distance < nearestNpcDistance &&
+            map.Visible(player.x, player.y, npc.x, npc.y))
+        {
+            focusedNpc = int(i);
+            nearestNpcDistance = distance;
+        }
+    }
+    if (talkingNpc >= 0 && (!society.IsConversationActive(talkingNpc) || stats.health <= 0))
+    {
+        CloseConversation();
+        Notify("대화가 끝났습니다. 상대는 자신의 행동을 이어갑니다.");
+    }
+    const int socialDamage = society.TakePlayerDamage();
+    if (socialDamage > 0 && hurtTime <= 0)
+    {
+        const int damage = std::max(1, socialDamage - stats.Defense());
+        stats.health = std::max(0, stats.health - damage);
+        hurtTime = stats.rules.invulnerability;
+        SpawnNumber(player.x, player.y, .8f, "-" + std::to_string(damage), false);
+    }
+    autosaveTime += dt;
+    if (autosaveAllowed && autosaveTime >= 60)
+    {
+        SaveWorld(false);
+        autosaveTime = 0;
+    }
     numbers.remove_if(
         [](const FloatingText& number)
         {
@@ -601,8 +617,8 @@ void LevelOne::Update(float dt)
 
 Point LevelOne::Project(float x, float y, float z, Renderer& r) const
 {
-    return {r.Width() * .5f + (x - y - cx + cy) * 32,
-            r.Height() * .5f + (x + y - cx - cy) * 16 - z};
+    const Vec3 p = r.Project3D({x, Terrain3D::Height(x, y) + z / 42.f, y});
+    return {p.x, p.y};
 }
 
 void LevelOne::Render(Renderer& r)
@@ -619,306 +635,153 @@ void LevelOne::Render(Renderer& r)
     minimap.SetVisible(r.Width() >= 900);
     minimap.SetPosition(r.Width() - 184.f, 16);
     minimapGroup->SetClipRect({minimap.x, minimap.y, minimap.x + 158, minimap.y + 176});
+    camera3D.Update({cx, Terrain3D::Height(cx, cy) + .6f, cy}, r.Width(), r.Height());
+    r.UseWorld3D(camera3D);
     scene.Render(r, time, {(cx - cy) * 32 - r.Width() * .5f, (cx + cy) * 16 - r.Height() * .5f});
 }
 
 void LevelOne::DrawGround(Renderer& r)
 {
-    PROFILE_SCOPE(Ground);
-    Profile::Add(Profile::Metric::GroundTilesScanned, double(map.Width) * map.Height);
-    using Region = RandomLevelMap::Region;
-    for (int y = 0; y < map.Height; ++y)
-    {
-        for (int x = 0; x < map.Width; ++x)
-        {
-            Point p = Project(x + .5f, y + .5f, 0, r);
-            if (p.x < -70 || p.x > r.Width() + 70 || p.y < -60 || p.y > r.Height() + 60)
-            {
-                continue;
-            }
-            Profile::Add(Profile::Metric::GroundTilesVisible);
-            int tile = map.Tile(x, y);
-            const auto& regionData = map.DistrictAt(x, y);
-            auto region = regionData.region;
-            std::uint32_t hash = (static_cast<std::uint32_t>(x) * 73856093u) ^
-                                 (static_cast<std::uint32_t>(y) * 19349663u) ^ map.seed;
-            hash = (hash ^ (hash >> 13)) * 1274126177u;
-            float variation = .87f + (hash % 23) * .01f;
-            Color color = regionData.floor;
-            if (tile == 2)
-            {
-                color = regionData.water;
-            }
-            else if (tile == 0)
-            {
-                color = Color(.09f, .12f, .105f);
-            }
-            else if (tile == 4)
-            {
-                color = Color(color.r * .92f + .025f, color.g * .84f, color.b * .75f);
-            }
-            else if (tile == 3)
-            {
-                color = Color(color.r * .76f, color.g * .85f, color.b * .72f);
-            }
-            color.r *= variation;
-            color.g *= variation;
-            color.b *= variation;
-            Point a = Project(static_cast<float>(x), static_cast<float>(y), 0, r);
-            Point b = Project(x + 1.f, static_cast<float>(y), 0, r);
-            Point c = Project(x + 1.f, y + 1.f, 0, r);
-            Point d = Project(static_cast<float>(x), y + 1.f, 0, r);
-            r.SetMaterial(tile == 2   ? Material::Water
-                          : tile == 1 ? Material::Paving
-                                      : Material::Earth);
-            r.Quad(a, b, c, d, color);
-            r.SetMaterial(Material::Plain);
-            if (tile == 0)
-            {
-                continue;
-            }
-
-            // Curbs belong to surviving paving, not the open meadow boundary.
-            if (tile == 1)
-            {
-                auto curb = [&](Point from, Point to)
-                {
-                    r.Line({from.x, from.y + 2}, {to.x, to.y + 2}, 3, Color(.09f, .12f, .11f));
-                    r.Line(from, to, 1.5f, Color(.40f, .41f, .33f, .5f));
-                };
-                if (map.Tile(x - 1, y) != 1)
-                {
-                    curb(a, d);
-                }
-                if (map.Tile(x + 1, y) != 1)
-                {
-                    curb(b, c);
-                }
-                if (map.Tile(x, y - 1) != 1)
-                {
-                    curb(a, b);
-                }
-                if (map.Tile(x, y + 1) != 1)
-                {
-                    curb(d, c);
-                }
-            }
-            if (tile == 3 && hash % 3 == 0)
-            {
-                float offset = static_cast<float>((hash >> 8) % 25) - 12;
-                Color grass(color.r + .07f, color.g + .08f, color.b + .045f, .45f);
-                r.Line({p.x + offset, p.y + 4}, {p.x + offset - 3, p.y - 2}, 1, grass);
-                r.Line({p.x + offset, p.y + 4}, {p.x + offset + 2, p.y - 4}, 1, grass);
-            }
-            if (tile == 2)
-            {
-                if (map.Tile(x, y - 1) != 2 && map.Walkable(x, y - 1))
-                {
-                    r.Line(a, b, 1.3f, Color(.47f, .55f, .47f, .4f));
-                }
-                continue;
-            }
-
-            // Processional inlays tie each district to the religious empire.
-            for (const auto& district : map.districts)
-            {
-                if (district.region != Region::Refuge && district.region != Region::Cathedral &&
-                    district.region != Region::Processional)
-                {
-                    continue;
-                }
-                if (tile == 1 && std::abs(x - district.center.x) <= district.radiusX &&
-                    std::abs(y - district.center.y) <= district.radiusY &&
-                    (x == district.center.x || y == district.center.y))
-                {
-                    r.Quad({p.x, p.y - 6}, {p.x + 12, p.y}, {p.x, p.y + 6}, {p.x - 12, p.y},
-                           Color(.48f, .40f, .26f, .30f));
-                    r.Line({p.x - 12, p.y}, {p.x, p.y + 6}, 1, Color(.63f, .53f, .33f, .45f));
-                    break;
-                }
-            }
-            if (tile == 1 && hash % 5 == 0)
-            {
-                float offset = static_cast<float>((hash >> 8) % 17) - 8;
-                r.Line({p.x - 18, p.y - 5}, {p.x + offset, p.y + 1}, 1.2f,
-                       Color(.08f, .11f, .10f, .7f));
-                r.Line({p.x + offset, p.y + 1}, {p.x + 13, p.y + 10}, 1,
-                       Color(.08f, .11f, .10f, .6f));
-            }
-            if (hash % 11 == 0)
-            {
-                r.Effect(p.x - 29, p.y - 13, 58, 26, Material::SoftLight,
-                         region == Region::Garden ? Color(.42f, .045f, .09f, .45f)
-                                                  : Color(.055f, .12f, .09f, .6f));
-            }
-        }
-    }
-    r.SetMaterial(Material::Plain);
+    terrain3D.Draw(r);
 }
 
 void LevelOne::DrawAtmosphere(Renderer& r)
 {
-    PROFILE_SCOPE(Atmosphere);
-    for (std::size_t index = 0; index < map.districts.size(); ++index)
+    for (int i = 0; i < 56; ++i)
     {
-        const auto& district = map.districts[index];
-        Point p = Project(district.center.x + .5f, district.center.y + .5f, 0, r);
-        if (p.x < -550 || p.x > r.Width() + 550 || p.y < -350 || p.y > r.Height() + 350)
-        {
-            continue;
-        }
-        bool fungal = district.region == RandomLevelMap::Region::Garden;
-        r.Effect(p.x - 440, p.y - 145, 880, 310, Material::Mist, district.fog);
-        // Sparse drifting ash/spores. The aggregate atmosphere actor owns this visual layer.
-        for (int i = 0; i < 9; ++i)
-        {
-            float seed = static_cast<float>(i * 71 + index * 37);
-            float travel = std::fmod(time * (4 + i % 3) + seed * 3, 180.f);
-            float x = p.x + std::sin(seed) * 280 + std::sin(time * .3f + seed) * 12;
-            float y = p.y + std::cos(seed * 1.7f) * 105 - travel;
-            float alpha = std::sin(travel / 180.f * 3.14159265f) * .45f;
-            r.Effect(x - 4, y - 4, 8, 8, Material::SoftLight,
-                     fungal ? Color(1.2f, .32f, .37f, alpha) : Color(.7f, .79f, .70f, alpha));
-        }
+        float x = cx + std::sin(i * 2.399f) * float(i % 17 + 2),
+              z = cy + std::cos(i * 2.399f) * float(i % 17 + 2);
+        float height = 1.3f + std::sin(time * .35f + i) * .9f;
+        r.Submit3D(1,
+                   Mat4::Translation({x, Terrain3D::Height(x, z) + height, z}) *
+                       Mat4::Scale({.035f, .035f, .035f}),
+                   Color(.45f, .28f, .22f), Material::SoftLight);
     }
 }
 
 void LevelOne::DrawPlayer(Renderer& r, ActorPass pass)
 {
-    Point p = Project(player.x, player.y, 0, r);
-    if (pass == ActorPass::Shadow)
+    if (pass != ActorPass::World)
     {
-        r.Effect(p.x - 30, p.y - 8, 70, 27, Material::SoftLight, Color(0, 0, 0, .85f));
         return;
     }
-    float attack = attackTime > 0 ? 1 - attackTime / stats.rules.attackDuration : 0;
-    modelCache.Draw(r, ModelId::Pilgrim, p, phase, movement, facing, hurtTime * .4f, attack, 1, 1,
-                    0, time);
+    Pose3D pose;
+    pose.phase = phase;
+    pose.movement = movement;
+    pose.time = time;
+    pose.flash = hurtTime * .4f;
+    pose.attack = attackTime > 0 ? 1 - attackTime / stats.rules.attackDuration : 0;
+    meshCache3D.Draw(r, 0, {player.x, Terrain3D::Height(player.x, player.y), player.y},
+                     std::atan2(-aimX, -aimY), 1, pose);
     if (attackTime > 0)
     {
-        float angle = std::atan2(attackAimY, attackAimX);
-        float end = angle - 1.35f + attack * 2.7f;
         for (int i = 0; i < 12; ++i)
         {
-            float a = end - i * .08f, b = a - .08f;
-            r.Line(Project(player.x + std::cos(a) * stats.rules.attackRange,
-                           player.y + std::sin(a) * stats.rules.attackRange, 22, r),
-                   Project(player.x + std::cos(b) * stats.rules.attackRange,
-                           player.y + std::sin(b) * stats.rules.attackRange, 22, r),
-                   3, Color(.95f, .80f, .55f, (1 - i / 12.f) * .7f));
+            float a = std::atan2(attackAimY, attackAimX) - 1.35f + pose.attack * 2.7f - i * .065f;
+            Vec3 p{player.x + std::cos(a) * stats.rules.attackRange,
+                   Terrain3D::Height(player.x, player.y) + .7f,
+                   player.y + std::sin(a) * stats.rules.attackRange};
+            r.Submit3D(1, Mat4::Translation(p) * Mat4::Scale({.06f, .06f, .06f}),
+                       Color(.9f, .6f, .24f), Material::SoftLight);
         }
     }
 }
 
 void LevelOne::DrawEnemy(Renderer& r, const Enemy& enemy, ActorPass pass)
 {
-    Point p = Project(enemy.x, enemy.y, 0, r);
     if (pass == ActorPass::Shadow)
     {
-        float width = enemy.type.shadow;
-        r.Effect(p.x - width * .5f + 6, p.y - 10, width, 33, Material::SoftLight,
-                 Color(0, 0, 0, .85f));
+        return;
+    }
+    if (pass == ActorPass::World || pass == ActorPass::Ground)
+    {
+        Pose3D pose;
+        pose.phase = enemy.phase;
+        pose.movement = enemy.dead ? 0 : enemy.movement;
+        pose.time = time;
+        pose.flash = enemy.flash * 4;
+        pose.collapse = enemy.collapse;
+        pose.attack = enemy.windup > 0 ? .15f + .35f * (1 - enemy.windup / enemy.WindupDuration())
+                      : enemy.strikeTime > 0 ? 1 - .5f * enemy.strikeTime / .24f
+                                             : 0;
+        const float yaw = enemy.windup > 0
+                              ? std::atan2(enemy.x - enemy.attackX, enemy.y - enemy.attackY)
+                              : enemy.yaw;
+        meshCache3D.Draw(
+            r, static_cast<int>(enemy.type.model),
+            {enemy.x, Terrain3D::Height(enemy.x, enemy.y) + enemy.collapse * .25f, enemy.y}, yaw,
+            enemy.type.model == ModelId::Brute ? 1.25f : 1, pose);
         if (enemy.windup > 0 && !enemy.dead)
         {
-            Point warning = Project(enemy.attackX, enemy.attackY, 0, r);
-            float progress = 1 - enemy.windup / enemy.WindupDuration();
-            r.Effect(warning.x - enemy.type.range * 45, warning.y - enemy.type.range * 23,
-                     enemy.type.range * 90, enemy.type.range * 46, Material::SoftLight,
-                     Color(.95f, .035f, .07f, .25f + progress * .55f));
-            for (int i = 0; i < 32; ++i)
+            for (int i = 0; i < 40; ++i)
             {
-                float a = i * 6.2831853f / 32, b = (i + 1) * 6.2831853f / 32;
-                r.Line({warning.x + std::cos(a) * enemy.type.range * 45,
-                        warning.y + std::sin(a) * enemy.type.range * 23},
-                       {warning.x + std::cos(b) * enemy.type.range * 45,
-                        warning.y + std::sin(b) * enemy.type.range * 23},
-                       1.5f, Color(.85f, .17f, .15f, .25f + progress * .55f));
+                float a = i * 6.2831853f / 40;
+                float x = enemy.attackX + std::cos(a) * enemy.type.range,
+                      z = enemy.attackY + std::sin(a) * enemy.type.range;
+                r.Submit3D(1,
+                           Mat4::Translation({x, Terrain3D::Height(x, z) + .07f, z}) *
+                               Mat4::Scale({.10f, .04f, .10f}),
+                           Color(.9f, .08f, .035f), Material::SoftLight);
             }
         }
     }
-    else if (pass == ActorPass::World || pass == ActorPass::Ground)
+    else if (pass == ActorPass::Overlay && !enemy.dead &&
+             std::hypot(enemy.x - player.x, enemy.y - player.y) < 8 &&
+             (enemy.health < enemy.maximumHealth || enemy.windup > 0))
     {
-        ModelId model = enemy.type.model;
-        float attack = enemy.windup > 0 ? .15f + .35f * (1 - enemy.windup / enemy.WindupDuration())
-                       : enemy.strikeTime > 0 ? 1 - .5f * enemy.strikeTime / .24f
-                                              : 0;
-        if (enemy.dead)
-        {
-            r.Effect(p.x - 40, p.y - 14, 80, 28, Material::SoftLight,
-                     Color(.32f, .025f, .055f, .7f * enemy.collapse));
-        }
-        modelCache.Draw(r, model, p, enemy.phase, enemy.dead ? 0 : enemy.movement, enemy.facing,
-                        enemy.dead ? 0 : enemy.flash * 4, enemy.dead ? 0 : attack, 1, 1,
-                        enemy.collapse);
-    }
-    else if (pass == ActorPass::Overlay)
-    {
-        if (enemy.dead || std::hypot(enemy.x - player.x, enemy.y - player.y) > 8 ||
-            (enemy.health == enemy.maximumHealth && enemy.windup <= 0))
-        {
-            return;
-        }
-        p = Project(enemy.x, enemy.y, enemy.type.barHeight, r);
-        r.Rect(p.x - 25, p.y, 50, 5, Color(.06f, .07f, .07f, .9f));
+        Point p = Project(enemy.x, enemy.y, enemy.type.barHeight, r);
+        r.Rect(p.x - 25, p.y, 50, 5, Color(.06f, .07f, .07f));
         r.Rect(p.x - 24, p.y + 1, 48.f * enemy.health / enemy.maximumHealth, 3,
                Color(.72f, .16f, .17f));
-        const std::string& name = enemy.type.name;
-        r.Text(p.x - r.TextWidth(name, 13) * .5f, p.y - 5, name, Color(.78f, .73f, .62f), 13);
+        r.Text(p.x - r.TextWidth(enemy.type.name, 13) * .5f, p.y - 5, enemy.type.name,
+               Color(.8f, .73f, .62f), 13);
     }
 }
 
 void LevelOne::DrawProp(Renderer& r, const Prop& prop, ActorPass pass)
 {
-    Point p = Project(prop.x, prop.y, 0, r);
-    if (pass == ActorPass::Ground)
+    if (pass != ActorPass::World && pass != ActorPass::Ground)
     {
-        modelCache.Draw(r, prop.model, p, 0, 0, prop.facing, 0, 0, prop.scale);
         return;
     }
-    if (pass == ActorPass::Shadow)
+    Color tint(1, 1, 1);
+    Point p = Project(prop.x, prop.y, 0, r), hero = Project(player.x, player.y, 45, r);
+    if (prop.type.tall && prop.Depth() > player.Depth() &&
+        std::abs(hero.x - p.x) < 60 * prop.scale && hero.y < p.y && hero.y > p.y - 180 * prop.scale)
     {
-        float width = prop.type.shadow * prop.scale;
-        r.Effect(p.x - width * .5f + 18, p.y - 13, width, 48, Material::SoftLight,
-                 Color(0, 0, 0, .75f));
-        if (prop.type.role == "brazier" || prop.type.role == "shrine")
-        {
-            float pulse = .36f + std::sin(time * 3.7f + prop.x) * .035f;
-            r.Effect(p.x - 145, p.y - 65, 290, 130, Material::SoftLight,
-                     Color(.95f, .40f, .12f, pulse));
-        }
-        else if (prop.type.role == "fungal")
-        {
-            r.Effect(p.x - 70, p.y - 25, 140, 50, Material::SoftLight,
-                     Color(.65f, .075f, .15f, .2f));
-        }
-        return;
+        tint.a = .35f;
     }
-    if (pass == ActorPass::World)
+    Pose3D pose;
+    pose.time = time;
+    if (!prop.placedParts.empty())
     {
-        Point hero = Project(player.x, player.y, 30, r);
-        float opacity = 1;
-        bool tall = prop.type.tall;
-        if (tall && player.Depth() < prop.Depth() && std::abs(hero.x - p.x) < 72 * prop.scale &&
-            hero.y < p.y && hero.y > p.y - 145 * prop.scale)
-        {
-            opacity = .35f;
-        }
-        modelCache.Draw(r, prop.model, p, 0, 0, prop.facing, 0, 0, prop.scale, opacity);
-        if (prop.type.role == "brazier")
-        {
-            r.Effect(p.x - 23 * prop.scale, p.y - 87 * prop.scale, 46 * prop.scale, 60 * prop.scale,
-                     Material::Flame, Color(1, .5f, .18f));
-            r.Effect(p.x - 47, p.y - 96, 94, 94, Material::SoftLight,
-                     Color(1.4f, .47f, .13f, .12f));
-        }
+        meshCache3D.DrawPlaced(r, prop.placedParts, tint);
+    }
+    else
+    {
+        meshCache3D.Draw(r, static_cast<int>(prop.model),
+                         {prop.x, Terrain3D::Height(prop.x, prop.y), prop.y},
+                         prop.facing < 0 ? 3.14159f : 0, prop.scale, pose, tint);
+    }
+    if (prop.type.role == "brazier" || prop.type.role == "shrine")
+    {
+        r.Light3D({prop.x, Terrain3D::Height(prop.x, prop.y) + 1.8f, prop.y},
+                  Color(1.5f, .45f, .12f));
+    }
+    if (prop.type.role == "fungal")
+    {
+        r.Light3D({prop.x, Terrain3D::Height(prop.x, prop.y) + 1, prop.y}, Color(.7f, .05f, .16f));
     }
 }
 
 void LevelOne::DrawDrop(Renderer& r, const Drop& drop)
 {
-    Point p = Project(drop.x, drop.y, 2 + std::sin(time * 2 + drop.x) * 2, r);
-    r.Effect(p.x - 35, p.y - 15, 70, 30, Material::SoftLight, Color(.85f, .53f, .2f, .35f));
-    modelCache.Draw(r, drop.potion ? ModelId::Potion : ModelId::Fragment, p);
+    Pose3D pose;
+    pose.time = time;
+    meshCache3D.Draw(
+        r, static_cast<int>(drop.potion ? ModelId::Potion : ModelId::Fragment),
+        {drop.x, Terrain3D::Height(drop.x, drop.y) + .15f + std::sin(time * 2) * .08f, drop.y},
+        time * .7f, 1, pose);
 }
 
 void LevelOne::DrawNumber(Renderer& r, const FloatingText& number)
@@ -930,70 +793,41 @@ void LevelOne::DrawNumber(Renderer& r, const FloatingText& number)
 
 void LevelOne::DrawUI(Renderer& r)
 {
-    const Color ink(.88f, .87f, .79f), muted(.60f, .65f, .61f), gold(.78f, .64f, .39f);
-    r.Panel(18, 16, 475, 138);
-    r.Text(34, 44, map.RegionName(static_cast<int>(player.x), static_cast<int>(player.y)), gold,
-           22);
-    r.Text(34, 72,
-           "레벨 " + std::to_string(stats.level) + "   체력 " + std::to_string(stats.health) +
-               " / " + std::to_string(stats.MaximumHealth()),
+    const Color ink(.93f, .92f, .85f), muted(.75f, .78f, .73f), gold(.89f, .74f, .48f);
+    r.Panel(18, 16, 330, 107);
+    r.Text(32, 45, map.RegionName(int(player.x), int(player.y)), gold, 21);
+    r.Text(32, 73,
+           "Lv." + std::to_string(stats.level) + "  체력 " + std::to_string(stats.health) + " / " +
+               std::to_string(stats.MaximumHealth()),
            ink, 18);
-    r.Rect(34, 82, 280, 9, Color(.13f, .08f, .08f));
-    r.Rect(34, 82, 280.f * stats.health / stats.MaximumHealth(), 9, Color(.65f, .13f, .16f));
-    r.Text(34, 118,
-           stats.level >= stats.rules.maximumLevel
-               ? "최대 레벨"
-               : "경험치 " + std::to_string(stats.experience) + " / " +
-                     std::to_string(stats.RequiredExperience()),
-           muted, 17);
-    r.Rect(34, 130, 280, 5, Color(.12f, .14f, .12f));
-    r.Rect(34, 130,
-           stats.level >= stats.rules.maximumLevel
-               ? 280.f
-               : 280.f * stats.experience / stats.RequiredExperience(),
-           5, gold);
-    r.Text(332, 89, "공격 " + std::to_string(stats.Attack()), ink, 17);
-    r.Text(332, 116, "방어 " + std::to_string(stats.Defense()), ink, 17);
-    r.Text(24, 183,
-           completed ? "성장 목표 달성 · 자유롭게 경험치를 모으세요"
-                     : "목표: 레벨 " + std::to_string(content.goalLevel) + " · 아이템 " +
-                           std::to_string(content.goalPickups) + "개 · 능력치 " +
-                           std::to_string(content.goalAllocated) + "포인트 배분",
-           gold, 18);
+    r.Rect(32, 84, 298, 10, Color(.13f, .07f, .07f));
+    r.Rect(32, 84, 298.f * stats.health / stats.MaximumHealth(), 10, Color(.68f, .16f, .19f));
+    const float experience = stats.level >= stats.rules.maximumLevel
+                                 ? 1.f
+                                 : float(stats.experience) / stats.RequiredExperience();
+    r.Rect(32, 104, 298, 4, Color(.12f, .13f, .12f));
+    r.Rect(32, 104, 298 * experience, 4, gold);
+    if (talkingNpc >= 0 || journalOpen || paused || statPanel || stats.health <= 0)
+    {
+        return;
+    }
     if (noticeTime > 0)
     {
-        r.WrappedText(24, 217, r.Width() - 48.f, notice, ink, 17);
+        r.Panel(18, 136, std::min(620.f, r.Width() - 36.f), 92);
+        r.WrappedText(32, 164, std::min(590.f, r.Width() - 64.f), notice, ink, 18);
     }
-    const auto& district = map.DistrictAt(static_cast<int>(player.x), static_cast<int>(player.y));
-    if (const auto* region = simulation.FindRegion(district.id))
-    {
-        const auto minute = simulation.Minute();
-        const float baseline = r.Height() - 143.f;
-        r.Panel(18, r.Height() - 166.f, r.Width() - 36.f, 82);
-        // Split changing labels so every world minute does not create a unique HUD texture.
-        r.Text(30, baseline,
-               "세계 " + std::to_string(minute / 1440 + 1) + "일 " +
-                   std::to_string((minute / 60) % 24) + "시",
-               muted, 16);
-        r.Text(164, baseline, std::to_string(minute % 60) + "분", muted, 16);
-        r.Text(224, baseline,
-               "식량 " + std::to_string(static_cast<int>(std::lround(region->food * 100))) + "%",
-               muted, 16);
-        r.Text(330, baseline,
-               "감염 " + std::to_string(static_cast<int>(std::lround(region->infection * 100))) +
-                   "%",
-               muted, 16);
-        if (!simulation.News().empty())
-        {
-            r.WrappedText(30, r.Height() - 117.f, r.Width() - 60.f, simulation.News(), gold, 15);
-        }
-    }
-    r.Text(24, r.Height() - 64.f, "WASD 이동 · Space 공격 · E 획득/제단 · Q 회복 · Tab 능력치", ink,
-           17);
-    r.Text(24, r.Height() - 35.f,
-           "회복약 " + std::to_string(stats.potions) + "   파편 " +
-               std::to_string(stats.fragments) + "   처치 " + std::to_string(kills) +
-               "   남은 포인트 " + std::to_string(stats.points),
+    const auto minute = simulation.Minute();
+    r.Text(26, r.Height() - 112.f,
+           "세계 " + std::to_string(minute / 1440 + 1) + "일 " + std::to_string(minute / 60 % 24) +
+               "시 · J 주민과 세력 기록",
+           muted, 17);
+    r.Panel(18, r.Height() - 96.f, r.Width() - 36.f, 78);
+    r.Text(32, r.Height() - 67.f, "WASD 이동 · Space 공격 · E 획득 · F 대화 · Q 회복 · Tab 능력치",
+           ink, 18);
+    r.Text(32, r.Height() - 37.f,
+           "회복약 " + std::to_string(stats.potions) + " · 파편 " +
+               std::to_string(stats.fragments) + " · 능력치 포인트 " +
+               std::to_string(stats.points) + " · K 저장 / L 불러오기",
            gold, 17);
 }
 
@@ -1055,6 +889,14 @@ void LevelOne::DrawMinimap(Renderer& r)
                        Color(.8f, .16f, .16f));
             }
         }
+        for (const auto& npc : society.Npcs())
+        {
+            if (npc.Alive())
+            {
+                const Color color = society.Factions()[npc.faction].color;
+                r.Rect(mx + npc.x * cellSize - 1.5f, my + npc.y * cellSize - 1.5f, 3, 3, color);
+            }
+        }
         if (player.IsVisible())
         {
             r.Rect(mx + player.x * cellSize - 2, my + player.y * cellSize - 2, 4, 4, gold);
@@ -1072,6 +914,7 @@ void LevelOne::DrawMinimap(Renderer& r)
 
 void LevelOne::DrawMenus(Renderer& r)
 {
+    DrawSocietyUI(r);
     const Color ink(.88f, .87f, .79f), muted(.60f, .65f, .61f), gold(.78f, .64f, .39f);
     if (statPanel)
     {
@@ -1183,14 +1026,23 @@ void LevelOne::BuildScene()
     player.SetRenderPasses(ActorPassBit(ActorPass::Shadow) | ActorPassBit(ActorPass::World));
     player.SetRenderBounds({-160, -180, 160, 100});
     navigation.SetRenderPasses(0);
+    navigation.SetTickEnabled(false);
     hud.SetRenderPasses(ActorPassBit(ActorPass::UI));
     minimap.SetRenderPasses(ActorPassBit(ActorPass::UI));
     minimap.SetRenderBounds({0, 0, 158, 176});
     menus.SetRenderPasses(ActorPassBit(ActorPass::UI));
     scene.Attach(terrain, ground);
-    // Preserve combat ordering: player movement/attack, navigation, then enemy AI.
+    // Player inputs precede one Actor-owned movement/combat update per inhabitant.
     scene.Attach(player, characters);
     scene.Attach(navigation, characters);
+    for (auto& place : activityPlaces)
+    {
+        scene.Attach(place, statics);
+    }
+    for (auto& citizen : citizens)
+    {
+        scene.Attach(citizen, characters);
+    }
     for (auto& enemy : enemies)
     {
         scene.Attach(enemy, characters);

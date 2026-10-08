@@ -65,73 +65,9 @@ void Game::Box(Renderer& r, const Object& o, float height, Color c, Material mat
 
 void Game::DrawGround(Renderer& r)
 {
-    for (int y = 0; y < (int)mapHeight; ++y)
+    if (villageGround3D)
     {
-        for (int x = 0; x < (int)mapWidth; ++x)
-        {
-            Point p = Project(x + .5f, y + .5f, 0, r);
-            if (p.x < -70 || p.x > r.Width() + 70 || p.y < -40 || p.y > r.Height() + 40)
-            {
-                continue;
-            }
-            bool road = false;
-            for (const auto& o : objects)
-            {
-                if (o.IsVisible() && o.type == "road" &&
-                    SegmentDistance(x + .5f, y + .5f, o.x, o.y, o.w, o.h) < o.height)
-                {
-                    road = true;
-                    break;
-                }
-            }
-            float n = ((x * 17 + y * 31) % 11) * .003f;
-            bool cemetery = y > 27 && x < 32;
-            r.SetMaterial(road ? Material::Paving : Material::Earth);
-            Ground(r, x + .5f, y + .5f, 1.015f, 1.015f,
-                   road       ? Color(.235f + n, .24f + n, .23f + n)
-                   : cemetery ? Color(.14f + n, .15f + n, .135f + n)
-                              : Color(.125f + n, .155f + n, .15f + n));
-            r.SetMaterial(Material::Plain);
-            if (!road && (x * 23 + y * 7) % 9 == 0)
-            {
-                for (int j = 0; j < 3; ++j)
-                {
-                    float h = 4 + (x + j * y) % 8;
-                    r.Line({p.x + j * 4, p.y}, {p.x + j * 4 - 3, p.y - h}, 1,
-                           Color(.31f, .34f, .27f, .45f));
-                }
-            }
-
-            if (road && (x * 7 + y * 3) % 6 == 0)
-            {
-                r.Ellipse(p.x, p.y, 20, 7, Color(.045f, .065f, .07f, .40f));
-                float glint = .07f + .025f * sinf(time * .6f + x);
-                r.Line({p.x - 11, p.y + 1}, {p.x + 8, p.y - 2}, .7f, Color(.5f, .61f, .6f, glint));
-            }
-        }
-    }
-    // Blood channels and pale growth break up the repeated terrain at world-fixed positions.
-    for (int i = 0; i < 100; ++i)
-    {
-        float x = 2 + (i * 37 % 480) / 10.f, y = 2 + (i * 53 % 350) / 10.f;
-        Point p = Project(x, y, 0, r);
-        if (p.x < -80 || p.x > r.Width() + 80 || p.y < -60 || p.y > r.Height() + 60)
-        {
-            continue;
-        }
-        r.SoftEllipse(p.x, p.y, 29 + i % 19, 10 + i % 7, Color(.2f, .025f, .048f, .6f));
-        r.Line({p.x - 14, p.y + 1}, {p.x + 12, p.y - 2}, 1.2f, Color(.29f, .08f, .085f, .45f));
-        if (i % 3 == 0)
-        {
-            for (int j = 0; j < 4; ++j)
-            {
-                float ox = j * 8.f;
-                r.Line({p.x, p.y}, {p.x + ox + 12, p.y - 6 - j * 3}, 1,
-                       Color(.44f, .45f, .34f, .45f));
-                r.Line({p.x + ox + 6, p.y - 5 - j * 2}, {p.x + ox + 3, p.y - 13 - j * 3}, .8f,
-                       Color(.44f, .45f, .34f, .4f));
-            }
-        }
+        r.Submit3D(villageGround3D);
     }
 }
 
@@ -180,91 +116,13 @@ void Game::DrawShadow(Renderer& r, const Object& o)
 
 void Game::Person(Renderer& r, float x, float y, bool player)
 {
-    Point p = Project(x, y, 0, r);
-    r.SoftEllipse(p.x + 6, p.y + 4, 31, 12, Color(0, 0, 0, .66f));
-    float breath = sinf(time * (player ? 1.9f : 2.8f)) * (player ? .6f : 1.1f);
-    if (player)
-    {
-        float step = sinf(walkPhase) * 5 * motion, bob = std::abs(sinf(walkPhase)) * 1.8f * motion;
-        float sway = sinf(time * 2.2f + walkPhase * .35f) * (1 + motion * 2);
-        float torso = p.y - 31 - bob + breath, head = torso - 20;
-        Color leather(.20f, .16f, .13f), cloth(.20f, .265f, .27f), metal(.45f, .47f, .43f);
-        // Articulated boots, shins, shoulders, hood, bandages, belt and blood vessel.
-        r.Line({p.x - 5, p.y - 19}, {p.x - 6 + step * .35f, p.y - 4 + step * .45f}, 6,
-               Color(.14f, .14f, .13f));
-        r.Line({p.x + 5, p.y - 19}, {p.x + 6 - step * .35f, p.y - 4 - step * .45f}, 6,
-               Color(.23f, .21f, .18f));
-        r.Ellipse(p.x - 6 + step * .35f + facing * 2, p.y - 2 + step * .45f, 6, 3, leather);
-        r.Ellipse(p.x + 6 - step * .35f + facing * 2, p.y - 2 - step * .45f, 6, 3, leather);
-        r.SetMaterial(Material::Cloth);
-        r.Quad({p.x - 9, torso - 8}, {p.x + 10, torso - 7}, {p.x + 12 + sway, p.y - 12},
-               {p.x - 13 + sway, p.y - 10}, cloth);
-        r.Triangle({p.x - 8, torso - 7}, {p.x - 17 + sway, p.y - 9}, {p.x - 4, p.y - 13},
-                   Scale(cloth, .6f));
-        r.Triangle({p.x + 3, torso - 6}, {p.x + 14 + sway, p.y - 12}, {p.x + 5, p.y - 18},
-                   Scale(cloth, 1.2f));
-        r.SetMaterial(Material::Plain);
-        r.Line({p.x - 7, torso - 4}, {p.x + 5, p.y - 14}, 3, leather);
-        r.Line({p.x - 9, p.y - 20 - bob}, {p.x + 11, p.y - 21 - bob}, 4, leather);
-        r.Rect(p.x - 1, p.y - 23 - bob, 4, 4, Color(.65f, .49f, .28f));
-        float arm = step * .65f;
-        r.Line({p.x - 10, torso}, {p.x - 15, torso + 13 + arm}, 5, Color(.27f, .28f, .24f));
-        r.Line({p.x + 10, torso}, {p.x + 15, torso + 13 - arm}, 5, Color(.35f, .36f, .31f));
-        for (int i = 0; i < 3; ++i)
-        {
-            r.Line({p.x + 12, torso + 7 + i * 3 - arm}, {p.x + 17, torso + 8 + i * 3 - arm}, 1,
-                   Color(.6f, .57f, .44f));
-        }
-        r.Ellipse(p.x - 15, torso + 15 + arm, 3, 4, Color(.59f, .54f, .43f));
-        r.Line({p.x + 16, torso + 14 - arm}, {p.x + 20, p.y + 1 - arm}, 2, metal);
-        r.Line({p.x + 12, torso + 16 - arm}, {p.x + 19, torso + 15 - arm}, 2,
-               Color(.6f, .48f, .28f));
-        r.Ellipse(p.x, head + 2, 10, 12, Color(.105f, .14f, .15f));
-        r.Triangle({p.x - 10, head}, {p.x, head - 14}, {p.x + 9, head + 2}, cloth);
-        r.Ellipse(p.x + facing * 2, head + 5, 5, 6, Color(.55f, .52f, .43f));
-        r.Rect(p.x - 4 + facing * 2, head + 3, 8, 3, Color(.065f, .08f, .08f));
-        r.Line({p.x - 8, head + 12}, {p.x + 8, head + 12}, 3, Color(.31f, .30f, .25f));
-        r.Line({p.x - 10, torso - 8}, {p.x - 7, head + 10}, 1.5f, metal);
-        float vialY = torso + 16 + arm;
-        r.Rect(p.x - 18, vialY, 6, 10, Color(.45f, .065f, .09f));
-        r.Rect(p.x - 17, vialY - 2, 4, 3, Color(.6f, .49f, .32f));
-        r.Line({p.x - 17, vialY + 2}, {p.x - 17, vialY + 7}, 1, Color(.95f, .4f, .35f));
-        r.SoftEllipse(p.x - 15, vialY + 5, 18, 20, Color(.8f, .055f, .1f, .15f));
-    }
-    else
-    {
-        if (answer)
-        {
-            breath = 0;
-        }
-        float cough = answer ? 0.f : std::pow(std::max(0.f, sinf(time * .7f)), 12) * 2;
-        float chest = p.y - 19 + breath + cough;
-        r.Line({p.x - 5, p.y - 8}, {p.x - 21, p.y + 1}, 8, Color(.23f, .19f, .17f));
-        r.Line({p.x + 4, p.y - 7}, {p.x + 21, p.y - 1}, 7, Color(.19f, .18f, .15f));
-        r.Ellipse(p.x - 23, p.y + 2, 7, 3, Color(.13f, .12f, .11f));
-        r.SetMaterial(Material::Cloth);
-        r.Quad({p.x - 10, chest - 7}, {p.x + 8, chest - 4}, {p.x + 13, p.y - 4},
-               {p.x - 12, p.y - 3}, Color(.31f, .28f, .24f));
-        r.SetMaterial(Material::Plain);
-        r.Line({p.x - 8, chest - 2}, {p.x - 18, chest + 10}, 4, Color(.58f, .52f, .4f));
-        r.Line({p.x + 8, chest}, {p.x + 20, chest + 13}, 4, Color(.44f, .45f, .33f));
-        r.Ellipse(p.x - 4, chest - 14, 7, 9, Color(.51f, .52f, .4f));
-        r.Line({p.x - 9, chest - 14}, {p.x + 1, chest - 12}, 2, Color(.10f, .12f, .11f));
-        for (int i = 0; i < 6; ++i)
-        {
-            float h = 15 + i % 3 * 7 + (given ? reaction * 7 : 0);
-            float bend = sinf(time * 1.3f + i) * 1.5f;
-            r.Line({p.x + 4 + i * 3, p.y - 8}, {p.x + 8 + i * 4 + bend, p.y - h}, 2,
-                   Color(.52f, .53f, .37f));
-            r.Line({p.x + 8 + i * 4 + bend, p.y - h}, {p.x + 3 + i * 4, p.y - h - 9}, 1,
-                   Color(.68f, .63f, .43f));
-            if (given)
-            {
-                r.Ellipse(p.x + 8 + i * 4 + bend, p.y - h, 2, 2, Color(.7f, .10f, .13f, .6f));
-            }
-        }
-        Sigil(r, {p.x - 1, chest + 4}, 5, Color(.57f, .41f, .27f));
-    }
+    Pose3D pose;
+    pose.time = time;
+    pose.phase = walkPhase;
+    pose.movement = player ? motion : 0;
+    pose.activity = player ? 0 : 3;
+    meshCache3D.Draw(r, meshCache3D.Find(player ? "Pilgrim" : "Infected"),
+                     {x, Terrain3D::Height(x, y), y}, player ? this->player.yaw : 2.3f, 1, pose);
 }
 
 void Game::DrawObject(Renderer& r, const Object& o)
@@ -514,103 +372,116 @@ void Game::DrawObject(Renderer& r, const Object& o)
 
 void Game::DrawAtmosphere(Renderer& r)
 {
-    r.SetMaterial(Material::Plain);
-
-    const Object* npc = Find("npc");
-    if (npc && npc->IsVisible() && given)
+    for (int i = 0; i < 34; ++i)
     {
-        Point p = Project(npc->x, npc->y, 18, r);
-        r.SoftEllipse(p.x, p.y, 65 + reaction * 55, 55 + reaction * 30,
-                      Color(.65f, .04f, .11f, .13f + .055f * sinf(time * 2)));
-    }
-    // Layered world-space drifting spores: camera movement produces real parallax.
-    for (int i = 0; i < 120; ++i)
-    {
-        float x = std::fmod(i * 3.71f + time * .065f, mapWidth),
-              y = std::fmod(i * 2.37f + time * .028f, mapHeight);
-        float z = 12 + (i * 13) % 85 + sinf(time * .8f + i) * 6;
-        Point p = Project(x, y, z, r);
-        if (p.x < 0 || p.x > r.Width() || p.y < 0 || p.y > r.Height())
-        {
-            continue;
-        }
-        float pulse = given ? .5f + .5f * sinf(time * 2) : 0;
-        r.Ellipse(p.x, p.y, 1 + i % 2 * .4f, 1 + i % 2 * .4f,
-                  Color(.66f + pulse * .2f, .65f, .46f, .22f + pulse * .16f));
-    }
-
-    for (int i = 0; i < 9; ++i)
-    {
-        float x = std::fmod(4 + i * 6.f + time * .045f, mapWidth), y = 5 + i * 3.6f;
-        Point p = Project(x, y, 12, r);
-        r.SoftEllipse(p.x, p.y, 250, 51, Color(.38f, .47f, .48f, .055f));
-    }
-
-    if (target >= 0 && objects[target].IsVisible())
-    {
-        const auto& o = objects[target];
-        Point p = Project(o.x, o.y, 0, r);
-        r.SoftEllipse(p.x, p.y + 3, 35, 13, Color(.63f, .53f, .29f, .3f));
+        float x = cx + std::sin(i * 2.4f) * 12, z = cy + std::cos(i * 2.4f) * 12;
+        r.Submit3D(1,
+                   Mat4::Translation({x, 1.5f + std::sin(time * .4f + i), z}) *
+                       Mat4::Scale({.03f, .03f, .03f}),
+                   Color(.57f, .31f, .23f), Material::SoftLight);
     }
 }
 
 void Game::DrawFootprint(Renderer& r, const Footprint& f)
 {
-    Point p = Project(f.x, f.y, 0, r);
-    float a = 1 - f.age / 3;
-    r.Ellipse(p.x, p.y + 2, 5, 2, Color(.035f, .045f, .045f, a * .45f));
-    if (f.age < .55f)
-    {
-        float radius = 3 + f.age * 17;
-        for (int i = 0; i < 20; ++i)
-        {
-            float a0 = i * pi / 10, a1 = (i + 1) * pi / 10;
-            r.Line({p.x + cosf(a0) * radius, p.y + sinf(a0) * radius * .4f},
-                   {p.x + cosf(a1) * radius, p.y + sinf(a1) * radius * .4f}, .6f,
-                   Color(.34f, .4f, .38f, (.55f - f.age) * .15f));
-        }
-    }
+    r.Submit3D(0,
+               Mat4::Translation({f.x, Terrain3D::Height(f.x, f.y) + .012f, f.y}) *
+                   Mat4::Scale({.15f, .014f, .23f}),
+               Color(.09f, .085f, .07f, 1 - f.age / 3), Material::Earth);
 }
 
 void Game::DrawObjectActor(Renderer& r, const Object& o, ActorPass pass)
 {
-    if (pass == ActorPass::Ground)
+    if (pass != ActorPass::World)
     {
-        if (o.type == "lamp")
+        return;
+    }
+    if (o.type == "npc")
+    {
+        Person(r, o.x, o.y, false);
+        return;
+    }
+    if (o.type == "road" || o.type == "lore")
+    {
+        return;
+    }
+    const float floor = Terrain3D::Height(o.x, o.y);
+    Pose3D pose;
+    pose.time = time;
+    if (o.type == "wall")
+    {
+        float height = std::max(.5f, o.height / 42.f);
+        r.Submit3D(0,
+                   Mat4::Translation({o.x, floor + height * .5f, o.y}) *
+                       Mat4::Scale({o.w, height, o.h}),
+                   Color(.34f, .34f, .30f), Material::Stone);
+        for (int i = 0; i < 3; ++i)
         {
-            Point p = Project(o.x, o.y, 0, r);
-            float flicker = .93f + .07f * sinf(time * 4.1f + o.y);
-            r.SoftEllipse(p.x, p.y, 170, 83, Color(.78f, .24f, .12f, .30f * flicker));
-            r.SoftEllipse(p.x, p.y + 8, 52, 15, Color(.85f, .27f, .13f, .19f * flicker));
+            float x = o.x + (i - 1) * o.w * .29f;
+            r.Submit3D(0,
+                       Mat4::Translation({x, floor + height + .09f, o.y}) *
+                           Mat4::Rotation({0, 0, 1}, (i - 1) * .12f) *
+                           Mat4::Scale({o.w * .23f, .25f, o.h * .95f}),
+                       Color(.29f, .3f, .27f), Material::Stone);
         }
+        return;
+    }
+    std::string model = o.type == "pillar"                       ? "Pillar"
+                        : o.type == "arch" || o.type == "exit"   ? "Arch"
+                        : o.type == "rubble"                     ? "Debris"
+                        : o.type == "well" || o.type == "altar"  ? "Shrine"
+                        : o.type == "wagon"                      ? "Cart"
+                        : o.type == "banner"                     ? "NoticeBoard"
+                        : o.type == "root"                       ? "Roots"
+                        : o.type == "grave"                      ? "Grave"
+                        : o.type == "body" || o.type == "corpse" ? "Corpse"
+                        : o.type == "chest"                      ? "WorkTable"
+                                                                 : "Brazier";
+    meshCache3D.Draw(r, meshCache3D.Find(model), {o.x, floor, o.y}, float(o.variant % 4) * 1.57f, 1,
+                     pose);
+    if (o.type == "lamp")
+    {
+        r.Light3D({o.x, floor + 1.8f, o.y}, Color(1.4f, .4f, .10f));
+    }
+}
 
-        return;
-    }
-    if (pass == ActorPass::Shadow)
+void Game::BuildVillage3D()
+{
+    villageGround3D = std::make_shared<Geometry3D>();
+    auto& mesh = *villageGround3D;
+    mesh.minimum = {0, -1, 0};
+    mesh.maximum = {mapWidth, 1, mapHeight};
+    for (int y = 0; y < int(mapHeight); ++y)
     {
-        DrawShadow(r, o);
-        return;
-    }
-    if (pass == ActorPass::Effects)
-    {
-        if (o.type == "lamp")
+        for (int x = 0; x < int(mapWidth); ++x)
         {
-            Point p = Project(o.x, o.y, 37, r);
-            r.SoftEllipse(p.x, p.y, 72, 87, Color(.9f, .17f, .05f, .18f));
+            bool road = false;
+            for (const auto& o : objects)
+            {
+                if (o.type == "road" && std::abs(x + .5f - o.x) < o.w * .5f &&
+                    std::abs(y + .5f - o.y) < o.h * .5f)
+                {
+                    road = true;
+                    break;
+                }
+            }
+            Color c = road ? Color(.32f, .29f, .24f) : Color(.19f, .24f, .21f);
+            auto p = [](float x, float z)
+            {
+                return Vec3{x, Terrain3D::Height(x, z), z};
+            };
+            Vec3 a = p(float(x), float(y)), b = p(x + 1.f, float(y)), d = p(float(x), y + 1.f),
+                 e = p(x + 1.f, y + 1.f);
+            auto triangle = [&](Vec3 a, Vec3 b, Vec3 c0)
+            {
+                Vec3 normal = Normalize(Cross(b - a, c0 - a));
+                for (Vec3 q : {a, b, c0})
+                {
+                    mesh.vertices.push_back({q, normal, c.r, c.g, c.b, road ? 5.f : 2.f});
+                }
+            };
+            triangle(a, d, b);
+            triangle(b, d, e);
         }
-
-        return;
     }
-    if (pass != ActorPass::World || o.type == "road" || o.type == "lore")
-    {
-        return;
-    }
-
-    Point p = Project(o.x, o.y, 0, r);
-    float margin = 180 + (o.w + o.h) * 24;
-    if (p.x < -margin || p.x > r.Width() + margin || p.y < -margin || p.y > r.Height() + margin)
-    {
-        return;
-    }
-    DrawObject(r, o);
 }

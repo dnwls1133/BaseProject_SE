@@ -21,6 +21,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Math3D.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="WorldRenderer3D.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="WorldShaders3D.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="MeshCache3D.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="Terrain3D.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -34,6 +39,7 @@
     <ClInclude Include="ContentData.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="LevelData.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="WorldSimulation.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="WorldSociety.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="LevelOne.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="ModelCache.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="RandomLevelMap.h"><Filter>헤더 파일</Filter></ClInclude>
@@ -44,6 +50,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="WorldRenderer3D.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="MeshCache3D.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="Terrain3D.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="NpcLifeData.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="NpcLife.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="NpcLifeSave.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -56,6 +68,20 @@
     <ClCompile Include="Scene.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="LevelData.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="WorldSimulation.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="LevelOneEcology.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyNarrative.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyNarrativeData.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyNarrativeSave.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyWar.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="LevelOneSave.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="LevelOneSociety.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietySave.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyQuests.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyData.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="WorldSociety.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyCombat.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyFactions.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyAI.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="LevelOne.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="ModelCache.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="RandomLevelMap.cpp"><Filter>소스 파일</Filter></ClCompile>

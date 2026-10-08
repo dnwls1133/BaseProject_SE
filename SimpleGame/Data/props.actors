@@ -15,3 +15,17 @@ prop debris Debris static 1 0 0 60
 prop corpse Corpse static 1 0 0 65
 prop dead_tree DeadTree static 0 1 1 130
 prop blighted_tree BlightedTree fungal 0 1 1 135
+
+prop blood_chapel BloodChapel static 0 1 1 140
+prop union_storehouse UnionStorehouse static 0 1 1 140
+prop mycelium_sanctum MyceliumSanctum static 0 1 1 140
+prop blood_observatory BloodObservatory static 0 1 1 140
+prop purge_bastion PurgeBastion static 0 1 1 140
+footprint blood_chapel 1
+footprint union_storehouse 1
+footprint mycelium_sanctum 1
+footprint blood_observatory 1
+footprint purge_bastion 1
+prop ledger_table Cart static 0 1 0 95
+prop ration_board Fence static 0 1 0 75
+prop boundary_marker Roots static 0 1 0 60

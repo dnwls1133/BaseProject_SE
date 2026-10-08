@@ -1,6 +1,7 @@
 #pragma once
 #include "Profiler.h"
 #include <cmath>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -62,6 +63,28 @@ class Row
         std::string value;
         Require(static_cast<bool>(stream >> std::quoted(value)), "missing value");
         Require(!value.empty(), "empty value");
+        return value;
+    }
+
+    std::uint64_t Unsigned(std::uint64_t maximum = 1000000000000ULL)
+    {
+        const std::string word = Word();
+        Require(word.find_first_not_of("0123456789") == std::string::npos,
+                "unsigned integer required");
+        std::size_t consumed = 0;
+        const auto value = std::stoull(word, &consumed);
+        Require(consumed == word.size() && value <= maximum, "unsigned integer out of range");
+        return value;
+    }
+
+    double Decimal(double minimum, double maximum)
+    {
+        const std::string word = Word();
+        std::size_t consumed = 0;
+        const double value = std::stod(word, &consumed);
+        Require(consumed == word.size() && std::isfinite(value) && value >= minimum &&
+                    value <= maximum,
+                "decimal out of range");
         return value;
     }
 

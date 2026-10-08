@@ -155,6 +155,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Math3D.h" />
+    <ClInclude Include="WorldRenderer3D.h" />
+    <ClInclude Include="WorldShaders3D.h" />
+    <ClInclude Include="MeshCache3D.h" />
+    <ClInclude Include="Terrain3D.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Profiler.h" />
     <ClInclude Include="Game.h" />
@@ -164,6 +169,7 @@
     <ClInclude Include="ContentData.h" />
     <ClInclude Include="LevelData.h" />
     <ClInclude Include="WorldSimulation.h" />
+    <ClInclude Include="WorldSociety.h" />
     <ClInclude Include="ModelCache.h" />
     <ClInclude Include="RandomLevelMap.h" />
     <ClInclude Include="RpgStats.h" />
@@ -172,6 +178,12 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="WorldRenderer3D.cpp" />
+    <ClCompile Include="MeshCache3D.cpp" />
+    <ClCompile Include="Terrain3D.cpp" />
+    <ClCompile Include="NpcLifeData.cpp" />
+    <ClCompile Include="NpcLife.cpp" />
+    <ClCompile Include="NpcLifeSave.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -180,6 +192,20 @@
     <ClCompile Include="LevelOne.cpp" />
     <ClCompile Include="LevelData.cpp" />
     <ClCompile Include="WorldSimulation.cpp" />
+    <ClCompile Include="LevelOneEcology.cpp" />
+    <ClCompile Include="SocietyNarrative.cpp" />
+    <ClCompile Include="SocietyNarrativeData.cpp" />
+    <ClCompile Include="SocietyNarrativeSave.cpp" />
+    <ClCompile Include="SocietyWar.cpp" />
+    <ClCompile Include="LevelOneSave.cpp" />
+    <ClCompile Include="LevelOneSociety.cpp" />
+    <ClCompile Include="SocietySave.cpp" />
+    <ClCompile Include="SocietyQuests.cpp" />
+    <ClCompile Include="SocietyData.cpp" />
+    <ClCompile Include="WorldSociety.cpp" />
+    <ClCompile Include="SocietyCombat.cpp" />
+    <ClCompile Include="SocietyFactions.cpp" />
+    <ClCompile Include="SocietyAI.cpp" />
     <ClCompile Include="ModelCache.cpp" />
     <ClCompile Include="RandomLevelMap.cpp" />
     <ClCompile Include="VillageArt.cpp" />

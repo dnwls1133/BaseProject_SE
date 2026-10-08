@@ -108,6 +108,51 @@
     X(SimulationRegions, world_simulated_region_count)                                             \
     X(RegionFood, player_region_food_ratio)                                                        \
     X(RegionInfection, player_region_infection_ratio)                                              \
+    X(SocietyLoad, cpu_society_load_ms)                                                            \
+    X(SocietyUpdate, cpu_society_update_ms)                                                        \
+    X(NpcDecision, cpu_npc_decision_ms)                                                            \
+    X(NpcDecisions, npc_decision_count)                                                            \
+    X(SocialMessages, cpu_npc_messages_ms)                                                         \
+    X(SocialMessageSent, npc_message_sent_count)                                                   \
+    X(SocialMessageDropped, npc_message_dropped_count)                                             \
+    X(FactionDecision, cpu_faction_decision_ms)                                                    \
+    X(FactionDecisions, faction_decision_count)                                                    \
+    X(SocialQuests, cpu_dynamic_quests_ms)                                                         \
+    X(SocialQuestCreated, dynamic_quest_created_count)                                             \
+    X(SocialNpcCount, social_npc_count)                                                            \
+    X(SocialMessageQueue, npc_message_queue_count)                                                 \
+    X(SocialQuestCount, world_quest_record_count)                                                  \
+    X(NpcPath, cpu_npc_path_ms)                                                                    \
+    X(NpcPathBuilds, npc_path_build_count)                                                         \
+    X(NpcPathNodes, npc_path_expanded_nodes)                                                       \
+    X(NpcPathDeferred, npc_path_budget_deferred_count)                                             \
+    X(NpcPathFailed, npc_path_unreachable_count)                                                   \
+    X(NpcPathPartial, npc_path_partial_route_count)                                                \
+    X(NpcMotion, cpu_npc_motion_ms)                                                                \
+    X(EcologyCandidates, ecology_candidate_count)                                                  \
+    X(EcologyPathDeferred, ecology_path_budget_deferred_count)                                     \
+    X(WildlifeStrikes, wildlife_strike_count)                                                      \
+    X(StoryUpdate, cpu_narrative_update_ms)                                                        \
+    X(StoryLetters, narrative_message_queue_count)                                                 \
+    X(StoryDecisions, narrative_decision_count)                                                    \
+    X(World3D, cpu_world_3d_ms)                                                                    \
+    X(Shadow3D, cpu_shadow_3d_submit_ms)                                                           \
+    X(World3DInstances, world_3d_instance_count)                                                   \
+    X(World3DTriangles, world_3d_submitted_triangle_count)                                         \
+    X(World3DShadowInstances, world_3d_shadow_instance_count)                                      \
+    X(World3DSmallLod, world_3d_small_lod_count)                                                   \
+    X(SceneBoundsRebuild, scene_3d_bounds_rebuild_count)                                           \
+    X(StaticModelParts, static_model_cached_part_count)                                            \
+    X(NpcLife, cpu_npc_life_ms)                                                                    \
+    X(NpcPlans, npc_active_plan_count)                                                             \
+    X(NpcAgreements, npc_active_agreement_count)                                                   \
+    X(WarDecision, cpu_faction_war_ms)                                                             \
+    X(ActiveWars, active_war_count)                                                                \
+    X(NpcPerception, cpu_ecology_perception_ms)                                                    \
+    X(NpcCombat, cpu_npc_combat_ms)                                                                \
+    X(NpcStrikes, npc_strike_count)                                                                \
+    X(WorldSave, cpu_world_save_ms)                                                                \
+    X(WorldRestore, cpu_world_restore_ms)                                                          \
     X(WorldGenerate, cpu_world_generate_ms)                                                        \
     X(CacheRead, cpu_model_cache_read_ms)                                                          \
     X(CacheBuild, cpu_model_cache_build_ms)                                                        \

@@ -102,3 +102,42 @@ world_absolute_minute, world_simulated_region_count, player_region_food_ratio, p
 world_player_region, world_region_state, world_event 이벤트의 detail에 지역/사건 ID와 단위가 명시된 상태를 기록한다.
 전체 규약은 docs/WORLD_SIMULATION.md를 따른다. 게이지 sum을 누적 자원으로 보지 않으며 상위 update 시간과 중복 합산하지 않는다.
 새 계측의 실행 로그·성능 수치는 아직 확인하지 않았다.
+
+## 자율 NPC·저장 프로파일링 — 2026-09-28 후속
+NPC 판단/소통/세력/요청/경로/이동/전투와 월드 저장·복원에 CPU 타이머, 처리 횟수, 메시지 대기/탈락 카운터를 추가했다. 키 전체와 기록 예시는 AUTONOMOUS_WORLD.md를 따른다.
+society_change의 change_id/cause_id와 주체·대상·사유로 사건 연결을 추적하고 world_resource_change의 변경 전후를 비교한다. 게이지와 건수, 포함 CPU 시간을 구분한다. 저장 I/O도 프레임 부하를 만들 수 있으므로 cpu_world_save_ms와 p95를 함께 본다.
+맵 확대 후 지형은 화면 주변만 순회하며 NPC는 지역 후보와 분산 주기, 경로 생성 예산을 사용한다. 실측 없이 60 FPS나 최적화 효과를 확정하지 않는다.
+
+## 생태·세력 전쟁 계측 — 2026-09-30
+- cpu_ecology_perception_ms: 프레임 공간 버킷 구성과 몬스터 대상 선택 CPU. ecology_candidate_count는 몹/주민이 조회한 누적 후보 수다.
+- ecology_path_budget_deferred_count: 몬스터 우회 경로의 프레임 예산(2건) 소진으로 미룬 요청 수다. 기존 npc_path_build_count/cpu_npc_path_ms에는 주민과 몬스터 경로가 함께 포함된다.
+- wildlife_strike_count: 몬스터의 유효 타격 조건 통과 횟수. 플레이어 무적 중 실제 피해량과는 다를 수 있다. npc_strike_count는 주민 타격을 집계한다.
+- cpu_faction_war_ms/active_war_count: 캠페인 판단 CPU와 활성 전쟁 수. 부모 cpu_faction_decision_ms에 포함되므로 중복 합산하지 않는다.
+- wildlife_target 사건: actor_id, target_kind(0 없음/1 플레이어/2 주민/3 몬스터), target_index, world_minute, reason. society_change에는 wildlife_interaction/war_declared/campaign_order/war_supply/armistice와 원인·시각을 기록한다.
+맵 256×200·NPC 40명으로 부하 조건이 달라졌다. 플레이어 전용 전맵 거리장 반복 갱신은 중지했지만 목표 FPS 달성을 측정한 것은 아니다. 빌드·실행·실측은 사용자가 담당한다.
+
+## 서사 계측 — 2026-10-07
+- `cpu_narrative_update_ms`: 관찰·정보 전달·사건 진행의 포괄 CPU 시간. 부모인 사회/월드 CPU와 중복 합산하지 않는다.
+- `narrative_message_queue_count`: 전달 대기 중인 서사 보고 수. 최대 128개. 기존 일반 사회 메시지 큐와 별도다.
+- `narrative_decision_count`: 진행 중 사건의 판단 횟수. 완료 수나 NPC 전체 판단 수가 아니다.
+- 관찰/전달/사건 판단은 세계 6분 간격, 자발적 정보 공유는 세계 30분 간격이다. 서사 전달 처리 예산은 기존 messageBudget 값(현재 16)을 재사용하며 일반 사회 전달 예산과 별도 적용한다. 매 프레임 모든 인물의 서사 계획을 재평가하지 않는다.
+- `story_started`, `story_knowledge`, `story_dispatch`, `story_report_cancelled`, `story_exchange`, `story_cargo`, `story_joint_care`, `story_preservation`, `story_outcome`, `story_war_reconsidered` 등 변경 기록을 남긴다. 지식 수용에는 출처·관찰 시각·주장·신뢰도, 사건 변화에는 원인 ID를 포함한다.
+- 동일한 직접 관찰은 매 틱 변경 로그를 반복하지 않고 60세계분 이후 신선도를 갱신한다. 출처가 같은 정보가 여러 번 전달됐다고 독립 증거 여러 개로 누적하지 않는다.
+- 기존 사회 관계 검색/소규모 관찰 루프를 재사용한다. 현재 40명 규모의 구현이며 대규모 인구에 대한 확장성이나 60 FPS 달성을 실측한 것은 아니다. 빌드·실행·테스트·프로파일 비교는 사용자 담당이다.
+
+## 실제 3D와 생활 계획 계측 — 2026-10-07 후속
+- cpu_world_3d_ms: 인스턴스 업로드·그림자/본 패스 GL 제출·점광원 선택 CPU 시간. GPU 완료 시간이 아니다. 현재 FinishScene 안에서 호출되어 cpu_postprocess_submit_ms에도 포함된다.
+- cpu_shadow_3d_submit_ms: 위 시간에 포함된 그림자 draw 제출 CPU. 상위 시간과 합산하지 않는다. 기존 GPU geometry 구간에는 3D 그림자/본 패스가 함께 들어가며 별도 그림자 GPU 타이머는 없다.
+- world_3d_instance_count: 프레임의 동적 도형 인스턴스 수. 별도 정적 지형 청크는 제외한다. world_3d_submitted_triangle_count는 그림자와 본 패스에 제출한 삼각형을 합산하며 유일 정점/보이는 픽셀 수가 아니다.
+- cpu_model_draw_ms와 model_draw_count는 3D 모델 포즈·인스턴스 제출에도 사용한다. 기존 2D ModelScope의 모델별 상세 정점 집계와 새 3D 인스턴스 집계를 동일하게 해석하지 않는다.
+- cpu_npc_life_ms: 세계 분 틱의 약속/생활 계획 판단 CPU. 실제 이동·현장 작업은 기존 cpu_npc_motion_ms에 포함된다. npc_active_plan_count/npc_active_agreement_count는 사회 갱신 프레임마다 기록하는 현재 상태 게이지다. 판단 틱이 없는 프레임에도 유지한다.
+- society_change의 life_plan/life_path_blocked/life_plan_cancelled/life_production/life_meal/life_delivery/life_cargo_lost/npc_conversation/ agreement_proposed·reserved·fulfilled·cancelled로 원인 ID와 결과를 추적한다. world_resource_change로 지역 자원 이동을 함께 본다.
+기본 도형별 GPU 인스턴싱과 정적 지형 청크 캐시를 추가했으므로 이전 2D CPU 배칭만 있는 단계와 구분한다. 그림자 패스가 실제 draw call에 포함되어 이전 19회보다 늘 수 있다. 60 FPS 달성/회귀 여부는 같은 시드·해상도·구성의 실제 로그로 판단한다. 빌드·실행·실측은 하지 않았다.
+
+## 2026-10-08 계측 보정과 최적화
+
+3D glDrawArraysInstanced를 draw_call_count/geometry_draw_count에 포함했다. 과거 로그의 호출 수는 3D를 제외했으므로 새 로그와 단순 비교하면 안 된다. GPU 타임스탬프는 8개로 확장해 gpu_shadow_ms, gpu_world_ms(본 렌더), resolve, bloom 2구간, postprocess, UI, 전체 프레임을 기록한다. 이전 gpu_world_ms와 비교할 때 새 그림자+본 렌더 구간을 본다.
+
+A* 탐색 노드/예산 대기/실패/부분 경로, 그림자 인스턴스, 작은 도형 LOD, Scene 경계 재계산, 정적 부품 재사용 카운터를 추가했다. 정적 부품 수는 GPU 영구 캐시 적중 수와 다르며, 그림자 인스턴스 카운터는 동적 도형 배치만 집계한다. 자세한 키는 PLAYABILITY_RENDER_IMPROVEMENTS.md를 따른다.
+
+절대 타이머 주기, 경로 탐색 예산, 정적 소품 행렬/Scene 경계 재사용, 글꼴 측정 분리/LRU, 그림자 제외, 작은 구체 LOD, 후면 컬링을 적용했다. 실측/60 FPS 달성은 미확인이다. 사용자 실행 로그를 받은 후 같은 조건의 프레임 p95/max, cpu_npc_path_ms, cpu_scene_prepare_ms, cpu_model_draw_ms, cpu_label_rasterize_ms 및 GPU 구간으로 평가한다.

@@ -22,6 +22,7 @@ struct EnemyDefinition
     float speed = 1.65f, windup = .7f, cooldown = 1.25f, range = 1.45f;
     float gait = 4.5f, shadow = 76, barHeight = 108;
     int aggro = 11;
+    std::vector<std::string> rivals;
 };
 
 struct PropDefinition
@@ -30,6 +31,7 @@ struct PropDefinition
     ModelId model = ModelId::Pillar;
     bool ground = false, blocking = false, tall = false;
     float shadow = 100;
+    int footprint = 0;
 };
 
 struct RegionDefinition
@@ -70,7 +72,8 @@ struct LevelData
 {
     int width = 80, height = 64, startX = 12, startY = 15;
     int goalLevel = 3, goalPickups = 1, goalAllocated = 1;
-    std::string title, introduction, sourceFile, simulationFile;
+    std::string title, introduction, sourceFile, simulationFile, societyFile;
+    std::uint32_t contentHash = 2166136261u;
     RpgRules rules;
     std::vector<RegionDefinition> regions;
     std::vector<EnemyDefinition> enemies;

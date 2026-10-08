@@ -112,3 +112,50 @@ Visual Studio의 `CopyGameContent`가 원본 `SimpleGame/Data`의 하위 폴더�
 .world의 선택적 `simulation Simulation/level1.sim` 레코드가 시간/지역 상태/조건부 사건 정의를 연결한다.
 clock, region, event 레코드의 형식과 유효 범위는 docs/WORLD_SIMULATION.md를 따른다.
 기존 ContentData, CopyGameContent와 R 로딩을 재사용한다. 같은 월드 재로딩에서는 지역 상태를 유지하며 초기값 변경은 재시작으로 확인한다.
+
+## 사회 콘텐츠 — 2026-09-28 후속
+월드의 `society Simulation/level1.society`에서 NPC/세력/초기 관계/행동 가중치를 읽는다. 파일 형식·순서·범위는 AUTONOMOUS_WORLD.md를 따른다. .world의 scatter 반경 허용 상한을 64로 확장했다.
+ChurchRegalia, RefugeGear, SporeMantle, ResearchGear, PurgeArmor의 외부 장비 모델을 기존 Pilgrim 몸체와 겹쳐 사용한다. 새 주민 콘텐츠는 공통 로더/Actor/판단을 재사용하며 NPC별 클래스를 복제하지 않는다.
+사회/세계/시뮬레이션/적/소품/성장 정의의 내용은 저장 호환성 해시에 영향을 준다. 사회 모드의 해당 파일 변경은 재시작과 기존 저장 처리 확인이 필요하다. 원본 Data 배포는 기존 CopyGameContent를 사용하고 실제 저장은 Data 바깥 Saves에 둔다.
+
+## 첫 맵 확장 데이터 — 2026-09-30
+최신 첫 맵은 256×200, 초기 주민 40명이다. 로더는 축당 최대 256타일을 허용하며 저장의 NPC/몬스터/전리품 좌표와 경로 크기 제한도 함께 확장했다. scatter 반경 상한은 96이다.
+새 정적 모델은 BloodChapel, UnionStorehouse, MyceliumSanctum, BloodObservatory, PurgeBastion이며 .model→models.catalog→props.actors→level1.world 흐름을 재사용한다. 모델 캐시 버전 4와 내용 해시를 유지한다.
+새 레코드는 enemies.actors의 rival, props.actors의 footprint, .society의 ecology/war_rules다. 레코드 순서·값과 저장 호환성은 AUTONOMOUS_WORLD.md의 2026-09-30 절을 따른다. 건물 점유와 맵 이동성, 세력 행동은 사용자 실행 확인 전이다.
+
+## 서사 데이터 추가 — 2026-10-07
+
+`.society`에서 `story Simulation/level1.story`를 참조한다. version 1의 기존 UTF-8 줄 형식이며 공백이 있는 문자열은 큰따옴표로 감싼다. 참조하는 NPC/지역/세력은 기존 사회 정의를 재사용하고 fact는 참조 전에 정의한다. 파일 내용은 사회 콘텐츠 해시에 포함한다.
+
+- `profile NPC "과거" "동기" "금기" "믿음" "미지" 가중치10개`: NPC당 하나, 각 가중치 -2~2.
+- 가중치 순서: Rest, Travel, Trade, Aid, Patrol, Research, Raid, Flee, Combat, Escort. 기존 AI 점수에 더한다.
+- `bond 발신NPC 대상NPC 신뢰 호감 존경 공포 의존 이념친화`: -100~100, 방향성 관계이며 같은 쌍의 기존 초기값을 덮어쓴다. 반대 방향은 별도 행이다.
+- `fact ID "주장" "정정" 지역 관찰방식 임계값`: 최대 32개. food(임계값 0~1), injury(체력), site, rivals, testimony. 뒤 세 방식은 임계값 0을 사용한다. food/site는 해당 지역 중심 관찰, injury는 해당 지역 부상자 관찰, rivals는 실제 군집 충돌 목격, testimony는 초기 지식/보고로 얻는다.
+- `influence factID 선제전재고가중치 행동가중치10개`: 앞 값 0~1, 나머지 -2~2. 정보의 신뢰도/주장/신선도를 반영해 기존 행동 점수에 적용한다.
+- `knowledge 수신NPC factID 최초출처NPC 주장 신뢰도`: 주장 -1 또는 1, 신뢰도 0.1~1. 같은 NPC/fact 중복은 거부한다.
+- `incident ID "제목" 종류 지역 담당NPC 협력NPC 시작fact 대조fact 유효세계분`: 종류 ration/signal/ledger, 최대 16개, 기한 60~10080분. 현재 유형별 실행 규칙은 공통 코드이며 파일에서 임의 스크립트를 실행하지 않는다.
+- 배급 화물의 현재 교환 단위는 비축량 1 → 지역 식량 비율 0.03이다. 이는 프로토타입 조정값이며 NPC 개인 식량·세력 보급·지역 비율을 같은 숫자로 혼동하지 않는다.
+- 신규 소품 ledger_table/ration_board/boundary_marker는 기존 Cart/Fence/Roots 모델을 재사용한다. ModelCache 버전 4는 유지한다.
+- 로더/표현/행동 연결은 SocietyNarrativeData.cpp, 조건부 사건/정보 전달은 SocietyNarrative.cpp, 저장은 SocietyNarrativeSave.cpp를 수정한다. 콘텐츠만 추가할 때 기존 유형·모델·로더를 먼저 재사용한다. 새로운 실행 의미가 필요할 때만 공통 코드를 확장한다.
+- schema 3 저장과 콘텐츠 해시는 이전 데이터와의 무조건 복원을 거부한다. 모델 캐시는 플레이 저장과 별개다. 빌드·실행·테스트는 하지 않았다.
+
+## 실제 3D 모델과 주민 생활 데이터 — 2026-10-07 후속
+새 콘텐츠 편집의 우선 안내는 THREE_D_LIVING_WORLD.md 2~4절이다.
+
+| 수정할 내용 | 원본 |
+| --- | --- |
+| 실제 3D 모델 목록·ID 매핑 | SimpleGame/Data/models3d.catalog |
+| 실제 부품·관절·재질·모델 크기/회전/색 | SimpleGame/Data/Models3D/*.mesh |
+| 주민 거처·일터·생활 수치·자리 정원·약품·교역로·상황별 문장 | SimpleGame/Data/Simulation/level1.life |
+| 생활 정의 선택 | SimpleGame/Data/Simulation/level1.society의 life 경로 |
+
+기존 .world/.actors/.story와 로더를 유지하며 레벨별 C++ 복제를 하지 않는다. 새 파일도 version 1 UTF-8 줄 형식이다. 이전 .model은 호환용 2D 모델이며 실제 3D 화면의 형상 변경은 .mesh에 한다. models3d.catalog의 기존 ID 순서를 바꾸지 않는다.
+3D 캐시 Cache/world_models3d.bin 형식 2에는 부품/관절/로컬 행렬을 보관한다. 해시를 위해 원문을 읽으며 단위 도형 GPU 자원은 실행마다 구성한다. 기존 2D 캐시 형식 4와 별개다. 모델 변경은 재시작, 생활 정의 변경은 저장 내용 해시 호환성을 고려한다. CopyGameContent가 원본을 복사하고 Cache는 제외한다.
+이전 단계의 StoryOrder 지정 행동 대신, 생활이 켜진 월드는 실제 지원/진료/조사 결과를 서사에 연결한다. 빌드·실행·테스트는 수행하지 않았다.
+
+## 2026-10-08 추가
+
+- .society의 `frontier 세력A 세력B 목표지역 Ax Ay Bx By`는 집결 좌표와 분쟁 거점을 정의한다. ID/좌표/소유자/중복을 로딩에서 검사한다.
+- 첫 맵 .life에 전초 2개를 추가했다(총 65곳). 슬롯 위치는 로딩 시 접근성을 고려해 파생하며 파일에 중복 저장하지 않는다.
+- .mesh는 재질12(Metal)를 허용한다. 3D 캐시3, 기존 2D 캐시4, 플레이 저장 schema5를 구분한다.
+- 상세 변경과 이전 저장 처리: [대화·자율 사회·3D 개선](PLAYABILITY_RENDER_IMPROVEMENTS.md).

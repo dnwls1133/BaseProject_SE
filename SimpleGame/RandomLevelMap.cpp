@@ -204,7 +204,19 @@ void RandomLevelMap::Generate(std::uint32_t value, const LevelData& definition)
         placements.push_back(prop);
         if (definition.Prop(prop.id).blocking)
         {
-            tiles[static_cast<int>(prop.y) * Width + static_cast<int>(prop.x)] = 0;
+            const int radius = definition.Prop(prop.id).footprint;
+            for (int dy = -radius; dy <= radius; ++dy)
+            {
+                for (int dx = -radius; dx <= radius; ++dx)
+                {
+                    const int x = static_cast<int>(prop.x) + dx;
+                    const int y = static_cast<int>(prop.y) + dy;
+                    if (x > 0 && y > 0 && x < Width - 1 && y < Height - 1)
+                    {
+                        tiles[y * Width + x] = 0;
+                    }
+                }
+            }
         }
     };
     for (const auto& prop : definition.placements)

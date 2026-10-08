@@ -4,6 +4,7 @@
 #endif
 #include "Renderer.h"
 #include "RendererShaders.h"
+#include "WorldRenderer3D.h"
 #include <windows.h>
 #include <algorithm>
 #include <cmath>
@@ -75,6 +76,8 @@ GLuint Renderer::Compile(const char* vs, const char* fs)
 
 Renderer::Renderer(int w, int h)
 {
+    world = std::make_unique<WorldRenderer3D>();
+    worldReady = world->Ready();
     program = Compile(ShaderSource::GeometryVertex, ShaderSource::GeometryFragment);
     postProgram = Compile(ShaderSource::ScreenVertex, ShaderSource::PostFragment);
     blurProgram = Compile(ShaderSource::ScreenVertex, ShaderSource::BlurFragment);
@@ -92,6 +95,10 @@ Renderer::~Renderer()
         glDeleteTextures(1, &item.second.texture);
     }
 
+    for (auto& font : fonts)
+    {
+        DeleteObject(static_cast<HFONT>(font.second));
+    }
     if (fontDC)
     {
         DeleteDC((HDC)fontDC);
@@ -112,6 +119,8 @@ void Renderer::ReleaseTargets()
 {
     glDeleteFramebuffers(1, &sceneFbo);
     glDeleteRenderbuffers(1, &sceneColor);
+    glDeleteRenderbuffers(1, &sceneDepth);
+    sceneDepth = 0;
     glDeleteFramebuffers(1, &resolveFbo);
     glDeleteTextures(1, &sceneTexture);
     glDeleteFramebuffers(2, bloomFbo);
@@ -146,12 +155,20 @@ void Renderer::Resize(int w, int h)
     glBindRenderbuffer(GL_RENDERBUFFER, sceneColor);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA16F, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, sceneColor);
+    glGenRenderbuffers(1, &sceneDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, sceneDepth);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT24, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, sceneDepth);
     bool valid = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
     // Some drivers expose fewer samples for floating-point color targets.
     while (!valid && samples > 1)
     {
         samples = std::max(1, samples / 2);
+        glBindRenderbuffer(GL_RENDERBUFFER, sceneColor);
         glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA16F, width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, sceneDepth);
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT24, width,
+                                         height);
         valid = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
     }
     glGenFramebuffers(1, &resolveFbo);
@@ -185,11 +202,15 @@ void Renderer::Begin(float t, Point worldOffset)
     Profile::Set(Profile::Metric::ViewWidth, width);
     Profile::Set(Profile::Metric::ViewHeight, height);
     Profile::Set(Profile::Metric::MsaaSamples, samples);
-    Profile::Set(Profile::Metric::TargetBytes, double(width) * height * 8 * (samples + 1) +
-                                                   double(bloomWidth) * bloomHeight * 16);
+    Profile::Set(Profile::Metric::TargetBytes,
+                 double(width) * height * (8 * (samples + 1) + 4 * samples) + 2048.0 * 2048 * 4 +
+                     double(bloomWidth) * bloomHeight * 16);
     Profile::Set(Profile::Metric::LabelCacheBytes, double(labelCacheBytes));
     Profile::Set(Profile::Metric::LabelCacheEntries, double(labels.size()));
     vertices.clear();
+    world->Begin();
+    modelSpace3D = Mat4{};
+    modelSpaceIdentity = true;
     clock = t;
     glDisable(GL_SCISSOR_TEST);
     clipEnabled = false;
@@ -203,7 +224,8 @@ void Renderer::Begin(float t, Point worldOffset)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(.033f, .044f, .05f, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glDepthMask(GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::Push(Point p, Color c, float u, float v, float kind)
@@ -335,6 +357,10 @@ void Renderer::Flush(Profile::Metric reason)
     {
         Profile::BeginGpuFrame();
         profileGpuBegun = true;
+        if (!worldEnabled)
+        {
+            Profile::GpuMarker(1);
+        }
     }
     ++drawCallCount;
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size());
@@ -356,17 +382,34 @@ void Renderer::Fullscreen(GLuint shader)
 void Renderer::FinishScene()
 {
     PROFILE_SCOPE(Postprocess);
+    if (worldEnabled)
+    {
+        if (!profileGpuBegun)
+        {
+            Profile::BeginGpuFrame();
+            profileGpuBegun = true;
+        }
+        world->Render(ready ? sceneFbo : 0, camera, clock, drawCallCount);
+    }
     ResetClipRect();
     Flush(Profile::Metric::FlushPost);
     if (!profileGpuBegun)
     {
         Profile::BeginGpuFrame();
         profileGpuBegun = true;
+        if (!worldEnabled)
+        {
+            Profile::GpuMarker(1);
+        }
     }
-    Profile::GpuMarker(1);
+    Profile::GpuMarker(2);
     material = Material::Plain;
     if (!ready)
     {
+        for (unsigned marker = 3; marker <= 6; ++marker)
+        {
+            Profile::GpuMarker(marker);
+        }
         return;
     }
     {
@@ -376,7 +419,7 @@ void Renderer::FinishScene()
         glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT,
                           GL_NEAREST);
     }
-    Profile::GpuMarker(2);
+    Profile::GpuMarker(3);
     glDisable(GL_BLEND);
     glActiveTexture(GL_TEXTURE0);
     glViewport(0, 0, bloomWidth, bloomHeight);
@@ -390,7 +433,7 @@ void Renderer::FinishScene()
         glUniform2f(glGetUniformLocation(blurProgram, "direction"), i ? 0.f : 1.f / bloomWidth,
                     i ? 1.f / bloomHeight : 0.f);
         Fullscreen(blurProgram);
-        Profile::GpuMarker(3 + i);
+        Profile::GpuMarker(4 + i);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
@@ -404,7 +447,7 @@ void Renderer::FinishScene()
     glUniform2f(glGetUniformLocation(postProgram, "texel"), 1.f / width, 1.f / height);
     glUniform1f(glGetUniformLocation(postProgram, "time"), clock);
     Fullscreen(postProgram);
-    Profile::GpuMarker(5);
+    Profile::GpuMarker(6);
     glActiveTexture(GL_TEXTURE0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -445,33 +488,35 @@ Renderer::Label& Renderer::GetLabel(const std::string& text, int size)
     auto found = labels.find(key);
     if (found != labels.end())
     {
+        found->second.lastUsed = ++labelUse;
         Profile::Add(Profile::Metric::LabelHits);
         return found->second;
     }
 
     Profile::Add(Profile::Metric::LabelMisses);
     PROFILE_SCOPE(LabelBuild);
-    if (labels.size() > 512)
+    while (!labels.empty() && (labels.size() >= 512 || labelCacheBytes > 32 * 1024 * 1024))
     {
-        Profile::Add(Profile::Metric::LabelEvictions, double(labels.size()));
+        const auto oldest = std::min_element(labels.begin(), labels.end(),
+                                             [](const auto& a, const auto& b)
+                                             {
+                                                 return a.second.lastUsed < b.second.lastUsed;
+                                             });
         Flush(Profile::Metric::FlushLabelEviction);
-        for (auto& entry : labels)
-        {
-            glDeleteTextures(1, &entry.second.texture);
-        }
-        labels.clear();
-        labelCacheBytes = 0;
+        glDeleteTextures(1, &oldest->second.texture);
+        labelCacheBytes -= std::size_t(oldest->second.width) * oldest->second.height * 4;
+        labels.erase(oldest);
+        Profile::Add(Profile::Metric::LabelEvictions);
     }
     Label label;
+    label.lastUsed = ++labelUse;
     HDC dc = (HDC)fontDC;
     if (!dc)
     {
         return labels.emplace(key, label).first->second;
     }
     std::wstring wide = Wide(text);
-    HFONT font = CreateFontW(-size * 2, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-                             OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
-                             DEFAULT_PITCH, L"Malgun Gothic");
+    HFONT font = static_cast<HFONT>(Font(size));
     if (!font)
     {
         return labels.emplace(key, label).first->second;
@@ -522,13 +567,56 @@ Renderer::Label& Renderer::GetLabel(const std::string& text, int size)
         DeleteObject(bitmap);
     }
     SelectObject(dc, oldFont);
-    DeleteObject(font);
     return labels.emplace(key, label).first->second;
+}
+
+void* Renderer::Font(int size)
+{
+    auto found = fonts.find(size);
+    if (found != fonts.end())
+    {
+        return found->second;
+    }
+    HFONT font = CreateFontW(-size * 2, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+                             OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
+                             DEFAULT_PITCH, L"Malgun Gothic");
+    if (font)
+    {
+        fonts.emplace(size, font);
+    }
+    return font;
 }
 
 float Renderer::TextWidth(const std::string& s, int size)
 {
-    return GetLabel(s, size).width * .5f;
+    if (s.empty())
+    {
+        return 4;
+    }
+    const std::string key = std::to_string(size) + ":" + s;
+    const auto found = textMeasures.find(key);
+    if (found != textMeasures.end())
+    {
+        return found->second;
+    }
+    HDC dc = static_cast<HDC>(fontDC);
+    HFONT font = static_cast<HFONT>(Font(size));
+    if (!dc || !font)
+    {
+        return 4;
+    }
+    auto previous = SelectObject(dc, font);
+    const std::wstring text = Wide(s);
+    SIZE measure{};
+    GetTextExtentPoint32W(dc, text.c_str(), int(text.size()), &measure);
+    SelectObject(dc, previous);
+    if (textMeasures.size() >= 4096)
+    {
+        textMeasures.clear();
+    }
+    const float width = measure.cx * .5f + 4;
+    textMeasures.emplace(key, width);
+    return width;
 }
 
 void Renderer::Text(float x, float baseline, const std::string& s, Color c, int size)

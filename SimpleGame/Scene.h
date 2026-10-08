@@ -12,6 +12,11 @@ class Scene
     class Node
     {
       public:
+        void SetTransform3D(const Mat4& value)
+        {
+            local3D = value;
+        }
+
         void SetActive(bool value)
         {
             active = value;
@@ -49,6 +54,10 @@ class Scene
         bool clipped = false;
         SceneRect clip;
         std::vector<std::unique_ptr<Node>> children;
+        Mat4 local3D, world3D;
+        Mat4 cachedTransform;
+        Vec3 cachedPosition, cachedMinimum, cachedMaximum, worldMinimum, worldMaximum;
+        bool boundsCached = false;
         SceneRect bounds;
         bool unbounded = false;
         std::size_t drawableCount = 0;
@@ -85,6 +94,7 @@ class Scene
     {
         Actor* actor;
         SceneRect clip;
+        Mat4 transform3D;
     };
 
     Node root;
@@ -99,6 +109,6 @@ class Scene
     void ApplyStates(Node& node, bool active, bool visible);
     void UpdateNode(Node& node, float dt);
     void Prune(Node& node);
-    void RefreshBounds(Node& node, Point worldOffset);
+    void RefreshBounds(Node& node, Point worldOffset, const Renderer& renderer);
     void Collect(Node& node, SceneRect clip);
 };

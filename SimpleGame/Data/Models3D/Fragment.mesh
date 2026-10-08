@@ -1,0 +1,4 @@
+version 1
+# joint parent pivotX pivotY pivotZ; part primitive joint material position size rotation RGB
+joint -1 0 0 0
+part 3 0 11 0 0.26 0 0.27 0.55 0.24 0.0 0.0 17.0 0.8 0.55 0.2

@@ -21,3 +21,14 @@ model Corpse static Models/Corpse.model
 model Fence static Models/Fence.model
 model DeadTree static Models/DeadTree.model
 model BlightedTree static Models/BlightedTree.model
+model ChurchRegalia pilgrim Models/ChurchRegalia.model
+model RefugeGear pilgrim Models/RefugeGear.model
+model SporeMantle pilgrim Models/SporeMantle.model
+model ResearchGear pilgrim Models/ResearchGear.model
+model PurgeArmor pilgrim Models/PurgeArmor.model
+
+model BloodChapel static Models/BloodChapel.model
+model UnionStorehouse static Models/UnionStorehouse.model
+model MyceliumSanctum static Models/MyceliumSanctum.model
+model BloodObservatory static Models/BloodObservatory.model
+model PurgeBastion static Models/PurgeBastion.model

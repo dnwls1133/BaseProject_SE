@@ -23,6 +23,10 @@ class Game
 
   private:
     LevelOne levelOne;
+    MeshCache3D meshCache3D;
+    Camera3D camera3D;
+    std::shared_ptr<Geometry3D> villageGround3D;
+    void BuildVillage3D();
     bool inFirstLevel = false;
     std::string dataDirectory;
 

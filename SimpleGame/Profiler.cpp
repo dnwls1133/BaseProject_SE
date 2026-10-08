@@ -28,7 +28,7 @@ namespace Profile
 namespace
 {
 constexpr std::size_t MetricCount = static_cast<std::size_t>(Metric::Count);
-constexpr unsigned MarkerCount = 7;
+constexpr unsigned MarkerCount = 8;
 constexpr std::uint64_t PartLimit = 8 * 1024 * 1024;
 const char* const Names[] = {
 #define PROFILE_NAME(id, key) #key,
@@ -36,9 +36,8 @@ const char* const Names[] = {
 #undef PROFILE_NAME
 };
 const char* const GpuNames[] = {
-    "gpu_world_ms",          "gpu_msaa_resolve_ms", "gpu_bloom_horizontal_ms",
-    "gpu_bloom_vertical_ms", "gpu_postprocess_ms",  "gpu_ui_ms",
-    "gpu_frame_ms"};
+    "gpu_shadow_ms",         "gpu_world_ms",       "gpu_msaa_resolve_ms", "gpu_bloom_horizontal_ms",
+    "gpu_bloom_vertical_ms", "gpu_postprocess_ms", "gpu_ui_ms",           "gpu_frame_ms"};
 
 struct Distribution
 {
@@ -658,7 +657,7 @@ void Initialize()
         << ",\"report_processing\":\"background_snapshot_v2\""
         << ",\"cpu_timer\":\"steady_clock_inclusive_wall_ms\""
         << ",\"gpu_timer\":\"deferred_timestamp_elapsed_ms_not_utilization\""
-        << ",\"window_target_ms\":1000,\"target_fps\":60,\"timer_request_ms\":16"
+        << ",\"window_target_ms\":1000,\"target_fps\":60,\"timer_request_ms\":16.667"
         << ",\"swap_interval\":null,\"log_part_limit_bytes\":" << PartLimit
         << ",\"log_ring_parts\":4,\"scope\":\"engine_instrumented_regions\"}";
     state.metadata = out.str();

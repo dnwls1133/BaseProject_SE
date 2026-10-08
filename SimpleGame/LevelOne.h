@@ -1,9 +1,14 @@
 #pragma once
 #include "ModelCache.h"
+#include "MeshCache3D.h"
+#include "Terrain3D.h"
 #include "Actor.h"
 #include "Scene.h"
 #include "WorldSimulation.h"
+#include "WorldSociety.h"
 #include <list>
+#include <map>
+#include <utility>
 #include "RandomLevelMap.h"
 #include "RpgStats.h"
 #include <string>
@@ -29,6 +34,55 @@ class LevelOne
     void Render(Renderer& renderer);
 
   private:
+    struct ActivityPlace : Actor
+    {
+        ActivityPlace(LevelOne* owner, std::size_t index, int model)
+            : owner(owner), index(index), model(model)
+        {
+            SetRenderPasses(ActorPassBit(ActorPass::World) | ActorPassBit(ActorPass::Overlay));
+            SetRenderBounds({-120, -120, 120, 80});
+            bounds3DMin = {-4, -1, -4};
+            bounds3DMax = {4, 4, 4};
+            SetTickEnabled(false);
+        }
+
+        LevelOne* owner;
+        std::size_t index;
+        int model;
+
+        void OnRender(Renderer& r, ActorPass pass) const override
+        {
+            owner->DrawActivityPlace(r, *this, pass);
+        }
+    };
+
+    std::vector<ActivityPlace> activityPlaces;
+    void DrawActivityPlace(Renderer& renderer, const ActivityPlace& place, ActorPass pass);
+
+    struct Citizen : Actor
+    {
+        Citizen(LevelOne* owner, std::size_t index) : owner(owner), index(index)
+        {
+            SetRenderPasses(ActorPassBit(ActorPass::Shadow) | ActorPassBit(ActorPass::World) |
+                            ActorPassBit(ActorPass::Overlay));
+            SetRenderBounds({-240, -180, 340, 120});
+        }
+
+        LevelOne* owner;
+        std::size_t index;
+
+      protected:
+        void OnUpdate(float dt) override
+        {
+            owner->UpdateCitizen(*this, dt);
+        }
+
+        void OnRender(Renderer& r, ActorPass pass) const override
+        {
+            owner->DrawCitizen(r, *this, pass);
+        }
+    };
+
     struct Enemy : Actor
     {
         explicit Enemy(LevelOne* owner) : owner(owner)
@@ -42,6 +96,9 @@ class LevelOne
         int health = 0, maximumHealth = 0;
         EnemyDefinition type;
         bool dead = false;
+        int targetKind = 0, targetIndex = -1;
+        float decisionTime = 0, homeX = 0, homeY = 0;
+        Point route{0, 0};
         float cooldown = 0, windup = 0, flash = 0, phase = 0;
         float attackX = 0, attackY = 0;
         float movement = 0, facing = 1, strikeTime = 0, collapse = 0;
@@ -54,7 +111,12 @@ class LevelOne
       protected:
         void OnUpdate(float dt) override
         {
+            const float oldX = x, oldY = y;
             owner->UpdateEnemy(*this, dt);
+            if (std::hypot(x - oldX, y - oldY) > .001f)
+            {
+                yaw = std::atan2(oldX - x, oldY - y);
+            }
         }
 
         void OnRender(Renderer& r, ActorPass pass) const override
@@ -98,6 +160,7 @@ class LevelOne
         LevelOne* owner;
         ModelId model;
         PropDefinition type;
+        std::vector<MeshCache3D::PlacedPart> placedParts;
         float scale = 1, facing = 1;
 
       protected:
@@ -142,9 +205,29 @@ class LevelOne
     };
 
     ModelCache modelCache;
+    MeshCache3D meshCache3D;
+    Terrain3D terrain3D;
+    Camera3D camera3D;
     RandomLevelMap map;
     LevelData content;
     WorldSimulation simulation;
+    WorldSociety society;
+    std::vector<Citizen> citizens;
+    int talkingNpc = -1, focusedNpc = -1, journalTab = 0, journalPage = 0;
+    int dialoguePage = 0, dialogueTextPage = 0, pendingDialogueOption = 0;
+    std::string dialogueResponse;
+    std::vector<std::pair<int, std::string>> dialogueChoices;
+    void CloseConversation();
+    bool journalOpen = false, autosaveAllowed = true;
+    float autosaveTime = 0;
+    void UpdateCitizen(Citizen& citizen, float dt);
+    void DrawCitizen(Renderer& renderer, const Citizen& citizen, ActorPass pass);
+    void DrawSocietyUI(Renderer& renderer);
+    bool SocietyKey(unsigned char key);
+    void CreateCitizens();
+    bool SaveWorld(bool manual);
+    bool RestoreWorld(bool automatic);
+    std::string SavePath() const;
     std::string contentRoot, worldFile, contentError;
     RpgStats stats;
     std::vector<Enemy> enemies;
@@ -173,10 +256,19 @@ class LevelOne
     std::string notice;
     float noticeTime = 0;
 
-    bool Generate();
+    bool Generate(std::uint32_t fixedSeed = 0);
     void Move(float& x, float& y, float dx, float dy);
     void Attack();
-    void Kill(Enemy& enemy);
+    void Kill(Enemy& enemy, bool playerCredit = true);
+    void BuildEcologyIndex();
+    std::vector<std::pair<int, int>> EcologyNearby(float x, float y) const;
+    std::map<int, std::vector<std::pair<int, int>>> ecologyIndex;
+    int ecologyPathBudget = 2;
+    Point EcologyStep(float x, float y, Point goal);
+    bool UpdateCitizenWildlife(WorldSociety::Npc& npc, float dt);
+    bool EnemyTarget(const Enemy& enemy, Point& point) const;
+    void SelectEnemyTarget(Enemy& enemy);
+
     void Interact();
     const Prop* FindShrine() const;
     void UpdateNavigation(float dt);

@@ -1,9 +1,16 @@
 #pragma once
 #include <cstdint>
+#include <iosfwd>
+#include <set>
 #include <string>
 #include <vector>
 
 struct RegionDefinition;
+
+namespace ContentData
+{
+class Row;
+}
 
 // Regional indices are simulation state, separate from inventory and model caches.
 class WorldSimulation
@@ -20,6 +27,12 @@ class WorldSimulation
     void Load(const std::string& root, const std::string& relative,
               const std::vector<RegionDefinition>& definitions, const std::string& world);
     void Update(float dt);
+    void ChangeRegion(const std::string& id, double food, double infection,
+                      const std::string& actor, const std::string& reason, std::uint64_t cause = 0);
+    void Write(std::ostream& stream) const;
+    void BeginRestore();
+    bool ReadRow(const std::string& command, ContentData::Row& row);
+    void FinishRestore() const;
     void RecordMetrics(const std::string& regionId);
     const RegionState* FindRegion(const std::string& id) const;
 
@@ -40,4 +53,5 @@ class WorldSimulation
     int cooldownMinutes = 1;
     float newsTime = 0;
     void AdvanceMinute();
+    std::set<std::string> restoredRecords;
 };

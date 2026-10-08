@@ -40,3 +40,6 @@
 /x64/Release/*
 !/x64/Release/freeglut.dll
 !/x64/Release/glew32.dll
+
+# Persistent player worlds are runtime state, not authored content.
+**/Saves/

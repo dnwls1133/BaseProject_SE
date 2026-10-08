@@ -1,0 +1,143 @@
+version 1
+# work-seconds rest-seconds food-per-day social-cooldown-world-minutes
+rules 12 18 9 90
+place refuge_rest "북부 피난지 공동 숙소" rest Bedroll refuge 33.5 45.5 5 0
+place refuge_warehouse "북부 피난지 배급 창고" warehouse Cart refuge 42.5 45.5 3 0
+place refuge_clinic "북부 피난지 진료소" clinic MedicalCot refuge 34.5 50.5 3 8
+place refuge_farm "북부 피난지 균사 재배장" farm FieldBed refuge 44.5 53.5 4 0
+place refuge_market "북부 피난지 교역 마당" market NoticeBoard refuge 38.5 50.5 6 0
+place refuge_watch "북부 피난지 경계 초소" watch Fence refuge 45.5 41.5 3 0
+place refuge_archive "북부 피난지 기록 작업대" archive WorkTable refuge 31.5 52.5 2 0
+place pilgrimage_rest "국경 교역로 공동 숙소" rest Bedroll pilgrimage 81.5 48.5 5 0
+place pilgrimage_warehouse "국경 교역로 배급 창고" warehouse Cart pilgrimage 90.5 48.5 3 0
+place pilgrimage_clinic "국경 교역로 진료소" clinic MedicalCot pilgrimage 82.5 53.5 3 8
+place pilgrimage_farm "국경 교역로 균사 재배장" farm FieldBed pilgrimage 92.5 56.5 4 0
+place pilgrimage_market "국경 교역로 교역 마당" market NoticeBoard pilgrimage 86.5 53.5 6 0
+place pilgrimage_watch "국경 교역로 경계 초소" watch Fence pilgrimage 93.5 44.5 3 0
+place pilgrimage_archive "국경 교역로 기록 작업대" archive WorkTable pilgrimage 79.5 55.5 2 0
+place graves_rest "정화 기사단 전초 공동 숙소" rest Bedroll graves 149.5 39.5 5 0
+place graves_warehouse "정화 기사단 전초 배급 창고" warehouse Cart graves 158.5 39.5 3 0
+place graves_clinic "정화 기사단 전초 진료소" clinic MedicalCot graves 150.5 44.5 3 8
+place graves_farm "정화 기사단 전초 균사 재배장" farm FieldBed graves 160.5 47.5 4 0
+place graves_market "정화 기사단 전초 교역 마당" market NoticeBoard graves 154.5 44.5 6 0
+place graves_watch "정화 기사단 전초 경계 초소" watch Fence graves 161.5 35.5 3 0
+place graves_archive "정화 기사단 전초 기록 작업대" archive WorkTable graves 147.5 46.5 2 0
+place marsh_rest "성혈의 습지 공동 숙소" rest Bedroll marsh 81.5 107.5 5 0
+place marsh_warehouse "성혈의 습지 배급 창고" warehouse Cart marsh 90.5 107.5 3 0
+place marsh_clinic "성혈의 습지 진료소" clinic MedicalCot marsh 82.5 112.5 3 8
+place marsh_farm "성혈의 습지 균사 재배장" farm FieldBed marsh 92.5 115.5 4 0
+place marsh_market "성혈의 습지 교역 마당" market NoticeBoard marsh 86.5 112.5 6 0
+place marsh_watch "성혈의 습지 경계 초소" watch Fence marsh 93.5 103.5 3 0
+place marsh_archive "성혈의 습지 기록 작업대" archive WorkTable marsh 79.5 114.5 2 0
+place cathedral_rest "성도 외곽 수도원 공동 숙소" rest Bedroll cathedral 158.5 98.5 5 0
+place cathedral_warehouse "성도 외곽 수도원 배급 창고" warehouse Cart cathedral 167.5 98.5 3 0
+place cathedral_clinic "성도 외곽 수도원 진료소" clinic MedicalCot cathedral 159.5 103.5 3 8
+place cathedral_farm "성도 외곽 수도원 균사 재배장" farm FieldBed cathedral 169.5 106.5 4 0
+place cathedral_market "성도 외곽 수도원 교역 마당" market NoticeBoard cathedral 163.5 103.5 6 0
+place cathedral_watch "성도 외곽 수도원 경계 초소" watch Fence cathedral 170.5 94.5 3 0
+place cathedral_archive "성도 외곽 수도원 기록 작업대" archive WorkTable cathedral 156.5 105.5 2 0
+place growth_rest "포자 공동체의 숲 공동 숙소" rest Bedroll growth 213.5 145.5 5 0
+place growth_warehouse "포자 공동체의 숲 배급 창고" warehouse Cart growth 222.5 145.5 3 0
+place growth_clinic "포자 공동체의 숲 진료소" clinic MedicalCot growth 214.5 150.5 3 8
+place growth_farm "포자 공동체의 숲 균사 재배장" farm FieldBed growth 224.5 153.5 4 0
+place growth_market "포자 공동체의 숲 교역 마당" market NoticeBoard growth 218.5 150.5 6 0
+place growth_watch "포자 공동체의 숲 경계 초소" watch Fence growth 225.5 141.5 3 0
+place growth_archive "포자 공동체의 숲 기록 작업대" archive WorkTable growth 211.5 152.5 2 0
+place burial_rest "버려진 운구 행렬 공동 숙소" rest Bedroll burial 30.5 148.5 5 0
+place burial_warehouse "버려진 운구 행렬 배급 창고" warehouse Cart burial 39.5 148.5 3 0
+place burial_clinic "버려진 운구 행렬 진료소" clinic MedicalCot burial 31.5 153.5 3 8
+place burial_farm "버려진 운구 행렬 균사 재배장" farm FieldBed burial 41.5 156.5 4 0
+place burial_market "버려진 운구 행렬 교역 마당" market NoticeBoard burial 35.5 153.5 6 0
+place burial_watch "버려진 운구 행렬 경계 초소" watch Fence burial 42.5 144.5 3 0
+place burial_archive "버려진 운구 행렬 기록 작업대" archive WorkTable burial 28.5 155.5 2 0
+place redfield_rest "붉은 분쟁지 공동 숙소" rest Bedroll redfield 149.5 164.5 5 0
+place redfield_warehouse "붉은 분쟁지 배급 창고" warehouse Cart redfield 158.5 164.5 3 0
+place redfield_clinic "붉은 분쟁지 진료소" clinic MedicalCot redfield 150.5 169.5 3 8
+place redfield_farm "붉은 분쟁지 균사 재배장" farm FieldBed redfield 160.5 172.5 4 0
+place redfield_market "붉은 분쟁지 교역 마당" market NoticeBoard redfield 154.5 169.5 6 0
+place redfield_watch "붉은 분쟁지 경계 초소" watch Fence redfield 161.5 160.5 3 0
+place redfield_archive "붉은 분쟁지 기록 작업대" archive WorkTable redfield 147.5 171.5 2 0
+place shallows_rest "침수된 기록도시 공동 숙소" rest Bedroll shallows 213.5 60.5 5 0
+place shallows_warehouse "침수된 기록도시 배급 창고" warehouse Cart shallows 222.5 60.5 3 0
+place shallows_clinic "침수된 기록도시 진료소" clinic MedicalCot shallows 214.5 65.5 3 8
+place shallows_farm "침수된 기록도시 균사 재배장" farm FieldBed shallows 224.5 68.5 4 0
+place shallows_market "침수된 기록도시 교역 마당" market NoticeBoard shallows 218.5 65.5 6 0
+place shallows_watch "침수된 기록도시 경계 초소" watch Fence shallows 225.5 56.5 3 0
+place shallows_archive "침수된 기록도시 기록 작업대" archive WorkTable shallows 211.5 67.5 2 0
+# Border posts use the same life-place loader and models.
+place purge_border "정화 전초" watch Fence pilgrimage 60.5 60.5 4 0
+place spore_border "균사 길목" watch Fence marsh 68.5 69.5 4 0
+resident church_0 cathedral_rest cathedral_market 0 1.2 48
+resident church_1 cathedral_rest cathedral_watch 23 3.5 61
+resident church_2 cathedral_rest cathedral_market 46 5 74
+resident church_3 pilgrimage_rest pilgrimage_clinic 69 2.4 87
+resident church_4 pilgrimage_rest pilgrimage_archive 16 4 55
+resident union_0 refuge_rest refuge_market 39 1.5 68
+resident union_1 refuge_rest refuge_watch 62 3 81
+resident union_2 refuge_rest refuge_market 9 4.5 49
+resident union_3 pilgrimage_rest pilgrimage_clinic 32 1.2 62
+resident union_4 pilgrimage_rest pilgrimage_farm 55 3.5 75
+resident spore_0 growth_rest growth_market 2 5 88
+resident spore_1 growth_rest growth_watch 25 2.4 56
+resident spore_2 growth_rest growth_market 48 4 69
+resident spore_3 pilgrimage_rest pilgrimage_clinic 71 1.5 82
+resident spore_4 pilgrimage_rest pilgrimage_farm 18 3 50
+resident research_0 shallows_rest shallows_market 41 4.5 63
+resident research_1 shallows_rest shallows_watch 64 1.2 76
+resident research_2 refuge_rest refuge_market 11 5 65
+resident research_3 pilgrimage_rest pilgrimage_clinic 34 5 57
+resident research_4 pilgrimage_rest pilgrimage_archive 57 2.4 70
+resident purge_0 graves_rest graves_market 4 4 83
+resident purge_1 graves_rest graves_watch 27 1.5 51
+resident purge_2 graves_rest graves_market 50 3 64
+resident purge_3 pilgrimage_rest pilgrimage_clinic 73 4.5 77
+resident purge_4 pilgrimage_rest pilgrimage_watch 20 1.2 90
+resident union_5 refuge_rest refuge_watch 43 3.5 58
+resident union_6 refuge_rest refuge_watch 66 5 71
+resident union_7 refuge_rest refuge_watch 13 2.4 84
+resident church_5 cathedral_rest cathedral_watch 36 4 52
+resident church_6 cathedral_rest cathedral_watch 59 1.5 65
+resident church_7 cathedral_rest cathedral_watch 6 3 78
+resident spore_5 growth_rest spore_border 29 4.5 91
+resident spore_6 growth_rest spore_border 52 1.2 59
+resident spore_7 growth_rest growth_watch 75 3.5 72
+resident research_5 shallows_rest shallows_watch 22 5 85
+resident research_6 shallows_rest shallows_watch 45 2.4 53
+resident research_7 shallows_rest shallows_watch 68 4 66
+resident purge_5 graves_rest purge_border 15 1.5 79
+resident purge_6 graves_rest purge_border 38 3 92
+resident purge_7 graves_rest graves_watch 61 4.5 60
+line request_food "{other}, 식량이 모자랍니다. 한 끼를 나눌 수 있겠습니까?"
+line request_food "{other}, 다음 일을 하려면 먼저 먹어야 합니다. 거래하겠습니까?"
+line request_care "{other}, 이 상처를 살펴주십시오. 치료 조건을 듣겠습니다."
+line request_news "{other}, 직접 보신 일이 있습니까? 출처와 함께 듣고 싶습니다."
+line request_news "{other}, 다음 일을 정하기 전에 서로의 소식을 비교합시다."
+line counter "{other}, {detail}만큼 지불하면 식량을 내놓겠습니다."
+line accept "{other}, 그 조건에 동의합니다. 만나서 마무리합시다."
+line accept "{other}, 약속하겠습니다. 안전한 곳에서 기다리십시오."
+line refuse "{other}, 지금은 어렵습니다. {detail}."
+line delivered "{detail}을 넘깁니다. 이것으로 약속을 지켰습니다."
+line thanks "{other}, {detail}을 확인했습니다. 이 도움을 기억하겠습니다."
+line cancel "{other}, 계획을 멈춰야겠습니다. {detail}."
+line work "{place}에서 맡은 일을 시작하겠습니다."
+line work "{place}의 일을 마쳐야 다음 배급이 이어집니다."
+line rest "{place}에서 잠시 쉬겠습니다. 지친 채로는 돕기 어렵습니다."
+line collect "{place}의 배급을 받아 거처까지 옮기겠습니다."
+line research "{place}에서 기록과 목격담이 맞는지 살피겠습니다."
+line news "{other}, 제가 가진 보고는 이렇습니다. {detail}"
+line wait "{other}, 아직 기다리고 있습니다. 약속을 계속할 수 있습니까?"
+
+# Familiar roads, not automatic knowledge of destination stocks.
+route refuge_warehouse pilgrimage_market
+route pilgrimage_warehouse refuge_market
+route pilgrimage_warehouse cathedral_market
+route cathedral_warehouse pilgrimage_market
+route cathedral_warehouse graves_market
+route graves_warehouse cathedral_market
+route graves_warehouse shallows_market
+route shallows_warehouse growth_market
+route growth_warehouse shallows_market
+route growth_warehouse marsh_market
+route marsh_warehouse pilgrimage_market
+route redfield_warehouse burial_market
+route burial_warehouse refuge_market

@@ -1,145 +1,247 @@
 # Open countryside. Terrain: 0 blocked outcrop, 1 paving, 2 shallow water, 3 meadow, 4 dirt road.
 version 1
-title "첫 레벨 · 성혈의 황야"
-introduction "성혈의 황야 · 길 밖으로도 탐험할 수 있습니다. 폐허와 물가를 따라 변이체를 사냥하세요."
-size 80 64
-start 12 15
+title "성혈의 변경 · 다섯 세력"
+introduction "성혈의 변경 · F 주민 대화 · J 세계 기록 · K 저장 · L 불러오기. 주민들은 당신 없이도 행동합니다."
+size 256 200
+start 38 47
 enemies enemies.actors
 props props.actors
 rules rpg.rules
 simulation Simulation/level1.sim
+society Simulation/level1.society
 goal 3 1 1
 
 # Region: id style name centerX centerY radiusX radiusY floorRGB waterRGB fogRGBA populationCount enemyIDs...
-region refuge 0 "꺼져가는 성소" 12 15 6 5 .30 .34 .28 .10 .23 .22 .36 .45 .43 .13 0
-region pilgrimage 1 "황야의 순례길" 27 16 7 5 .28 .30 .23 .10 .23 .22 .36 .45 .43 .12 3 penitent crawler penitent
-region graves 2 "잊힌 들판의 묘역" 48 13 7 6 .29 .28 .22 .16 .21 .19 .39 .40 .34 .15 3 penitent penitent bellkeeper
-region marsh 3 "성혈의 습지" 27 35 8 6 .23 .29 .25 .105 .24 .25 .36 .45 .43 .17 3 crawler crawler bellkeeper
-region cathedral 4 "대성당의 잔향" 51 32 8 7 .33 .35 .30 .10 .23 .22 .36 .45 .43 .14 4 penitent crawler bellkeeper penitent
-region growth 5 "우화의 자생지" 68 47 7 6 .26 .29 .23 .25 .105 .14 .43 .23 .27 .15 3 crawler crawler bellkeeper
-region burial 2 "버려진 운구 행렬" 11 48 6 6 .29 .28 .22 .16 .21 .19 .39 .40 .34 .12 3 penitent crawler bellkeeper
-region redfield 5 "붉은 바람의 들판" 48 53 7 5 .27 .29 .23 .25 .105 .14 .43 .23 .27 .14 3 crawler penitent bellkeeper
-region shallows 3 "침수된 순례터" 68 20 7 7 .23 .29 .26 .105 .24 .25 .36 .45 .43 .15 3 crawler penitent bellkeeper
+region refuge 0 "북부 피난지" 38 47 19 16 .30 .34 .28 .10 .23 .22 .36 .45 .43 .13 0
+region pilgrimage 1 "국경 교역로" 86 50 22 16 .28 .30 .23 .10 .23 .22 .36 .45 .43 .12 1 penitent
+region graves 2 "정화 기사단 전초" 154 41 22 19 .29 .28 .22 .16 .21 .19 .39 .40 .34 .15 3 penitent penitent bellkeeper
+region marsh 3 "성혈의 습지" 86 109 26 19 .23 .29 .25 .105 .24 .25 .36 .45 .43 .17 3 crawler crawler bellkeeper
+region cathedral 4 "성도 외곽 수도원" 163 100 26 22 .33 .35 .30 .10 .23 .22 .36 .45 .43 .14 4 penitent crawler bellkeeper penitent
+region growth 5 "포자 공동체의 숲" 218 147 22 19 .26 .29 .23 .25 .105 .14 .43 .23 .27 .15 3 crawler crawler bellkeeper
+region burial 2 "버려진 운구 행렬" 35 150 19 19 .29 .28 .22 .16 .21 .19 .39 .40 .34 .12 3 penitent crawler bellkeeper
+region redfield 5 "붉은 분쟁지" 154 166 22 16 .27 .29 .23 .25 .105 .14 .43 .23 .27 .14 3 crawler penitent bellkeeper
+region shallows 3 "침수된 기록도시" 218 62 22 22 .23 .29 .26 .105 .24 .25 .36 .45 .43 .15 3 crawler penitent bellkeeper
 
 # Local clearings and irregular natural obstacles; the surrounding ground stays open.
-patch 1 12 15 5 4
-patch 1 26 16 4 2
-patch 1 51 30 6 5
-patch 2 27 34 8 4
-patch 2 31 39 5 3
-patch 2 67 20 7 5
-patch 2 70 24 4 3
-patch 2 67 48 4 3
-patch 0 37 8 3 2
-patch 0 36 40 3 3
-patch 0 17 39 2 2
-patch 0 59 53 2 2
-patch 0 61 8 3 2
-patch 0 8 30 2 3
-patch 0 74 35 2 4
+patch 1 38 47 16 12
+patch 1 83 50 13 6
+patch 1 163 94 19 16
+patch 2 86 106 26 12
+patch 2 99 122 16 9
+patch 2 214 62 22 16
+patch 2 224 75 13 9
+patch 2 214 150 13 9
+patch 0 118 25 10 6
+patch 0 115 125 10 9
+patch 0 54 122 6 6
+patch 0 189 166 6 6
+patch 0 195 25 10 6
+patch 0 26 94 6 9
+patch 0 237 109 6 12
 
 # Road: startX startY endX endY halfWidth; roads guide travel but do not bound it.
-road 12 15 27 16 1
-road 27 16 40 24 1
-road 40 24 51 32 2
-road 51 32 65 35 1
-road 65 35 68 47 1
-road 27 16 48 13 1
-road 48 13 68 20 1
-road 68 20 65 35 1
-road 12 15 17 29 1
-road 17 29 27 35 1
-road 27 35 11 48 1
-road 11 48 29 51 1
-road 29 51 48 53 1
-road 48 53 68 47 1
-road 27 35 51 32 1
-road 48 53 51 32 1
+road 38 47 86 50 1
+road 86 50 128 75 1
+road 128 75 163 100 2
+road 163 100 208 109 1
+road 208 109 218 147 1
+road 86 50 154 41 1
+road 154 41 218 62 1
+road 218 62 208 109 1
+road 38 47 54 91 1
+road 54 91 86 109 1
+road 86 109 35 150 1
+road 35 150 93 159 1
+road 93 159 154 166 1
+road 154 166 218 147 1
+road 86 109 163 100 1
+road 154 166 163 100 1
+
+# Open approach to the disputed border, outside the starting settlement.
+patch 4 60 60 5 4
+patch 4 69 70 5 4
+road 48 49 60 60 2
+road 60 60 69 70 2
+road 69 70 86 109 1
 
 # Placed landmarks: propID x y scale facing. Blockers use the occupied terrain cell.
-place shrine 14.5 15.5 1 1
-place arch 11.5 10.5 1.2 1
-place pillar 8.5 11.5 1 1
-place wall 17.5 10.5 .9 -1
-place brazier 9.5 13.5 1 1
-place brazier 17.5 17.5 1 1
-place cart 23.5 12.5 1 1
-place wall 30.5 13.5 1 -1
-place statue 30.5 19.5 1.1 1
-place arch 34.5 18.5 1 1
-place corpse 24.5 16.5 1 -1
-place debris 28.5 18.5 .9 1
-place statue 48.5 7.5 1.2 1
-place grave 44.5 10.5 1 1
-place grave 47.5 10.5 .9 -1
-place grave 50.5 10.5 1.1 1
-place grave 45.5 16.5 1 -1
-place grave 48.5 17.5 .9 1
-place grave 51.5 17.5 1 1
-place fence 43.5 8.5 1 1
-place cart 54.5 11.5 1 -1
-place brazier 52.5 8.5 1 1
-place fungal 21.5 31.5 1.2 1
-place roots 23.5 39.5 1.1 -1
-place statue 32.5 30.5 1.1 -1
-place cart 33.5 36.5 1 -1
-place arch 49.5 25.5 1.3 1
-place pillar 46.5 27.5 1.1 1
-place pillar 54.5 27.5 1.1 1
-place pillar 46.5 35.5 1 1
-place pillar 54.5 35.5 1 1
-place statue 55.5 24.5 1.2 -1
-place wall 44.5 29.5 1 -1
-place wall 57.5 28.5 .85 1
-place wall 56.5 37.5 1 -1
-place brazier 48.5 34.5 1 1
-place brazier 54.5 31.5 1 1
-place corpse 51.5 30.5 1 -1
-place debris 52.5 34.5 1.1 1
-place fungal 64.5 43.5 1.3 1
-place fungal 70.5 44.5 1.1 -1
-place roots 72.5 49.5 1.2 1
-place corpse 65.5 50.5 1 -1
-place cart 9.5 45.5 1.1 1
-place cart 14.5 50.5 1 -1
-place statue 8.5 50.5 1.1 1
-place grave 10.5 52.5 .9 1
-place corpse 12.5 46.5 1 1
-place brazier 15.5 45.5 1 1
-place fungal 44.5 49.5 1.2 -1
-place fungal 51.5 56.5 1.1 1
-place corpse 46.5 54.5 1 -1
-place statue 65.5 14.5 1.2 1
-place pillar 71.5 16.5 .9 -1
-place arch 73.5 22.5 1 1
+place shrine 45.6 47.66 1 1
+place arch 36.0 32.03 1.2 1
+place pillar 26.4 35.16 1 1
+place wall 55.2 32.03 .9 -1
+place brazier 29.6 41.41 1 1
+place brazier 55.2 53.91 1 1
+place cart 74.4 38.28 1 1
+place wall 96.8 41.41 1 -1
+place statue 96.8 60.16 1.1 1
+place arch 109.6 57.03 1 1
+place corpse 77.6 50.78 1 -1
+place debris 90.4 57.03 .9 1
+place statue 154.4 22.66 1.2 1
+place grave 141.6 32.03 1 1
+place grave 151.2 32.03 .9 -1
+place grave 160.8 32.03 1.1 1
+place grave 144.8 50.78 1 -1
+place grave 154.4 53.91 .9 1
+place grave 164.0 53.91 1 1
+place fence 138.4 25.78 1 1
+place cart 173.6 35.16 1 -1
+place brazier 167.2 25.78 1 1
+place fungal 68.0 97.66 1.2 1
+place roots 74.4 122.66 1.1 -1
+place statue 103.2 94.53 1.1 -1
+place cart 106.4 113.28 1 -1
+place arch 157.6 78.91 1.3 1
+place pillar 148.0 85.16 1.1 1
+place pillar 173.6 85.16 1.1 1
+place pillar 148.0 110.16 1 1
+place pillar 173.6 110.16 1 1
+place statue 176.8 75.78 1.2 -1
+place wall 141.6 91.41 1 -1
+place wall 183.2 88.28 .85 1
+place wall 180.0 116.41 1 -1
+place brazier 154.4 107.03 1 1
+place brazier 173.6 97.66 1 1
+place corpse 164.0 94.53 1 -1
+place debris 167.2 107.03 1.1 1
+place fungal 205.6 135.16 1.3 1
+place fungal 224.8 138.28 1.1 -1
+place roots 231.2 153.91 1.2 1
+place corpse 208.8 157.03 1 -1
+place cart 29.6 141.41 1.1 1
+place cart 45.6 157.03 1 -1
+place statue 26.4 157.03 1.1 1
+place grave 32.8 163.28 .9 1
+place corpse 39.2 144.53 1 1
+place brazier 48.8 141.41 1 1
+place fungal 141.6 153.91 1.2 -1
+place fungal 164.0 175.78 1.1 1
+place corpse 148.0 169.53 1 -1
+place statue 208.8 44.53 1.2 1
+place pillar 228.0 50.78 .9 -1
+place arch 234.4 69.53 1 1
 
 # Signature trees stand off the roads and outside the starting clearing.
-place dead_tree 7.5 19.5 1 1
-place dead_tree 19.5 8.5 .9 -1
-place dead_tree 21.5 25.5 1.1 -1
-place blighted_tree 18.5 33.5 1 1
-place blighted_tree 73.5 43.5 1.1 -1
-place blighted_tree 60.5 44.5 .95 1
+place dead_tree 23.2 60.16 1 1
+place dead_tree 61.6 25.78 .9 -1
+place dead_tree 68.0 78.91 1.1 -1
+place blighted_tree 58.4 103.91 1 1
+place blighted_tree 234.4 135.16 1.1 -1
+place blighted_tree 192.8 138.28 .95 1
 
 # Sparse groves are placed before small debris; keep the crown silhouettes open.
 # Scatter: propID centerX centerY radiusX radiusY count minimumSpacing.
 # Road surfaces, water and spawn clearance are protected from scatter.
-scatter dead_tree 13 24 8 6 5 4
-scatter dead_tree 39 12 7 5 5 4
-scatter blighted_tree 17 34 6 8 4 4
-scatter blighted_tree 59 44 8 5 5 4
-scatter dead_tree 68 29 8 5 3 4
-scatter blighted_tree 68 29 8 5 2 4
-scatter debris 27 16 12 8 16 2
-scatter corpse 27 16 12 8 5 3
-scatter roots 36 28 23 18 22 3
-scatter grave 48 13 9 7 12 2.5
-scatter debris 51 32 10 9 15 2
-scatter wall 51 32 10 9 6 4
-scatter fungal 27 35 10 9 14 3
-scatter roots 27 35 12 10 10 2.5
-scatter corpse 11 48 8 7 8 2.5
-scatter debris 11 48 10 8 10 2.5
-scatter fungal 68 47 8 9 18 3
-scatter roots 48 53 10 6 15 2.5
-scatter fungal 68 20 9 10 14 3
+scatter dead_tree 42 75 26 19 24 4
+scatter dead_tree 125 38 22 16 24 4
+scatter blighted_tree 54 106 19 25 19 4
+scatter blighted_tree 189 138 26 16 24 4
+scatter dead_tree 218 91 26 16 14 4
+scatter blighted_tree 218 91 26 16 10 4
+scatter debris 86 50 38 25 77 2
+scatter corpse 86 50 38 25 24 3
+scatter roots 115 88 74 56 100 3
+scatter grave 154 41 29 22 58 2.5
+scatter debris 163 100 32 28 72 2
+scatter wall 163 100 32 28 29 4
+scatter fungal 86 109 32 28 67 3
+scatter roots 86 109 38 31 48 2.5
+scatter corpse 35 150 26 22 38 2.5
+scatter debris 35 150 32 25 48 2.5
+scatter fungal 218 147 26 28 86 3
+scatter roots 154 166 32 19 72 2.5
+scatter fungal 218 62 29 31 67 3
+
+# Faction outposts: leave the central approach and NPC positions open.
+place cart 31.2 41.41 1 1
+place fence 47.2 41.41 1 1
+place brazier 31.2 55.47 1 1
+place shrine 47.2 55.47 1 1
+place arch 156.0 94.53 1 1
+place pillar 172.0 94.53 1 1
+place statue 156.0 108.59 1 1
+place brazier 172.0 108.59 1 1
+place fungal 210.4 141.41 1 1
+place roots 226.4 141.41 1 1
+place blighted_tree 210.4 155.47 1 1
+place shrine 226.4 155.47 1 1
+place pillar 210.4 57.03 1 1
+place cart 226.4 57.03 1 1
+place brazier 210.4 71.09 1 1
+place arch 226.4 71.09 1 1
+place wall 146.4 35.16 1 1
+place statue 162.4 35.16 1 1
+place fence 146.4 49.22 1 1
+place brazier 162.4 49.22 1 1
+
+# Faction settlements: central plazas and roads remain open.
+# union: landmark, workshops, approach lighting, and surrounding habitat.
+place union_storehouse 30.5 40.5 1.2 1
+place union_storehouse 46.5 40.5 1.0 1
+place union_storehouse 49.5 52.5 0.9 1
+place cart 33.5 44.5 1 1
+place cart 43.5 51.5 1 1
+place cart 29.5 54.5 1 1
+place cart 47.5 57.5 1 1
+place brazier 34.5 48.5 .9 1
+place brazier 42.5 48.5 .9 1
+patch 1 38 37 14 5
+road 38 44 38 60 2
+scatter dead_tree 38 61 18 7 12 4
+# church: landmark, workshops, approach lighting, and surrounding habitat.
+place blood_chapel 155.5 93.5 1.2 1
+place blood_chapel 171.5 93.5 1.0 1
+place blood_chapel 174.5 105.5 0.9 1
+place pillar 158.5 97.5 1 1
+place pillar 168.5 104.5 1 1
+place pillar 154.5 107.5 1 1
+place pillar 172.5 110.5 1 1
+place brazier 159.5 101.5 .9 1
+place brazier 167.5 101.5 .9 1
+patch 1 163 90 14 5
+road 163 97 163 113 2
+scatter dead_tree 163 114 18 7 12 4
+# spore: landmark, workshops, approach lighting, and surrounding habitat.
+place mycelium_sanctum 210.5 140.5 1.2 1
+place mycelium_sanctum 226.5 140.5 1.0 1
+place mycelium_sanctum 229.5 152.5 0.9 1
+place fungal 213.5 144.5 1 1
+place fungal 223.5 151.5 1 1
+place fungal 209.5 154.5 1 1
+place fungal 227.5 157.5 1 1
+place fungal 214.5 148.5 .9 1
+place fungal 222.5 148.5 .9 1
+patch 2 218 137 14 5
+road 218 144 218 160 2
+scatter blighted_tree 218 161 18 7 12 4
+# research: landmark, workshops, approach lighting, and surrounding habitat.
+place blood_observatory 210.5 55.5 1.2 1
+place blood_observatory 226.5 55.5 1.0 1
+place blood_observatory 229.5 67.5 0.9 1
+place pillar 213.5 59.5 1 1
+place pillar 223.5 66.5 1 1
+place pillar 209.5 69.5 1 1
+place pillar 227.5 72.5 1 1
+place brazier 214.5 63.5 .9 1
+place brazier 222.5 63.5 .9 1
+patch 2 218 52 14 5
+road 218 59 218 75 2
+scatter dead_tree 218 76 18 7 12 4
+# purge: landmark, workshops, approach lighting, and surrounding habitat.
+place purge_bastion 146.5 34.5 1.2 1
+place purge_bastion 162.5 34.5 1.0 1
+place purge_bastion 165.5 46.5 0.9 1
+place fence 149.5 38.5 1 1
+place fence 159.5 45.5 1 1
+place fence 145.5 48.5 1 1
+place fence 163.5 51.5 1 1
+place brazier 150.5 42.5 .9 1
+place brazier 158.5 42.5 .9 1
+patch 1 154 31 14 5
+road 154 38 154 54 2
+scatter dead_tree 154 55 18 7 12 4
+
+# Narrative sites: drying records, revised ration boards, and the disputed marsh boundary.
+place ledger_table 221.5 63.5 .85 1
+place ration_board 41.5 50.5 .9 1
+place boundary_marker 91.5 111.5 .8 1

@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include "Math3D.h"
 
 class Renderer;
 class Scene;
@@ -34,6 +35,8 @@ class Actor
     float x = 0;
     float y = 0;
     float depthOffset = 0;
+    float elevation = 0, yaw = 0;
+    Vec3 bounds3DMin{-2, -1, -2}, bounds3DMax{2, 6, 2};
 
     void SetPosition(float newX, float newY);
     void SetActive(bool value);

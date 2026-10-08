@@ -3,3 +3,7 @@ version 1
 enemy penitent "가시 순례자" Infected 48 13 1 28 1.65 0.70 1.25 1.45 4.5 76 108 11
 enemy bellkeeper "우화한 종지기" Brute 88 22 5 45 1.15 0.95 1.50 1.45 4.5 110 116 11
 enemy crawler "기어오는 성혈" Crawler 36 10 1 24 2.10 0.55 1.00 1.45 7 105 67 11
+
+# Distinct territorial broods; penitents and bellkeepers share their procession.
+rival penitent crawler
+rival bellkeeper crawler

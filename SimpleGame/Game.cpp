@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iterator>
 #include <cctype>
+#include <iostream>
 
 Game::Game()
 {
@@ -246,6 +247,16 @@ bool Game::Load(const std::string& path)
     }
     size_t slash = path.find_last_of("/\\");
     std::string base = slash == std::string::npos ? "" : path.substr(0, slash + 1);
+    try
+    {
+        meshCache3D.Load(base);
+        BuildVillage3D();
+    }
+    catch (const std::exception& error)
+    {
+        std::cerr << "Tutorial 3D content: " << error.what() << '\n';
+        return false;
+    }
     std::ifstream speech(base + "dialogue.ko.txt");
     if (!speech)
     {
@@ -494,8 +505,8 @@ void Game::Update(float dt)
 
 Point Game::Project(float x, float y, float z, Renderer& r) const
 {
-    return {r.Width() * .5f + (x - y - cx + cy) * 32,
-            r.Height() * .49f + (x + y - cx - cy) * 16 - z};
+    Vec3 p = r.Project3D({x, Terrain3D::Height(x, y) + z / 42.f, y});
+    return {p.x, p.y};
 }
 
 void Game::Render(Renderer& r)
@@ -507,6 +518,8 @@ void Game::Render(Renderer& r)
         return;
     }
 
+    camera3D.Update({cx, Terrain3D::Height(cx, cy) + .6f, cy}, r.Width(), r.Height());
+    r.UseWorld3D(camera3D);
     scene.Render(r, time, {(cx - cy) * 32 - r.Width() * .5f, (cx + cy) * 16 - r.Height() * .49f});
 }
 
@@ -686,6 +699,7 @@ void Game::UpdatePlayer(float dt)
     walkPhase += moved * 3.8f;
     if (moved > .001f)
     {
+        player.yaw = std::atan2(oldX - player.x, oldY - player.y);
         stepTime += moved;
         if (stepTime > .55f)
         {
@@ -741,6 +755,8 @@ void Game::BuildScene()
         object.SetRenderPasses(passes);
         float margin = std::max(300.f, 180 + (object.w + object.h) * 32 + object.height);
         object.SetRenderBounds({-margin, -margin, margin, margin});
+        object.bounds3DMin = {-object.w * .5f - 1, -1, -object.h * .5f - 1};
+        object.bounds3DMax = {object.w * .5f + 1, object.height / 42.f + 3, object.h * .5f + 1};
         scene.Attach(object, *sector);
     }
 }

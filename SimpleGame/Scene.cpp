@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Scene.h"
+#include <cstring>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -98,6 +99,7 @@ void Scene::Clear()
     root.children.clear();
     worldList.clear();
     root.active = root.visible = true;
+    root.local3D = root.world3D = Mat4{};
     root.clipped = false;
     statistics = {};
 }
@@ -191,8 +193,9 @@ void Scene::RemoveDestroyed()
     Prune(root);
 }
 
-void Scene::RefreshBounds(Node& node, Point worldOffset)
+void Scene::RefreshBounds(Node& node, Point worldOffset, const Renderer& renderer)
 {
+    node.world3D = (node.parent ? node.parent->world3D : Mat4{}) * node.local3D;
     node.drawableCount = 0;
     node.unbounded = false;
     if (!node.active || !node.visible || (node.actor && !node.actor->IsVisible()))
@@ -210,11 +213,52 @@ void Scene::RefreshBounds(Node& node, Point worldOffset)
             float y = node.screenSpace ? actor.y : (actor.x + actor.y) * 16 - worldOffset.y;
             SceneRect b = actor.RenderBounds();
             node.bounds = {b.left + x, b.top + y, b.right + x, b.bottom + y};
+            if (!node.screenSpace && renderer.IsWorld3D())
+            {
+                const Vec3 position{actor.x, actor.elevation, actor.y};
+                if (!node.boundsCached ||
+                    std::memcmp(&node.cachedPosition, &position, sizeof(Vec3)) != 0 ||
+                    std::memcmp(&node.cachedMinimum, &actor.bounds3DMin, sizeof(Vec3)) != 0 ||
+                    std::memcmp(&node.cachedMaximum, &actor.bounds3DMax, sizeof(Vec3)) != 0 ||
+                    std::memcmp(node.cachedTransform.m, node.world3D.m, sizeof(Mat4)) != 0)
+                {
+                    node.worldMinimum = {1e9f, 1e9f, 1e9f};
+                    node.worldMaximum = {-1e9f, -1e9f, -1e9f};
+                    for (int i = 0; i < 8; ++i)
+                    {
+                        const Vec3 q = node.world3D.Transform(
+                            position + Vec3{i & 1 ? actor.bounds3DMax.x : actor.bounds3DMin.x,
+                                            i & 2 ? actor.bounds3DMax.y : actor.bounds3DMin.y,
+                                            i & 4 ? actor.bounds3DMax.z : actor.bounds3DMin.z});
+                        node.worldMinimum = {std::min(node.worldMinimum.x, q.x),
+                                             std::min(node.worldMinimum.y, q.y),
+                                             std::min(node.worldMinimum.z, q.z)};
+                        node.worldMaximum = {std::max(node.worldMaximum.x, q.x),
+                                             std::max(node.worldMaximum.y, q.y),
+                                             std::max(node.worldMaximum.z, q.z)};
+                    }
+                    node.cachedPosition = position;
+                    node.cachedMinimum = actor.bounds3DMin;
+                    node.cachedMaximum = actor.bounds3DMax;
+                    node.cachedTransform = node.world3D;
+                    node.boundsCached = true;
+                    Profile::Add(Profile::Metric::SceneBoundsRebuild);
+                }
+                Vec3 minimum, maximum;
+                renderer.Camera().ProjectBounds(node.worldMinimum, node.worldMaximum, minimum,
+                                                maximum);
+                node.bounds = {minimum.x, minimum.y, maximum.x, maximum.y};
+                // Include labels, and offscreen casters whose shadows enter the view.
+                node.bounds.left -= 220;
+                node.bounds.right += 220;
+                node.bounds.top -= 100;
+                node.bounds.bottom += 160;
+            }
         }
     }
     for (auto& child : node.children)
     {
-        RefreshBounds(*child, worldOffset);
+        RefreshBounds(*child, worldOffset, renderer);
         if (child->drawableCount == 0)
         {
             continue;
@@ -253,7 +297,7 @@ void Scene::Collect(Node& node, SceneRect clip)
     }
     if (node.actor && node.actor->RenderPasses() != 0)
     {
-        renderList.push_back({node.actor, clip});
+        renderList.push_back({node.actor, clip, node.world3D});
         ++statistics.visibleActors;
     }
     for (auto& child : node.children)
@@ -269,7 +313,7 @@ void Scene::Render(Renderer& renderer, float time, Point worldOffset)
     {
         PROFILE_SCOPE(ScenePrepare);
         ApplyStates(root, true, true);
-        RefreshBounds(root, worldOffset);
+        RefreshBounds(root, worldOffset, renderer);
         statistics.visibleActors = statistics.culledActors = statistics.culledGroups = 0;
         renderList.clear();
         Collect(root, viewport);
@@ -282,6 +326,7 @@ void Scene::Render(Renderer& renderer, float time, Point worldOffset)
                 worldList.push_back(entry);
             }
         }
+        if (!renderer.IsWorld3D())
         {
             PROFILE_SCOPE(SceneSort);
             std::stable_sort(worldList.begin(), worldList.end(),
@@ -331,9 +376,11 @@ void Scene::Render(Renderer& renderer, float time, Point worldOffset)
             }
             renderer.SetMaterial(Material::Plain);
             Profile::Add(Profile::Metric::ActorCallbacks);
+            renderer.SetModelSpace3D(entry.transform3D);
             entry.actor->Render(renderer, pass);
         }
     }
+    renderer.SetModelSpace3D(Mat4{});
     renderer.ResetClipRect();
     renderer.Flush(Profile::Metric::FlushFrameEnd);
     Profile::EndGpuFrame();

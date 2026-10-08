@@ -1,6 +1,8 @@
 #pragma once
 #include "Dependencies/glew.h"
 #include "Profiler.h"
+#include "Math3D.h"
+#include <memory>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -31,8 +33,12 @@ enum class Material
     Flame = 8,
     Organic = 9,
     Mist = 10,
-    SoftLight = 11
+    SoftLight = 11,
+    Metal = 12
 };
+
+class WorldRenderer3D;
+struct Geometry3D;
 
 class Renderer
 {
@@ -52,7 +58,7 @@ class Renderer
 
     bool IsInitialized() const
     {
-        return program && postProgram && blurProgram && ready;
+        return program && postProgram && blurProgram && ready && worldReady;
     }
 
     void Resize(int width, int height);
@@ -68,6 +74,41 @@ class Renderer
     }
 
     void Begin(float time = 0, Point worldOffset = {0, 0});
+    void UseWorld3D(const Camera3D& value);
+    void UseScreen2D();
+
+    void SetModelSpace3D(const Mat4& value)
+    {
+        modelSpace3D = value;
+        modelSpaceIdentity = true;
+        for (int i = 0; i < 16; ++i)
+        {
+            if (value.m[i] != (i % 5 == 0 ? 1.f : 0.f))
+            {
+                modelSpaceIdentity = false;
+                break;
+            }
+        }
+    }
+
+    Vec3 Project3D(Vec3 point) const
+    {
+        return camera.Project(modelSpace3D.Transform(point));
+    }
+
+    bool IsWorld3D() const
+    {
+        return worldEnabled;
+    }
+
+    const Camera3D& Camera() const
+    {
+        return camera;
+    }
+
+    void Submit3D(int shape, const Mat4& matrix, Color color, Material material);
+    void Submit3D(const std::shared_ptr<Geometry3D>& geometry);
+    void Light3D(Vec3 position, Color color);
     void FinishScene();
     void Flush(Profile::Metric reason = Profile::Metric::FlushOther);
     void SetClipRect(int x, int y, int w, int h);
@@ -108,12 +149,19 @@ class Renderer
     {
         GLuint texture = 0;
         int width = 0, height = 0;
+        std::uint64_t lastUsed = 0;
     };
 
     std::vector<Vertex> vertices;
     std::unordered_map<std::string, Label> labels;
     GLuint program = 0, postProgram = 0, blurProgram = 0, buffer = 0, vao = 0;
     GLuint sceneFbo = 0, sceneColor = 0, resolveFbo = 0, sceneTexture = 0;
+    GLuint sceneDepth = 0;
+    std::unique_ptr<WorldRenderer3D> world;
+    Camera3D camera;
+    Mat4 modelSpace3D;
+    bool modelSpaceIdentity = true;
+    bool worldEnabled = false, worldReady = false;
     GLuint bloomFbo[2] = {}, bloomTexture[2] = {};
     int width = 1, height = 1, bloomWidth = 1, bloomHeight = 1, samples = 1;
     bool ready = false;
@@ -126,6 +174,10 @@ class Renderer
     Point offset = {0, 0};
     Material material = Material::Plain;
     void* fontDC = nullptr;
+    std::unordered_map<int, void*> fonts;
+    std::unordered_map<std::string, float> textMeasures;
+    std::uint64_t labelUse = 0;
+    void* Font(int size);
     GLuint Compile(const char* vertex, const char* fragment);
     void ReleaseTargets();
     void Fullscreen(GLuint shader);
