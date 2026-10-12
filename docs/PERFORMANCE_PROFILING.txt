@@ -141,3 +141,8 @@ society_change의 change_id/cause_id와 주체·대상·사유로 사건 연결�
 A* 탐색 노드/예산 대기/실패/부분 경로, 그림자 인스턴스, 작은 도형 LOD, Scene 경계 재계산, 정적 부품 재사용 카운터를 추가했다. 정적 부품 수는 GPU 영구 캐시 적중 수와 다르며, 그림자 인스턴스 카운터는 동적 도형 배치만 집계한다. 자세한 키는 PLAYABILITY_RENDER_IMPROVEMENTS.md를 따른다.
 
 절대 타이머 주기, 경로 탐색 예산, 정적 소품 행렬/Scene 경계 재사용, 글꼴 측정 분리/LRU, 그림자 제외, 작은 구체 LOD, 후면 컬링을 적용했다. 실측/60 FPS 달성은 미확인이다. 사용자 실행 로그를 받은 후 같은 조건의 프레임 p95/max, cpu_npc_path_ms, cpu_scene_prepare_ms, cpu_model_draw_ms, cpu_label_rasterize_ms 및 GPU 구간으로 평가한다.
+
+## 월드 관측 — 2026-10-12
+- cpu_world_monitor_snapshot_ms: 첫 레벨에서 약 1초마다 상태 JSON을 구성하고 작업 스레드에 제출하는 게임 스레드 시간. 별도 스레드의 파일 I/O는 포함하지 않는다. 대기 스냅샷은 최신 하나만 유지한다.
+- snapshot.json의 attack_attempts/hits/misses/damage_dealt와 last_attack은 현재 세션 진단이다. 준비 취소는 완료 시도 수에 포함하지 않으며 damage_dealt는 NPC/몬스터 체력 감소량만 포함한다. 영속 사건 전체 기록은 기존 JSONL을 사용한다. 모니터 최근 사건은 제한된 History다.
+- 새 궤적/파편도 기존 3D 배치를 사용하나 실제 draw call/인스턴스/GPU 비용은 사용자 실측으로 판단한다. 빌드·실행·테스트·성능 확인은 수행하지 않았다.

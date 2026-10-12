@@ -94,12 +94,18 @@ void LevelOne::DrawCitizen(Renderer& r, const Citizen& citizen, ActorPass pass)
         pose.collapse = npc.collapse;
         pose.attack =
             npc.windup > 0
-                ? .25f + .65f * (1 - std::min(1.f, npc.windup / society.AttackWindupDuration()))
-                : 0;
+                ? .01f + .44f * (1 - std::min(1.f, npc.windup / society.AttackWindupDuration()))
+            : npc.strikeTime > 0 ? .45f + .55f * (1 - npc.strikeTime / .3f)
+                                 : 0;
         pose.activity = society.LifeActivity(static_cast<int>(citizen.index));
         Vec3 position{npc.x, Terrain3D::Height(npc.x, npc.y) + npc.collapse * .25f, npc.y};
         meshCache3D.Draw(r, static_cast<int>(npc.model), position, npc.yaw, .94f, pose);
         meshCache3D.Draw(r, static_cast<int>(faction.emblem), position, npc.yaw, .94f, pose);
+        if (npc.Alive() && pose.attack > 0)
+        {
+            DrawAttackEffect(r, position, npc.yaw, pose.attack, society.CombatRange(),
+                             faction.color);
+        }
         if (npc.Alive() &&
             (society.StoryCargo(static_cast<int>(citizen.index)) > 0 || pose.activity == 2))
         {

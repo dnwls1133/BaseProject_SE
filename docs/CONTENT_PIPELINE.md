@@ -159,3 +159,7 @@ ChurchRegalia, RefugeGear, SporeMantle, ResearchGear, PurgeArmor의 외부 장�
 - 첫 맵 .life에 전초 2개를 추가했다(총 65곳). 슬롯 위치는 로딩 시 접근성을 고려해 파생하며 파일에 중복 저장하지 않는다.
 - .mesh는 재질12(Metal)를 허용한다. 3D 캐시3, 기존 2D 캐시4, 플레이 저장 schema5를 구분한다.
 - 상세 변경과 이전 저장 처리: [대화·자율 사회·3D 개선](PLAYABILITY_RENDER_IMPROVEMENTS.md).
+
+## 공격·생활 판단·모니터 — 2026-10-12
+- 기존 .life/.society/.story/.mesh/rpg.rules 형식과 저장 schema5를 유지한다. 공통 생활 후보 비교와 공격 관절 표현을 확장했으며 모델/콘텐츠 복제는 하지 않았다.
+- NPC 진단/후보 점수는 재생성 가능한 일시 상태로 세이브와 별개다. 모니터 원본은 tools/world_monitor, 런타임 스냅샷은 실행 파일 옆 Logs/WorldMonitor다. 상세 사용법은 COMBAT_SOCIAL_MONITORING.md를 따른다.

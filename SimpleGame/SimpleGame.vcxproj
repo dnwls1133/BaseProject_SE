@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -162,6 +162,7 @@
     <ClInclude Include="Terrain3D.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Profiler.h" />
+    <ClInclude Include="WorldMonitor.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Scene.h" />
@@ -193,6 +194,8 @@
     <ClCompile Include="LevelData.cpp" />
     <ClCompile Include="WorldSimulation.cpp" />
     <ClCompile Include="LevelOneEcology.cpp" />
+    <ClCompile Include="LevelOneMonitoring.cpp" />
+    <ClCompile Include="WorldMonitor.cpp" />
     <ClCompile Include="SocietyNarrative.cpp" />
     <ClCompile Include="SocietyNarrativeData.cpp" />
     <ClCompile Include="SocietyNarrativeSave.cpp" />

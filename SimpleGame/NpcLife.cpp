@@ -115,6 +115,8 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
     {
         return;
     }
+    l.decisionTrace = "생존·회복·약속 우선 조건 확인";
+    l.choices.clear();
     auto plan = [&](LifeTask task, int place, const std::string& reason)
     {
         if (place < 0 || LifeSlot(index, place) < 0)
@@ -172,6 +174,37 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
             {
                 continue;
             }
+            if (kind == 2)
+            {
+                bool useful = false;
+                for (const auto& report : b.memories)
+                {
+                    const auto known = std::find_if(n.memories.begin(), n.memories.end(),
+                                                    [&](const Memory& memory)
+                                                    {
+                                                        return memory.region == report.region;
+                                                    });
+                    useful =
+                        useful || known == n.memories.end() || report.learned > known->learned + 30;
+                }
+                if (other < int(storyBeliefs.size()) && index < int(storyBeliefs.size()))
+                {
+                    for (const auto& belief : storyBeliefs[other])
+                    {
+                        const auto known = std::find_if(
+                            storyBeliefs[index].begin(), storyBeliefs[index].end(),
+                            [&](const Belief& own)
+                            {
+                                return own.fact == belief.fact && own.claim == belief.claim;
+                            });
+                        useful = useful || known == storyBeliefs[index].end();
+                    }
+                }
+                if (!useful)
+                {
+                    continue;
+                }
+            }
             float score = PersonalRegard(index, other) + b.traits[2] * 20 -
                           std::hypot(n.x - b.x, n.y - b.y) * 2;
             if (score > value)
@@ -208,114 +241,190 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
     {
         return;
     }
-    if (n.role == "merchant" && n.food >= 3 && minute >= l.nextTrade && l.fatigue < 60)
+
+    struct Candidate
     {
-        int source = -1, destination = -1;
-        float best = -1e9f;
+        LifeTask task;
+        int place;
+        int destination;
+        float score;
+        std::string reason;
+    };
+
+    std::vector<Candidate> options;
+    std::array<float, 10> motivation = rules.weights;
+    StoryInfluence(index, motivation);
+    auto consider =
+        [&](LifeTask task, int place, float value, const std::string& reason, int destination = -1)
+    {
+        if (place < 0 || LifeSlot(index, place) < 0)
+        {
+            return;
+        }
+        const auto& site = places[place];
+        const float travel =
+            std::hypot(site.position.x - n.x, site.position.y - n.y) / std::max(.1f, n.speed);
+        float knownRisk = 0;
+        for (const auto& memory : n.memories)
+        {
+            if (memory.region == site.region && minute <= memory.learned + 720)
+            {
+                knownRisk = std::max(knownRisk, memory.infection * memory.confidence);
+            }
+        }
+        const int owner = regions[site.region].owner;
+        if (owner >= 0 && diplomacy[n.faction][owner] < rules.hostility)
+        {
+            return;
+        }
+        value -= travel * .045f + knownRisk * (1 - n.traits[0]) * 2;
+        // Recent exhaustion and broken promises change the cost of another expedition.
+        if (destination >= 0)
+        {
+            value -= l.fatigue * .025f + std::min(3.f, l.broken * .12f);
+        }
+        options.push_back({task, place, destination, value, reason});
+    };
+    consider(LifeTask::Rest, l.home, l.fatigue * .055f + (100 - n.health) * .015f,
+             "피로와 부상 회복의 이득을 다른 일과 비교");
+    if (n.food >= 1)
+    {
+        consider(LifeTask::Eat, LifeSite(index, "market"), (100 - l.satiation) * .07f,
+                 "허기 해소와 남은 이동 비용을 비교");
+    }
+    const int warehouse = LifeSite(index, "warehouse");
+    if (warehouse >= 0)
+    {
+        const auto* stock = world.FindRegion(regions[places[warehouse].region].id);
+        if (stock && stock->food >= .015)
+        {
+            consider(LifeTask::Collect, warehouse, std::max(0.f, 5 - n.food) * .8f,
+                     "개인 식량 부족을 가까운 실제 재고로 보충");
+        }
+    }
+    const char* kinds[] = {"farm", "clinic", "watch", "archive", "market"};
+    for (const char* kind : kinds)
+    {
+        const int place = LifeSite(index, kind);
+        if (place < 0)
+        {
+            continue;
+        }
+        float need = 0;
+        // Only local observations and already received reports inform demand.
+        if (places[place].region == n.region)
+        {
+            const auto* state = world.FindRegion(regions[n.region].id);
+            need = state ? 1 - float(state->food) : 0;
+        }
+        else
+        {
+            for (const auto& memory : n.memories)
+            {
+                if (memory.region == places[place].region && minute <= memory.learned + 720)
+                {
+                    need = (1 - memory.food) * memory.confidence;
+                }
+            }
+        }
+        const std::string type = kind;
+        float value = .6f;
+        LifeTask task = LifeTask::Work;
+        if (type == "farm")
+        {
+            value += need * 3 + std::max(0.f, 4 - n.food) * .4f + n.traits[2];
+        }
+        else if (type == "clinic")
+        {
+            float injury = 0;
+            for (int other : Nearby(n))
+            {
+                if (npcs[other].Alive() && npcs[other].health < 75)
+                {
+                    injury += (100 - npcs[other].health) / 100;
+                }
+            }
+            value += motivation[3] + n.traits[2] * injury * 2 + (n.role == "healer" ? 1.3f : -.8f);
+        }
+        else if (type == "watch")
+        {
+            value += motivation[4] + n.traits[0] + (n.role == "guard" ? 1.4f : 0);
+            task = LifeTask::Patrol;
+        }
+        else if (type == "archive")
+        {
+            value += motivation[5] + n.traits[5] + (n.role == "scholar" ? 1.4f : 0);
+            task = LifeTask::Research;
+        }
+        else
+        {
+            value += motivation[2] + l.social * .025f + (n.role == "merchant" ? .9f : -.8f);
+        }
+        value -= l.fatigue * .025f;
+        consider(task, place, value, type + " : 알고 있는 수요·직책·성향·피로 비교");
+    }
+    if (n.role == "merchant" && n.food >= 3 && minute >= l.nextTrade && l.fatigue < 70)
+    {
         for (const auto& route : tradeRoutes)
         {
             const auto& from = places[route.first];
             const auto& to = places[route.second];
-            if (from.region != n.region)
-            {
-                continue;
-            }
-            int owner = regions[to.region].owner;
-            if (owner >= 0 && diplomacy[n.faction][owner] < rules.hostility)
-            {
-                continue;
-            }
-            const auto* reserve = world.FindRegion(regions[from.region].id);
-            if (!reserve || reserve->food < .08)
-            {
-                continue;
-            }
-            float demand = .35f, risk = .25f;
+            bool sourceKnown = from.region == n.region || from.region == n.home;
+            float demand = -1, risk = 0, confidence = 0;
             for (const auto& memory : n.memories)
             {
+                sourceKnown = sourceKnown || memory.region == from.region;
                 if (memory.region == to.region && minute <= memory.learned + 720)
                 {
                     demand = 1 - memory.food;
                     risk = memory.infection;
+                    confidence = memory.confidence;
                 }
             }
-            float score = demand + n.traits[1] * .3f + n.traits[5] * .2f -
-                          risk * (1 - n.traits[0]) -
-                          std::hypot(to.position.x - n.x, to.position.y - n.y) * .002f;
-            if (score > best)
+            const auto* reserve = world.FindRegion(regions[from.region].id);
+            const int owner = regions[to.region].owner;
+            if (!sourceKnown || demand < 0 || !reserve || reserve->food < .08 ||
+                LifeSlot(index, route.second) < 0 ||
+                (owner >= 0 && diplomacy[n.faction][owner] < rules.hostility))
             {
-                best = score;
-                source = route.first;
-                destination = route.second;
+                continue;
             }
+            const float travel =
+                std::hypot(to.position.x - from.position.x, to.position.y - from.position.y) /
+                std::max(.1f, n.speed);
+            const float value = motivation[2] + demand * confidence * (3 + n.traits[1] * 2) +
+                                n.traits[2] * demand - risk * (1 - n.traits[0]) * 3 -
+                                travel * .035f;
+            consider(LifeTask::Collect, route.first, value,
+                     to.name + " : 전달받은 수요·정보 신뢰·위험·운송 비용 비교", route.second);
         }
-        l.nextTrade = minute + 360;
-        if (source >= 0 &&
-            plan(LifeTask::Collect, source, "알고 있는 교역로와 수요 보고를 근거로 시장 방문"))
+    }
+    std::stable_sort(options.begin(), options.end(),
+                     [](const Candidate& a, const Candidate& b)
+                     {
+                         return a.score > b.score;
+                     });
+    l.decisionTrace.clear();
+    for (const auto& option : options)
+    {
+        l.choices.push_back(
+            {int(option.task), option.place, option.destination, option.score, option.reason});
+        l.decisionTrace += places[option.place].id + "=" + std::to_string(option.score) + " (" +
+                           option.reason + "); ";
+    }
+    for (const auto& option : options)
+    {
+        if (plan(option.task, option.place, option.reason))
         {
-            l.delivery = destination;
-            l.reason = places[destination].name + "에서 식량을 거래할 계획";
+            l.delivery = option.destination;
+            if (option.destination >= 0)
+            {
+                l.nextTrade = minute + 90;
+            }
             return;
         }
     }
-    if (n.role == "merchant" && n.food >= 3 && minute >= l.nextSocial)
-    {
-        // Merchants visit the market and look for actual customers there.
-        if (plan(LifeTask::Work, LifeSite(index, "market"), "시장에 나가 교역 상대와 소식을 찾음"))
-        {
-            return;
-        }
-    }
-    std::array<float, 10> motivation = rules.weights;
-    StoryInfluence(index, motivation);
-    motivation[3] += n.traits[2] + (n.goal == "aid" || n.goal == "connect" ? 1.f : 0.f);
-    motivation[4] += n.traits[0] + (n.role == "guard" ? 2.f : 0.f);
-    motivation[5] += n.traits[5] + (n.goal == "research" ? 2.f : 0.f);
-    const std::pair<const char*, float> candidates[] = {
-        {"farm", 1.f + (n.goal == "survive" ? 1.f : 0.f)},
-        {"clinic", motivation[3] + (n.role == "healer" ? 2.f : -1.f)},
-        {"watch", motivation[4]},
-        {"archive", motivation[5]}};
-    int preferred = l.work;
-    float preference = 1.5f;
-    for (const auto& candidate : candidates)
-    {
-        if (candidate.second <= preference)
-        {
-            continue;
-        }
-        const int knownPlace = LifeSite(index, candidate.first);
-        if (knownPlace >= 0)
-        {
-            preferred = knownPlace;
-            preference = candidate.second;
-        }
-    }
-    int site = preferred;
-    int count = 0;
-    for (const auto& other : lives)
-    {
-        if (other.place == site && other.task != LifeTask::None)
-        {
-            ++count;
-        }
-    }
-    if (site >= 0 && count >= places[site].capacity)
-    {
-        site = LifeSite(index, places[site].kind);
-    }
-    if (site >= 0)
-    {
-        const bool research = places[site].kind == "archive";
-        if (plan(research            ? LifeTask::Research
-                 : n.role == "guard" ? LifeTask::Patrol
-                                     : LifeTask::Work,
-                 site, research ? "기록과 현장 정보를 대조" : "직책과 생활 필요에 맞춰 작업"))
-        {
-            return;
-        }
-    }
-    plan(LifeTask::Rest, l.home, "빈 작업 자리가 생길 때까지 휴식");
+    plan(LifeTask::Rest, l.home, "실행 가능한 선택이 없어 휴식");
 }
 
 void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
@@ -519,6 +628,16 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
             }
             continue;
         }
+        if (!l.agreement && l.cargo == 0 && l.task != LifeTask::None && l.task != LifeTask::Rest &&
+            l.task != LifeTask::Eat && (l.fatigue > 85 || l.satiation < 20 || n.health < 40))
+        {
+            Record("life_plan_reconsidered", n.id, l.place >= 0 ? places[l.place].id : "none",
+                   "active", "urgent_need", "몸 상태가 달라져 회복과 생존을 다시 평가", l.cause);
+            l.task = LifeTask::None;
+            l.progress = 0;
+            l.place = -1;
+            l.slot = -1;
+        }
         if (l.task != LifeTask::None && minute >= l.until && !l.agreement)
         {
             Record("life_plan_cancelled", n.id, l.place >= 0 ? places[l.place].id : "none",
@@ -677,6 +796,15 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
         {
             return true;
         }
+        auto quote = [&](int receiver)
+        {
+            const float scarcity = std::max(0.f, 6 - npcs[receiver].food) / 6;
+            const float trustDiscount =
+                std::max(-.04f, std::min(.04f, PersonalRegard(index, receiver) * .0005f));
+            return n.traits[2] >= .7f ? 0.f
+                                      : std::max(.05f, .10f + n.traits[1] * .12f + scarcity * .08f -
+                                                           trustDiscount);
+        };
         if (places[l.place].kind == "market")
         {
             if (l.partner >= 0 &&
@@ -697,6 +825,12 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
                         receiver.action == Action::Combat || receiver.action == Action::Flee ||
                         receiver.wildTarget >= 0 ||
                         diplomacy[n.faction][receiver.faction] < rules.hostility)
+                    {
+                        continue;
+                    }
+                    const float amount = std::min(l.cargo, std::max(0.f, 6 - receiver.food));
+                    const float price = quote(other) * amount;
+                    if (factions[receiver.faction].supplies < price)
                     {
                         continue;
                     }
@@ -731,7 +865,8 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
                 {
                     return true;
                 }
-                const float price = n.traits[2] >= .7f ? 0.f : l.cargo * .15f;
+                const float amount = std::min(l.cargo, std::max(0.f, 6 - receiver.food));
+                const float price = quote(l.partner) * amount;
                 if (factions[receiver.faction].supplies < price)
                 {
                     l.partner = -1;
@@ -739,11 +874,18 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
                 }
                 factions[receiver.faction].supplies -= price;
                 factions[n.faction].supplies += price;
-                receiver.food += l.cargo;
+                receiver.food += amount;
+                const float remainder = l.cargo - amount;
+                if (remainder > 0)
+                {
+                    world.ChangeRegion(regions[places[l.place].region].id, remainder * .01, 0, n.id,
+                                       "판매 후 남은 화물을 시장 창고에 보관", l.cause);
+                }
                 receiver.yaw = std::atan2(receiver.x - n.x, receiver.y - n.y);
                 Relate(l.partner, index, 5, -1, "직접 운송한 식량을 받음", l.cause);
                 Record("life_delivery_received", n.id, receiver.id,
-                       "cargo=" + std::to_string(l.cargo), "transferred",
+                       "cargo=" + std::to_string(l.cargo),
+                       "food=" + std::to_string(amount) + "; payment=" + std::to_string(price),
                        "거리와 시야 확인 후 물자·공동 보급 교환", l.cause);
             }
         }

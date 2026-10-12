@@ -298,6 +298,7 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
     auto& npc = npcs[index];
     npc.speechTime = std::max(0.f, npc.speechTime - dt);
     npc.flash = std::max(0.f, npc.flash - dt);
+    npc.strikeTime = std::max(0.f, npc.strikeTime - dt);
     npc.movement = 0;
     if (!npc.Alive())
     {
@@ -340,18 +341,38 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
             return;
         }
         npc.action = Action::Combat;
-        if (std::hypot(npc.x - player.x, npc.y - player.y) <= rules.combatRange &&
-            map.Visible(npc.x, npc.y, player.x, player.y))
+        npc.yaw = std::atan2(npc.x - player.x, npc.y - player.y);
+        if (npc.windup > 0 ||
+            (std::hypot(npc.x - player.x, npc.y - player.y) <= rules.combatRange &&
+             map.Visible(npc.x, npc.y, player.x, player.y)))
         {
             if (npc.windup > 0)
             {
                 npc.windup -= dt;
                 if (npc.windup <= 0)
                 {
-                    playerDamage += static_cast<int>(npc.attack);
+                    npc.strikeTime = .3f;
+                    ++npc.attackAttempts;
+                    const bool hit = std::hypot(npc.x - player.x, npc.y - player.y) <=
+                                         rules.combatRange + .35f &&
+                                     map.Visible(npc.x, npc.y, player.x, player.y);
+                    if (hit)
+                    {
+                        playerDamage += static_cast<int>(npc.attack);
+                        ++npc.attackHits;
+                        npc.lastAttack = "player: hit (damage resolved by player defense)";
+                    }
+                    else
+                    {
+                        ++npc.attackMisses;
+                        npc.lastAttack = "player: miss (range or line of sight)";
+                    }
                     npc.cooldown = rules.attackCooldown;
-                    Profile::Add(Profile::Metric::NpcStrikes);
-                    Record("retaliation", npc.id, "player", "windup", "strike",
+                    if (hit)
+                    {
+                        Profile::Add(Profile::Metric::NpcStrikes);
+                    }
+                    Record("retaliation", npc.id, "player", "windup", hit ? "strike" : "miss",
                            "공격한 플레이어에게 반격");
                 }
             }
@@ -428,7 +449,9 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
             npc.windup = 0;
             return;
         }
-        if (distance <= rules.combatRange && map.Visible(npc.x, npc.y, target.x, target.y))
+        npc.yaw = std::atan2(npc.x - target.x, npc.y - target.y);
+        if (npc.windup > 0 ||
+            (distance <= rules.combatRange && map.Visible(npc.x, npc.y, target.x, target.y)))
         {
             if (npc.windup > 0)
             {
@@ -436,8 +459,26 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
                 if (npc.windup <= 0)
                 {
                     npc.cooldown = rules.attackCooldown;
-                    Damage(static_cast<int>(index), npc.target, npc.attack, world);
-                    Profile::Add(Profile::Metric::NpcStrikes);
+                    npc.strikeTime = .3f;
+                    ++npc.attackAttempts;
+                    if (distance <= rules.combatRange + .35f &&
+                        map.Visible(npc.x, npc.y, target.x, target.y))
+                    {
+                        const float before = target.health;
+                        Damage(static_cast<int>(index), npc.target, npc.attack, world);
+                        ++npc.attackHits;
+                        npc.damageDealt += before - target.health;
+                        npc.lastAttack =
+                            target.id + ": hit " + std::to_string(before - target.health);
+                        Profile::Add(Profile::Metric::NpcStrikes);
+                    }
+                    else
+                    {
+                        ++npc.attackMisses;
+                        npc.lastAttack = target.id + ": miss (range or line of sight)";
+                        Record("npc_attack_miss", npc.id, target.id, "windup", "miss",
+                               npc.lastAttack);
+                    }
                 }
             }
             else if (npc.cooldown <= 0)

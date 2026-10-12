@@ -152,6 +152,7 @@
     X(NpcCombat, cpu_npc_combat_ms)                                                                \
     X(NpcStrikes, npc_strike_count)                                                                \
     X(WorldSave, cpu_world_save_ms)                                                                \
+    X(WorldMonitor, cpu_world_monitor_snapshot_ms)                                                 \
     X(WorldRestore, cpu_world_restore_ms)                                                          \
     X(WorldGenerate, cpu_world_generate_ms)                                                        \
     X(CacheRead, cpu_model_cache_read_ms)                                                          \

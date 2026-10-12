@@ -220,6 +220,11 @@ class LevelOne
     void CloseConversation();
     bool journalOpen = false, autosaveAllowed = true;
     float autosaveTime = 0;
+    float monitorTime = 1;
+    std::uint64_t monitorSequence = 0;
+    void PublishMonitoring(float dt);
+    void DrawAttackEffect(Renderer& renderer, Vec3 position, float yaw, float progress, float reach,
+                          Color color);
     void UpdateCitizen(Citizen& citizen, float dt);
     void DrawCitizen(Renderer& renderer, const Citizen& citizen, ActorPass pass);
     void DrawSocietyUI(Renderer& renderer);

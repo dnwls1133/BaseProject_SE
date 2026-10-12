@@ -293,6 +293,7 @@ void LevelOne::UpdateEnemy(Enemy& e, float dt)
         Move(e.x, e.y, dx / length * step, dy / length * step);
         const float moved = std::hypot(e.x - oldX, e.y - oldY);
         e.facing = dx - dy < 0 ? -1.f : 1.f;
+        e.yaw = std::atan2(-dx, -dy);
         e.phase += moved * e.type.gait;
         e.movement = moved > .001f ? 1.f : 0.f;
     }
@@ -372,10 +373,10 @@ bool LevelOne::UpdateCitizenWildlife(WorldSociety::Npc& n, float dt)
     }
     n.action = WorldSociety::Action::Combat;
     n.facing = e.x - e.y < n.x - n.y ? -1.f : 1.f;
-    if (std::hypot(n.x - e.x, n.y - e.y) > society.CombatRange() ||
-        !map.Visible(n.x, n.y, e.x, e.y))
+    n.yaw = std::atan2(n.x - e.x, n.y - e.y);
+    if (n.windup <= 0 && (std::hypot(n.x - e.x, n.y - e.y) > society.CombatRange() ||
+                          !map.Visible(n.x, n.y, e.x, e.y)))
     {
-        n.windup = 0;
         society.WildlifeMove(n, {e.x, e.y}, dt, map);
         return true;
     }
@@ -384,9 +385,27 @@ bool LevelOne::UpdateCitizenWildlife(WorldSociety::Npc& n, float dt)
         n.windup = std::max(0.f, n.windup - dt);
         if (n.windup == 0)
         {
+            ++n.attackAttempts;
+            n.cooldown = society.AttackCooldownDuration();
+            n.strikeTime = .3f;
+            if (std::hypot(n.x - e.x, n.y - e.y) > society.CombatRange() + .35f ||
+                !map.Visible(n.x, n.y, e.x, e.y))
+            {
+                ++n.attackMisses;
+                n.lastAttack =
+                    "monster_" + std::to_string(n.wildTarget) + ": miss (range or line of sight)";
+                society.WildlifeRecord(n.id, "monster_" + std::to_string(n.wildTarget),
+                                       n.lastAttack);
+                return true;
+            }
             const int before = e.health;
             e.health = std::max(0, e.health - std::max(1, int(n.attack) - e.type.defense));
             e.flash = .18f;
+            ++n.attackHits;
+            n.damageDealt += before - e.health;
+            n.lastAttack = "monster_" + std::to_string(n.wildTarget) + ": hit " +
+                           std::to_string(before - e.health);
+            SpawnNumber(e.x, e.y, .8f, "-" + std::to_string(before - e.health), false);
             n.cooldown = society.AttackCooldownDuration();
             Profile::Add(Profile::Metric::NpcStrikes);
             society.WildlifeRecord(n.id, "monster_" + std::to_string(n.wildTarget),

@@ -1,6 +1,8 @@
 # Visual Studio local state
 # Local profiling sessions (runtime logs are not content assets).
 **/Logs/Performance/
+**/Logs/WorldMonitor/
+**/__pycache__/
 /.vs/
 *.suo
 *.user

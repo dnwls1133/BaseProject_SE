@@ -553,6 +553,7 @@ void LevelOne::Update(float dt)
 {
     if (paused || statPanel || stats.health <= 0)
     {
+        PublishMonitoring(dt);
         return;
     }
     time += dt;
@@ -579,6 +580,7 @@ void LevelOne::Update(float dt)
         CloseConversation();
         Notify("대화가 끝났습니다. 상대는 자신의 행동을 이어갑니다.");
     }
+    PublishMonitoring(dt);
     const int socialDamage = society.TakePlayerDamage();
     if (socialDamage > 0 && hurtTime <= 0)
     {
@@ -670,20 +672,51 @@ void LevelOne::DrawPlayer(Renderer& r, ActorPass pass)
     pose.movement = movement;
     pose.time = time;
     pose.flash = hurtTime * .4f;
-    pose.attack = attackTime > 0 ? 1 - attackTime / stats.rules.attackDuration : 0;
-    meshCache3D.Draw(r, 0, {player.x, Terrain3D::Height(player.x, player.y), player.y},
-                     std::atan2(-aimX, -aimY), 1, pose);
     if (attackTime > 0)
     {
-        for (int i = 0; i < 12; ++i)
+        const float elapsed = stats.rules.attackDuration - attackTime;
+        pose.attack = elapsed < stats.rules.attackHitTime
+                          ? .01f + .44f * elapsed / std::max(.001f, stats.rules.attackHitTime)
+                          : .45f + .55f * (elapsed - stats.rules.attackHitTime) /
+                                       std::max(.001f, stats.rules.attackDuration -
+                                                           stats.rules.attackHitTime);
+    }
+    meshCache3D.Draw(
+        r, 0, {player.x, Terrain3D::Height(player.x, player.y), player.y},
+        attackTime > 0 ? std::atan2(-attackAimX, -attackAimY) : std::atan2(-aimX, -aimY), 1, pose);
+    if (attackTime > 0)
+    {
+        DrawAttackEffect(r, {player.x, Terrain3D::Height(player.x, player.y), player.y},
+                         std::atan2(-attackAimX, -attackAimY), pose.attack, stats.rules.attackRange,
+                         Color(.9f, .64f, .35f));
+    }
+}
+
+void LevelOne::DrawAttackEffect(Renderer& r, Vec3 position, float yaw, float progress, float reach,
+                                Color color)
+{
+    // A short swept ribbon shares the instance batch; it is not a separate draw call.
+    if (progress < .38f || progress > .83f)
+    {
+        return;
+    }
+    const float sweep = std::min(1.f, (progress - .38f) / .32f);
+    for (int i = 0; i < 9; ++i)
+    {
+        const float t = sweep - i * .045f;
+        if (t < 0)
         {
-            float a = std::atan2(attackAimY, attackAimX) - 1.35f + pose.attack * 2.7f - i * .065f;
-            Vec3 p{player.x + std::cos(a) * stats.rules.attackRange,
-                   Terrain3D::Height(player.x, player.y) + .7f,
-                   player.y + std::sin(a) * stats.rules.attackRange};
-            r.Submit3D(1, Mat4::Translation(p) * Mat4::Scale({.06f, .06f, .06f}),
-                       Color(.9f, .6f, .24f), Material::SoftLight);
+            continue;
         }
+        const float angle = yaw + 3.14159f - 1.05f + t * 2.1f;
+        const Vec3 point{position.x + std::sin(angle) * reach * .72f,
+                         position.y + 1.05f + std::sin(t * 3.14159f) * .23f,
+                         position.z + std::cos(angle) * reach * .72f};
+        const float fade = (1 - i / 10.f) * std::min(1.f, (.83f - progress) * 8);
+        r.Submit3D(0,
+                   Mat4::Translation(point) * Mat4::Rotation({0, 1, 0}, angle) *
+                       Mat4::Scale({.15f * fade, .045f, .38f}),
+                   Color(color.r * fade, color.g * fade, color.b * fade), Material::SoftLight);
     }
 }
 
@@ -711,6 +744,21 @@ void LevelOne::DrawEnemy(Renderer& r, const Enemy& enemy, ActorPass pass)
             r, static_cast<int>(enemy.type.model),
             {enemy.x, Terrain3D::Height(enemy.x, enemy.y) + enemy.collapse * .25f, enemy.y}, yaw,
             enemy.type.model == ModelId::Brute ? 1.25f : 1, pose);
+        if (enemy.flash > 0)
+        {
+            const float elapsed = .18f - std::min(.18f, enemy.flash);
+            for (int i = 0; i < 6; ++i)
+            {
+                const float angle = i * 1.0472f;
+                r.Submit3D(4,
+                           Mat4::Translation(
+                               {enemy.x + std::cos(angle) * elapsed * 3,
+                                Terrain3D::Height(enemy.x, enemy.y) + .8f + elapsed * (1 + i % 3),
+                                enemy.y + std::sin(angle) * elapsed * 3}) *
+                               Mat4::Scale({.045f, .07f, .045f}),
+                           Color(.75f, .16f, .12f), Material::SoftLight);
+            }
+        }
         if (enemy.windup > 0 && !enemy.dead)
         {
             for (int i = 0; i < 40; ++i)

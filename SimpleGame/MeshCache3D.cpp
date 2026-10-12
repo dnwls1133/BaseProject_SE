@@ -259,7 +259,12 @@ void MeshCache3D::Draw(Renderer& r, int id, Vec3 position, float yaw, float scal
     {
         position.y += std::sin(pose.time * 2) * .013f;
     }
-    Mat4 base = Mat4::Translation(position) * Mat4::Rotation({0, 1, 0}, yaw) *
+    const float preparation = pose.attack > 0 && pose.attack < .45f ? pose.attack / .45f : 0;
+    const float release =
+        pose.attack >= .45f ? std::sin((pose.attack - .45f) / .55f * 3.14159f) : 0;
+    const float twist = preparation * -.28f + release * .42f;
+    Mat4 base = Mat4::Translation(position) * Mat4::Rotation({0, 1, 0}, yaw + twist) *
+                Mat4::Rotation({1, 0, 0}, preparation * -.08f + release * .16f) *
                 Mat4::Rotation({1, 0, 0}, pose.activity == 5 ? 1.45f : 0) *
                 Mat4::Rotation({0, 0, 1}, pose.collapse * 1.52f) *
                 Mat4::Scale({scale, scale, scale});
@@ -294,8 +299,19 @@ void MeshCache3D::Draw(Renderer& r, int id, Vec3 position, float yaw, float scal
             }
             if (pose.attack > 0 && i == 4)
             {
-                angle = -1.7f + std::sin(pose.attack * 3.14159f) * 2.3f;
+                angle = preparation > 0
+                            ? preparation * -2.0f
+                            : -2.0f + std::min(1.f, (pose.attack - .45f) / .18f) * 2.8f -
+                                  std::max(0.f, (pose.attack - .63f) / .37f) * .8f;
             }
+        }
+        if (pose.attack > 0 && i == 3)
+        {
+            angle = -.35f - preparation * .45f + release * .25f;
+        }
+        if (pose.attack > 0 && (i == 1 || i == 2))
+        {
+            angle += (i == 1 ? 1.f : -1.f) * (preparation * .15f - release * .22f);
         }
         if (i == 5)
         {

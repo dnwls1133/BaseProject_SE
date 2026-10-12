@@ -92,6 +92,11 @@ class WorldSociety
         bool playerThreat = false;
         int wildTarget = -1;
         float wildDecision = 0;
+        // Transient presentation and diagnostics, separate from saved gameplay state.
+        float strikeTime = 0;
+        std::uint64_t attackAttempts = 0, attackHits = 0, attackMisses = 0;
+        float damageDealt = 0;
+        std::string lastAttack;
 
         bool Alive() const
         {
@@ -229,6 +234,13 @@ class WorldSociety
         std::vector<Point> slots;
     };
 
+    struct LifeChoice
+    {
+        int task = 0, place = -1, destination = -1;
+        float score = 0;
+        std::string reason;
+    };
+
     struct LifeState
     {
         LifeTask task = LifeTask::None;
@@ -237,7 +249,8 @@ class WorldSociety
         float fatigue = 0, social = 0, progress = 0, cargo = 0, medicine = 0, satiation = 60;
         float lastDistance = 1e6f, stalled = 0;
         int helped = 0, broken = 0;
-        std::string reason, lastMemory;
+        std::string reason, lastMemory, decisionTrace;
+        std::vector<LifeChoice> choices;
     };
 
     struct Agreement
@@ -250,6 +263,26 @@ class WorldSociety
     const std::vector<LifePlace>& LifePlaces() const
     {
         return places;
+    }
+
+    const std::vector<LifeState>& LifeStates() const
+    {
+        return lives;
+    }
+
+    const std::vector<Campaign>& Campaigns() const
+    {
+        return campaigns;
+    }
+
+    const std::vector<Agreement>& Agreements() const
+    {
+        return agreements;
+    }
+
+    float FactionAttitude(int from, int to) const
+    {
+        return diplomacy[from][to];
     }
 
     int LifeActivity(int npc) const;
