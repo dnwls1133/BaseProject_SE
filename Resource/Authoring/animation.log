@@ -1,0 +1,259 @@
+00:02.812  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Characters\Human_Modular_Library.blend"
+INFO Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 5.0\5.0\scripts\addons_core\io_scene_gltf2\extern_draco.dll
+16:42:11 | INFO: Starting glTF 2.0 export
+16:42:11 | INFO: Extracting primitive: Arms_Linen
+16:42:11 | INFO: Primitives created: 2
+16:42:11 | INFO: Extracting primitive: Boots_Leather
+16:42:11 | INFO: Primitives created: 3
+16:42:12 | INFO: Extracting primitive: Cape_Pilgrim
+16:42:12 | INFO: Primitives created: 1
+16:42:12 | INFO: Extracting primitive: Face_Quiet
+16:42:12 | INFO: Primitives created: 4
+16:42:12 | INFO: Extracting primitive: Gear_PouchAndBloodVial
+16:42:12 | INFO: Primitives created: 4
+16:42:12 | INFO: Extracting primitive: Hands_Gloves
+16:42:12 | INFO: Primitives created: 1
+16:42:12 | INFO: Extracting primitive: Head_Ashen
+16:42:12 | INFO: Primitives created: 1
+16:42:12 | INFO: Extracting primitive: Hood_Pilgrim
+16:42:12 | INFO: Primitives created: 2
+16:42:12 | INFO: Extracting primitive: Legs_Leather
+16:42:12 | INFO: Primitives created: 1
+16:42:12 | INFO: Extracting primitive: Skirt_Pilgrim
+16:42:12 | INFO: Primitives created: 2
+16:42:12 | INFO: Extracting primitive: Torso_Leather
+16:42:12 | INFO: Primitives created: 5
+16:42:12 | INFO: Extracting primitive: Weapon_PilgrimSword
+16:42:12 | INFO: Primitives created: 2
+16:42:15 | INFO: Finished glTF 2.0 export in 4.304671287536621 s
+
+16:42:15 | INFO: Starting glTF 2.0 export
+16:42:15 | INFO: Extracting primitive: Arms_Linen
+16:42:16 | INFO: Primitives created: 2
+16:42:16 | INFO: Extracting primitive: Boots_Leather
+16:42:16 | INFO: Primitives created: 3
+16:42:16 | INFO: Extracting primitive: Cape_Healer
+16:42:16 | INFO: Primitives created: 1
+16:42:16 | INFO: Extracting primitive: Face_Weathered
+16:42:16 | INFO: Primitives created: 4
+16:42:16 | INFO: Extracting primitive: Gear_PouchAndBloodVial
+16:42:16 | INFO: Primitives created: 4
+16:42:16 | INFO: Extracting primitive: Hair_Long
+16:42:16 | INFO: Primitives created: 1
+16:42:16 | INFO: Extracting primitive: Hands_Bare
+16:42:16 | INFO: Primitives created: 1
+16:42:16 | INFO: Extracting primitive: Head_Pale
+16:42:16 | INFO: Primitives created: 1
+16:42:16 | INFO: Extracting primitive: Legs_Linen
+16:42:16 | INFO: Primitives created: 1
+16:42:16 | INFO: Extracting primitive: Skirt_Healer
+16:42:16 | INFO: Primitives created: 2
+16:42:16 | INFO: Extracting primitive: Torso_Linen
+16:42:16 | INFO: Primitives created: 5
+16:42:19 | INFO: Finished glTF 2.0 export in 3.9598236083984375 s
+
+16:42:19 | INFO: Starting glTF 2.0 export
+16:42:19 | INFO: Extracting primitive: Arms_Iron
+16:42:20 | INFO: Primitives created: 2
+16:42:20 | INFO: Extracting primitive: Boots_Iron
+16:42:20 | INFO: Primitives created: 3
+16:42:20 | INFO: Extracting primitive: Face_Quiet
+16:42:20 | INFO: Primitives created: 4
+16:42:20 | INFO: Extracting primitive: Hands_Gloves
+16:42:20 | INFO: Primitives created: 1
+16:42:20 | INFO: Extracting primitive: Head_Ashen
+16:42:20 | INFO: Primitives created: 1
+16:42:20 | INFO: Extracting primitive: Helmet_Warden
+16:42:20 | INFO: Primitives created: 1
+16:42:20 | INFO: Extracting primitive: Legs_Leather
+16:42:20 | INFO: Primitives created: 1
+16:42:20 | INFO: Extracting primitive: Tabard_Warden
+16:42:20 | INFO: Primitives created: 2
+16:42:20 | INFO: Extracting primitive: Torso_Iron
+16:42:20 | INFO: Primitives created: 5
+16:42:20 | INFO: Extracting primitive: Weapon_PilgrimSword
+16:42:20 | INFO: Primitives created: 2
+16:42:23 | INFO: Finished glTF 2.0 export in 3.3814496994018555 s
+
+16:42:23 | INFO: Starting glTF 2.0 export
+16:42:23 | INFO: Extracting primitive: Arms_Leather
+16:42:23 | INFO: Primitives created: 1
+16:42:23 | INFO: Extracting primitive: Boots_Leather
+16:42:23 | INFO: Primitives created: 3
+16:42:23 | INFO: Extracting primitive: Face_Umber
+16:42:23 | INFO: Primitives created: 4
+16:42:23 | INFO: Extracting primitive: Gear_ScavengerPack
+16:42:23 | INFO: Primitives created: 3
+16:42:23 | INFO: Extracting primitive: Hair_Cropped
+16:42:23 | INFO: Primitives created: 1
+16:42:23 | INFO: Extracting primitive: Hands_Gloves
+16:42:23 | INFO: Primitives created: 1
+16:42:23 | INFO: Extracting primitive: Head_Umber
+16:42:23 | INFO: Primitives created: 1
+16:42:23 | INFO: Extracting primitive: Legs_Linen
+16:42:23 | INFO: Primitives created: 1
+16:42:23 | INFO: Extracting primitive: Torso_Leather
+16:42:23 | INFO: Primitives created: 5
+16:42:23 | INFO: Extracting primitive: Weapon_WorkHammer
+16:42:23 | INFO: Primitives created: 2
+16:42:26 | INFO: Finished glTF 2.0 export in 3.3707993030548096 s
+
+16:42:26 | INFO: Starting glTF 2.0 export
+16:42:26 | INFO: Extracting primitive: Arms_Bare
+16:42:26 | INFO: Primitives created: 1
+16:42:26 | INFO: Extracting primitive: Face_Quiet
+16:42:26 | INFO: Primitives created: 4
+16:42:26 | INFO: Extracting primitive: Feet_Bare
+16:42:26 | INFO: Primitives created: 1
+16:42:26 | INFO: Extracting primitive: Hands_Bare
+16:42:26 | INFO: Primitives created: 1
+16:42:26 | INFO: Extracting primitive: Head_Ashen
+16:42:26 | INFO: Primitives created: 1
+16:42:26 | INFO: Extracting primitive: Legs_Linen
+16:42:26 | INFO: Primitives created: 1
+16:42:26 | INFO: Extracting primitive: Mutation_HornAndScab
+16:42:27 | INFO: Primitives created: 2
+16:42:27 | INFO: Extracting primitive: Torso_Linen
+16:42:27 | INFO: Primitives created: 5
+16:42:29 | INFO: Finished glTF 2.0 export in 3.188117027282715 s
+
+16:42:29 | INFO: Starting glTF 2.0 export
+16:42:29 | INFO: Extracting primitive: Arms_Bare
+16:42:29 | INFO: Primitives created: 1
+16:42:29 | INFO: Extracting primitive: Face_Quiet
+16:42:30 | INFO: Primitives created: 4
+16:42:30 | INFO: Extracting primitive: Feet_Bare
+16:42:30 | INFO: Primitives created: 1
+16:42:30 | INFO: Extracting primitive: Hands_Bare
+16:42:30 | INFO: Primitives created: 1
+16:42:30 | INFO: Extracting primitive: Head_Ashen
+16:42:30 | INFO: Primitives created: 1
+16:42:30 | INFO: Extracting primitive: Legs_Bare
+16:42:30 | INFO: Primitives created: 1
+16:42:30 | INFO: Extracting primitive: Torso_Bare
+16:42:30 | INFO: Primitives created: 1
+16:42:32 | INFO: Finished glTF 2.0 export in 2.9257922172546387 s
+00:47.797  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\04_Human_Motion.png'
+
+Info: Saved as "Human_Modular_Library.blend"
+ANIMATION_POLISH_COMPLETE human
+00:47.797  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Creatures\Animal\Animal_Modular_Library.blend"
+16:42:55 | INFO: Starting glTF 2.0 export
+16:42:55 | INFO: Extracting primitive: Animal_Head_Hound
+16:42:56 | INFO: Primitives created: 6
+16:42:56 | INFO: Extracting primitive: Animal_Limbs_Hound
+16:42:56 | INFO: Primitives created: 3
+16:42:56 | INFO: Extracting primitive: Animal_Tail
+16:42:56 | INFO: Primitives created: 1
+16:42:56 | INFO: Extracting primitive: Animal_Torso_ExposedRibs
+16:42:56 | INFO: Primitives created: 3
+16:42:57 | INFO: Finished glTF 2.0 export in 2.127777576446533 s
+
+16:42:57 | INFO: Starting glTF 2.0 export
+16:42:57 | INFO: Extracting primitive: Animal_Danger_AntlersAndSpine
+16:42:58 | INFO: Primitives created: 1
+16:42:58 | INFO: Extracting primitive: Animal_Head_Hound
+16:42:58 | INFO: Primitives created: 6
+16:42:58 | INFO: Extracting primitive: Animal_Limbs_Hound
+16:42:58 | INFO: Primitives created: 3
+16:42:58 | INFO: Extracting primitive: Animal_Tail
+16:42:58 | INFO: Primitives created: 1
+16:42:58 | INFO: Extracting primitive: Animal_Torso_ExposedRibs
+16:42:58 | INFO: Primitives created: 3
+16:42:59 | INFO: Finished glTF 2.0 export in 1.8469758033752441 s
+
+16:42:59 | INFO: Starting glTF 2.0 export
+16:42:59 | INFO: Extracting primitive: Animal_Boss_HiveCrown
+16:42:59 | INFO: Primitives created: 3
+16:42:59 | INFO: Extracting primitive: Animal_Head_Hound
+16:43:00 | INFO: Primitives created: 6
+16:43:00 | INFO: Extracting primitive: Animal_Limbs_Hound
+16:43:00 | INFO: Primitives created: 3
+16:43:00 | INFO: Extracting primitive: Animal_Tail
+16:43:00 | INFO: Primitives created: 1
+16:43:00 | INFO: Extracting primitive: Animal_Torso_ExposedRibs
+16:43:00 | INFO: Primitives created: 3
+16:43:01 | INFO: Finished glTF 2.0 export in 1.9156067371368408 s
+01:16.375  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\04_Animal_Motion.png'
+
+Info: Saved as "Animal_Modular_Library.blend"
+ANIMATION_POLISH_COMPLETE animal
+01:16.375  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Creatures\Spider\Spider_Modular_Library.blend"
+16:43:24 | INFO: Starting glTF 2.0 export
+16:43:24 | INFO: Extracting primitive: Spider_Body_Carapace
+16:43:24 | INFO: Primitives created: 2
+16:43:24 | INFO: Extracting primitive: Spider_Head_SixEyes
+16:43:24 | INFO: Primitives created: 3
+16:43:24 | INFO: Extracting primitive: Spider_Legs_Eight
+16:43:24 | INFO: Primitives created: 3
+16:43:26 | INFO: Finished glTF 2.0 export in 2.1788558959960938 s
+
+16:43:26 | INFO: Starting glTF 2.0 export
+16:43:26 | INFO: Extracting primitive: Spider_Body_Carapace
+16:43:26 | INFO: Primitives created: 2
+16:43:26 | INFO: Extracting primitive: Spider_Danger_ThornShell
+16:43:26 | INFO: Primitives created: 1
+16:43:26 | INFO: Extracting primitive: Spider_Head_SixEyes
+16:43:26 | INFO: Primitives created: 3
+16:43:26 | INFO: Extracting primitive: Spider_Legs_Eight
+16:43:26 | INFO: Primitives created: 3
+16:43:28 | INFO: Finished glTF 2.0 export in 2.0842325687408447 s
+
+16:43:28 | INFO: Starting glTF 2.0 export
+16:43:28 | INFO: Extracting primitive: Spider_Body_Carapace
+16:43:28 | INFO: Primitives created: 2
+16:43:28 | INFO: Extracting primitive: Spider_Boss_BroodSacs
+16:43:28 | INFO: Primitives created: 3
+16:43:28 | INFO: Extracting primitive: Spider_Head_SixEyes
+16:43:29 | INFO: Primitives created: 3
+16:43:29 | INFO: Extracting primitive: Spider_Legs_Eight
+16:43:29 | INFO: Primitives created: 3
+16:43:30 | INFO: Finished glTF 2.0 export in 2.1604878902435303 s
+01:48.437  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\04_Spider_Motion.png'
+
+Info: Saved as "Spider_Modular_Library.blend"
+ANIMATION_POLISH_COMPLETE spider
+01:48.453  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Creatures\Giant\Giant_Modular_Library.blend"
+16:43:56 | INFO: Starting glTF 2.0 export
+16:43:56 | INFO: Extracting primitive: Giant_Body_RibGiant
+16:43:56 | INFO: Primitives created: 3
+16:43:56 | INFO: Extracting primitive: Giant_Head_Hollow
+16:43:57 | INFO: Primitives created: 4
+16:43:57 | INFO: Extracting primitive: Giant_Limbs_Elongated
+16:43:57 | INFO: Primitives created: 4
+16:43:57 | INFO: Extracting primitive: Giant_Rags
+16:43:57 | INFO: Primitives created: 1
+16:43:59 | INFO: Finished glTF 2.0 export in 2.407076835632324 s
+
+16:43:59 | INFO: Starting glTF 2.0 export
+16:43:59 | INFO: Extracting primitive: Giant_Body_RibGiant
+16:43:59 | INFO: Primitives created: 3
+16:43:59 | INFO: Extracting primitive: Giant_Danger_ShoulderThorns
+16:43:59 | INFO: Primitives created: 1
+16:43:59 | INFO: Extracting primitive: Giant_Head_Hollow
+16:43:59 | INFO: Primitives created: 4
+16:43:59 | INFO: Extracting primitive: Giant_Limbs_Elongated
+16:43:59 | INFO: Primitives created: 4
+16:43:59 | INFO: Extracting primitive: Giant_Rags
+16:43:59 | INFO: Primitives created: 1
+16:44:01 | INFO: Finished glTF 2.0 export in 2.113859176635742 s
+
+16:44:01 | INFO: Starting glTF 2.0 export
+16:44:01 | INFO: Extracting primitive: Giant_Body_RibGiant
+16:44:01 | INFO: Primitives created: 3
+16:44:01 | INFO: Extracting primitive: Giant_Boss_SaintCrown
+16:44:01 | INFO: Primitives created: 4
+16:44:01 | INFO: Extracting primitive: Giant_Head_Hollow
+16:44:01 | INFO: Primitives created: 4
+16:44:01 | INFO: Extracting primitive: Giant_Limbs_Elongated
+16:44:01 | INFO: Primitives created: 4
+16:44:01 | INFO: Extracting primitive: Giant_Rags
+16:44:01 | INFO: Primitives created: 1
+16:44:03 | INFO: Finished glTF 2.0 export in 2.182332754135132 s
+02:19.812  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\04_Giant_Motion.png'
+
+Info: Saved as "Giant_Modular_Library.blend"
+ANIMATION_POLISH_COMPLETE giant
+Blender 5.0.0 (hash a37564c4df7a built 2025-11-18 11:06:54)
+
+Blender quit

@@ -96,6 +96,8 @@ class LevelOne
         int health = 0, maximumHealth = 0;
         EnemyDefinition type;
         bool dead = false;
+        bool wilderness = false;
+        float respawnRemaining = 0;
         int targetKind = 0, targetIndex = -1;
         float decisionTime = 0, homeX = 0, homeY = 0;
         Point route{0, 0};
@@ -226,6 +228,22 @@ class LevelOne
     void DrawAttackEffect(Renderer& renderer, Vec3 position, float yaw, float progress, float reach,
                           Color color);
     void UpdateCitizen(Citizen& citizen, float dt);
+    std::vector<Point> wildernessSpawns;
+    std::uint32_t populationRandomState = 1;
+
+    std::uint32_t PopulationRandom()
+    {
+        populationRandomState = populationRandomState * 1664525u + 1013904223u;
+        return populationRandomState;
+    }
+
+    bool PlaceWildernessEnemy(Enemy& enemy, bool relocating);
+    void BuildWildernessPopulation();
+    std::vector<Point> PrepareWildernessSpawns(const LevelData& definition,
+                                               const RandomLevelMap& terrain,
+                                               const WorldSociety& population,
+                                               std::uint32_t seed) const;
+    void UpdateRespawns(float dt);
     void DrawCitizen(Renderer& renderer, const Citizen& citizen, ActorPass pass);
     void DrawSocietyUI(Renderer& renderer);
     bool SocietyKey(unsigned char key);

@@ -1,58 +1,129 @@
 version 1
-rules 6 60 16 180 720 32 14 3 1.5 .8 2 -45
+rules 6 60 24 720 720 32 14 3 1.5 .8 2 -45
 weights .15 .2 .6 .8 .4 .5 .3 .9 .5 .8
 faction purge "정화 기사단" "마을의 생존을 위해 군체를 불태운다" graves PurgeArmor .84 .78 .6 .95 20
-faction hive "군체" "생존과 의지를 하나의 감염망으로 흡수한다" growth SporeMantle .55 .14 .32 -.95 20
-territory refuge purge .6 .3 .1 .3 .2
-territory pilgrimage purge .6 .3 .1 .3 .2
-territory graves purge .6 .3 .1 .3 .2
-territory marsh hive .6 .3 .8 .3 .2
-territory cathedral purge .6 .3 .1 .3 .2
-territory growth hive .6 .3 .8 .3 .2
-territory burial hive .6 .3 .8 .3 .2
-territory redfield hive .6 .3 .8 .3 .2
-territory shallows hive .6 .3 .8 .3 .2
-npc church_0 "에드릭" merchant rule purge cathedral Pilgrim 160.8 102.34 0.65 0.3 0.55 0.3 0.65 0.35 0.45 3 0.15 6 1.9
-npc church_1 "마르타" guard protect purge cathedral Pilgrim 164.0 102.34 0.85 0.2 0.35 0.3 0.65 0.35 0.45 4 0.15 10 2.3
-npc church_2 "세베린" merchant profit purge cathedral Pilgrim 167.2 102.34 0.35 0.85 0.35 0.3 0.65 0.35 0.45 5 0.15 6 1.9
-npc church_3 "이레나" healer aid purge pilgrimage Pilgrim 80.8 47.66 0.3 0.15 0.9 0.3 0.65 0.35 0.85 6 0.15 6 1.9
-npc church_4 "카시안" scholar research purge pilgrimage Pilgrim 80.8 52.34 0.4 0.3 0.65 0.3 0.65 0.85 0.85 7 0.15 6 1.9
-npc union_0 "아델" merchant rule purge refuge Pilgrim 36.0 49.22 0.65 0.3 0.55 0.35 0.2 0.35 0.45 3 0.15 6 1.9
-npc union_1 "로안" guard protect purge refuge Pilgrim 39.2 49.22 0.85 0.2 0.35 0.35 0.2 0.35 0.45 4 0.15 10 2.3
-npc union_2 "밀라" merchant profit purge refuge Pilgrim 42.4 49.22 0.35 0.85 0.35 0.35 0.2 0.35 0.45 5 0.15 6 1.9
-npc union_3 "테오" healer aid purge pilgrimage Pilgrim 84.0 47.66 0.3 0.15 0.9 0.35 0.2 0.35 0.85 6 0.15 6 1.9
-npc union_4 "네리" refugee survive purge pilgrimage Pilgrim 84.0 52.34 0.4 0.3 0.65 0.35 0.2 0.35 0.85 7 0.15 6 1.9
-npc spore_0 "골격 분쇄자 1" leader connect hive marsh Brute 72.5 72.5 .95 .05 .05 .8 .95 .2 .1 3 1 12 1.5
-npc spore_1 "갈고리 잠식자 2" guard connect hive marsh Crawler 75.5 72.5 .95 .05 .05 .8 .95 .2 .1 4 1 12 2.2
-npc spore_2 "포자 토사체 3" guard connect hive marsh Infected 72.5 75.5 .95 .05 .05 .8 .95 .2 .1 5 1 12 2.2
-npc spore_3 "균사 파종자 4" guard connect hive marsh Infected 75.5 75.5 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
-npc spore_4 "포자 토사체 5" guard connect hive growth Infected 218 147 .95 .05 .05 .8 .95 .2 .1 7 1 12 2.2
-npc research_0 "골격 분쇄자 6" guard connect hive growth Brute 221 149 .95 .05 .05 .8 .95 .2 .1 3 1 12 1.5
-npc research_1 "갈고리 잠식자 7" guard connect hive growth Crawler 218 151 .95 .05 .05 .8 .95 .2 .1 4 1 12 2.2
-npc research_2 "포자 토사체 8" guard connect hive growth Infected 221 153 .95 .05 .05 .8 .95 .2 .1 5 1 12 2.2
-npc research_3 "균사 파종자 9" guard connect hive redfield Infected 154 166 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
-npc research_4 "포자 토사체 10" guard connect hive redfield Infected 157 168 .95 .05 .05 .8 .95 .2 .1 7 1 12 2.2
-npc purge_0 "가렌 · 기사단장" leader purify purge graves Pilgrim 151.2 42.97 0.65 0.3 0.55 0.5 0.85 0.35 0.45 3 0.15 6 1.9
-npc purge_1 "엘사" guard purify purge graves Pilgrim 154.4 42.97 0.85 0.2 0.35 0.5 0.85 0.35 0.45 4 0.15 10 2.3
-npc purge_2 "다릭" merchant profit purge graves Pilgrim 157.6 42.97 0.35 0.85 0.35 0.5 0.85 0.35 0.45 5 0.15 6 1.9
-npc purge_3 "루스" healer aid purge pilgrimage Pilgrim 93.6 47.66 0.3 0.15 0.9 0.5 0.85 0.35 0.85 6 0.15 6 1.9
-npc purge_4 "에단" guard purify purge pilgrimage Pilgrim 93.6 52.34 0.85 0.3 0.35 0.5 0.85 0.85 0.85 7 0.15 10 1.9
-npc union_5 "하린" guard protect purge refuge Pilgrim 64.5 61.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc union_6 "보른" guard protect purge refuge Pilgrim 66.5 63.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc union_7 "유엘" guard protect purge refuge Pilgrim 40.5 51.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc church_5 "마렉" guard protect purge cathedral Pilgrim 161.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc church_6 "엘린" guard protect purge cathedral Pilgrim 163.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc church_7 "바르" guard protect purge cathedral Pilgrim 165.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc spore_5 "갈고리 잠식자 11" guard connect hive redfield Crawler 154 170 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
-npc spore_6 "골격 분쇄자 12" guard connect hive redfield Brute 157 172 .95 .05 .05 .8 .95 .2 .1 6 1 12 1.5
-npc spore_7 "균사 파종자 13" guard connect hive shallows Infected 218 62 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
-npc research_5 "갈고리 잠식자 14" guard connect hive shallows Crawler 221 64 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
-npc research_6 "골격 분쇄자 15" guard connect hive shallows Brute 218 66 .95 .05 .05 .8 .95 .2 .1 6 1 12 1.5
-npc research_7 "균사 파종자 16" guard connect hive shallows Infected 221 68 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
-npc purge_5 "세인" guard protect purge graves Pilgrim 60.5 61.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
-npc purge_6 "루카" guard protect purge graves Pilgrim 62.5 63.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
-npc purge_7 "헤르" guard protect purge graves Pilgrim 156.5 45.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
+faction hive "군체" "의지와 생명을 하나의 감염망으로 흡수한다" growth SporeMantle .55 .14 .32 -.95 20
+territory refuge purge .6 .3 .1 .2 .2
+territory pilgrimage purge .6 .3 .1 .2 .2
+territory graves purge .6 .3 .1 .2 .2
+territory cathedral purge .6 .3 .1 .2 .2
+territory growth hive .6 .3 .8 .2 .2
+territory marsh hive .6 .3 .8 .2 .2
+territory burial hive .6 .3 .8 .2 .2
+territory redfield hive .6 .3 .8 .2 .2
+territory shallows hive .6 .3 .8 .2 .2
+npc refuge_00 "피난촌 보급 상인 1" merchant profit purge refuge Pilgrim 48 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_01 "피난촌 보급 상인 2" merchant profit purge refuge Pilgrim 51 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_02 "피난촌 보급 상인 3" merchant profit purge refuge Pilgrim 54 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_03 "피난촌 전령 4" merchant connect purge refuge Pilgrim 57 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc refuge_04 "피난촌 전령 5" merchant connect purge refuge Pilgrim 60 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc refuge_05 "피난촌 의무관 6" healer aid purge refuge Pilgrim 48 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_06 "피난촌 의무관 7" healer aid purge refuge Pilgrim 51 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_07 "피난촌 기록관 8" scholar survive purge refuge Pilgrim 54 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_08 "피난촌 기록관 9" scholar survive purge refuge Pilgrim 57 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_09 "피난촌 주민 10" refugee survive purge refuge Pilgrim 60 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_10 "피난촌 주민 11" refugee survive purge refuge Pilgrim 48 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_11 "피난촌 주민 12" refugee survive purge refuge Pilgrim 51 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_12 "피난촌 주민 13" refugee survive purge refuge Pilgrim 54 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_13 "피난촌 주민 14" refugee survive purge refuge Pilgrim 57 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc refuge_14 "피난촌 정화 기사 15" guard purify purge refuge Pilgrim 60 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc refuge_15 "피난촌 정화 기사 16" guard purify purge refuge Pilgrim 48 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc refuge_16 "피난촌 정화 기사 17" guard purify purge refuge Pilgrim 51 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc refuge_17 "피난촌 정화 기사 18" guard purify purge refuge Pilgrim 54 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc refuge_18 "피난촌 정화 기사 19" guard purify purge refuge Pilgrim 57 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc refuge_19 "피난촌 정화 기사 20" guard purify purge refuge Pilgrim 60 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc pilgrimage_00 "보급촌 보급 상인 1" merchant profit purge pilgrimage Pilgrim 122 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_01 "보급촌 보급 상인 2" merchant profit purge pilgrimage Pilgrim 125 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_02 "보급촌 보급 상인 3" merchant profit purge pilgrimage Pilgrim 128 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_03 "보급촌 전령 4" merchant connect purge pilgrimage Pilgrim 131 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc pilgrimage_04 "보급촌 전령 5" merchant connect purge pilgrimage Pilgrim 134 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc pilgrimage_05 "보급촌 의무관 6" healer aid purge pilgrimage Pilgrim 122 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_06 "보급촌 의무관 7" healer aid purge pilgrimage Pilgrim 125 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_07 "보급촌 기록관 8" scholar survive purge pilgrimage Pilgrim 128 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_08 "보급촌 기록관 9" scholar survive purge pilgrimage Pilgrim 131 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_09 "보급촌 주민 10" refugee survive purge pilgrimage Pilgrim 134 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_10 "보급촌 주민 11" refugee survive purge pilgrimage Pilgrim 122 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_11 "보급촌 주민 12" refugee survive purge pilgrimage Pilgrim 125 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_12 "보급촌 주민 13" refugee survive purge pilgrimage Pilgrim 128 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_13 "보급촌 주민 14" refugee survive purge pilgrimage Pilgrim 131 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc pilgrimage_14 "보급촌 정화 기사 15" guard purify purge pilgrimage Pilgrim 134 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc pilgrimage_15 "보급촌 정화 기사 16" guard purify purge pilgrimage Pilgrim 122 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc pilgrimage_16 "보급촌 정화 기사 17" guard purify purge pilgrimage Pilgrim 125 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc pilgrimage_17 "보급촌 정화 기사 18" guard purify purge pilgrimage Pilgrim 128 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc pilgrimage_18 "보급촌 정화 기사 19" guard purify purge pilgrimage Pilgrim 131 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc pilgrimage_19 "보급촌 정화 기사 20" guard purify purge pilgrimage Pilgrim 134 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc graves_00 "요새 기사단장 1" leader survive purge graves Pilgrim 196 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_01 "요새 보급 상인 2" merchant profit purge graves Pilgrim 199 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_02 "요새 보급 상인 3" merchant profit purge graves Pilgrim 202 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_03 "요새 전령 4" merchant connect purge graves Pilgrim 205 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc graves_04 "요새 전령 5" merchant connect purge graves Pilgrim 208 58 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc graves_05 "요새 의무관 6" healer aid purge graves Pilgrim 196 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_06 "요새 의무관 7" healer aid purge graves Pilgrim 199 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_07 "요새 기록관 8" scholar survive purge graves Pilgrim 202 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_08 "요새 기록관 9" scholar survive purge graves Pilgrim 205 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_09 "요새 주민 10" refugee survive purge graves Pilgrim 208 61 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_10 "요새 주민 11" refugee survive purge graves Pilgrim 196 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_11 "요새 주민 12" refugee survive purge graves Pilgrim 199 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_12 "요새 주민 13" refugee survive purge graves Pilgrim 202 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_13 "요새 주민 14" refugee survive purge graves Pilgrim 205 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc graves_14 "요새 정화 기사 15" guard purify purge graves Pilgrim 208 64 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc graves_15 "요새 정화 기사 16" guard purify purge graves Pilgrim 196 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc graves_16 "요새 정화 기사 17" guard purify purge graves Pilgrim 199 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc graves_17 "요새 정화 기사 18" guard purify purge graves Pilgrim 202 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc graves_18 "요새 정화 기사 19" guard purify purge graves Pilgrim 205 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc graves_19 "요새 정화 기사 20" guard purify purge graves Pilgrim 208 67 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc cathedral_00 "수도원 보급 상인 1" merchant profit purge cathedral Pilgrim 159 122 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_01 "수도원 보급 상인 2" merchant profit purge cathedral Pilgrim 162 122 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_02 "수도원 보급 상인 3" merchant profit purge cathedral Pilgrim 165 122 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_03 "수도원 전령 4" merchant connect purge cathedral Pilgrim 168 122 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc cathedral_04 "수도원 전령 5" merchant connect purge cathedral Pilgrim 171 122 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 3.5
+npc cathedral_05 "수도원 의무관 6" healer aid purge cathedral Pilgrim 159 125 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_06 "수도원 의무관 7" healer aid purge cathedral Pilgrim 162 125 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_07 "수도원 기록관 8" scholar survive purge cathedral Pilgrim 165 125 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_08 "수도원 기록관 9" scholar survive purge cathedral Pilgrim 168 125 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_09 "수도원 주민 10" refugee survive purge cathedral Pilgrim 171 125 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_10 "수도원 주민 11" refugee survive purge cathedral Pilgrim 159 128 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_11 "수도원 주민 12" refugee survive purge cathedral Pilgrim 162 128 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_12 "수도원 주민 13" refugee survive purge cathedral Pilgrim 165 128 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_13 "수도원 주민 14" refugee survive purge cathedral Pilgrim 168 128 .8 .35 .65 .2 .75 .6 .6 8 0.1 7 2.3
+npc cathedral_14 "수도원 정화 기사 15" guard purify purge cathedral Pilgrim 171 128 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc cathedral_15 "수도원 정화 기사 16" guard purify purge cathedral Pilgrim 159 131 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc cathedral_16 "수도원 정화 기사 17" guard purify purge cathedral Pilgrim 162 131 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc cathedral_17 "수도원 정화 기사 18" guard purify purge cathedral Pilgrim 165 131 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc cathedral_18 "수도원 정화 기사 19" guard purify purge cathedral Pilgrim 168 131 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc cathedral_19 "수도원 정화 기사 20" guard purify purge cathedral Pilgrim 171 131 .8 .35 .65 .2 .75 .6 .6 8 0.1 12 2.3
+npc growth_00 "군체 골격 분쇄자 1" leader connect hive growth Brute 85 122 .9 .05 .05 .65 .95 .2 .1 8 1 12 1.5
+npc growth_01 "군체 갈고리 잠식자 2" guard connect hive growth Crawler 88 122 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_02 "군체 포자 토사체 3" guard connect hive growth Infected 91 122 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_03 "군체 균사 파종자 4" guard connect hive growth Infected 94 122 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_04 "군체 골격 분쇄자 5" guard connect hive growth Brute 97 122 .9 .05 .05 .65 .95 .2 .1 8 1 12 1.5
+npc growth_05 "군체 갈고리 잠식자 6" guard connect hive growth Crawler 85 125 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_06 "군체 포자 토사체 7" guard connect hive growth Infected 88 125 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_07 "군체 균사 파종자 8" guard connect hive growth Infected 91 125 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_08 "군체 골격 분쇄자 9" guard connect hive growth Brute 94 125 .9 .05 .05 .65 .95 .2 .1 8 1 12 1.5
+npc growth_09 "군체 갈고리 잠식자 10" guard connect hive growth Crawler 97 125 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_10 "군체 포자 토사체 11" guard connect hive growth Infected 85 128 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_11 "군체 균사 파종자 12" guard connect hive growth Infected 88 128 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_12 "군체 골격 분쇄자 13" guard connect hive growth Brute 91 128 .9 .05 .05 .65 .95 .2 .1 8 1 12 1.5
+npc growth_13 "군체 갈고리 잠식자 14" guard connect hive growth Crawler 94 128 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_14 "군체 포자 토사체 15" guard connect hive growth Infected 97 128 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_15 "군체 균사 파종자 16" guard connect hive growth Infected 85 131 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_16 "군체 골격 분쇄자 17" guard connect hive growth Brute 88 131 .9 .05 .05 .65 .95 .2 .1 8 1 12 1.5
+npc growth_17 "군체 갈고리 잠식자 18" guard connect hive growth Crawler 91 131 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_18 "군체 포자 토사체 19" guard connect hive growth Infected 94 131 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
+npc growth_19 "군체 균사 파종자 20" guard connect hive growth Infected 97 131 .9 .05 .05 .65 .95 .2 .1 8 1 12 2.3
 diplomacy purge hive -100
+courier refuge_03 4 refuge pilgrimage graves cathedral
+courier refuge_04 4 refuge cathedral graves pilgrimage
+courier pilgrimage_03 4 pilgrimage graves cathedral refuge
+courier pilgrimage_04 4 pilgrimage refuge cathedral graves
+courier graves_03 4 graves cathedral refuge pilgrimage
+courier graves_04 4 graves pilgrimage refuge cathedral
+courier cathedral_03 4 cathedral refuge pilgrimage graves
+courier cathedral_04 4 cathedral graves pilgrimage refuge
+ecology hive penitent 100
+ecology hive bellkeeper 100
+ecology hive crawler 100
 war_rules -60 2 .35 1440
 life Simulation/level1.life
 economy Simulation/level1.economy

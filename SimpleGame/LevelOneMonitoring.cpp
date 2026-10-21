@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
+#include <cmath>
 
 namespace
 {
@@ -72,8 +74,15 @@ void LevelOne::PublishMonitoring(float dt)
         << ",\"sampled_at_unix_ms\":" << timestamp << ",\"generation\":" << expedition
         << ",\"world_minute\":" << simulation.Minute() << ",\"world\":" << JsonString(worldFile)
         << ",\"paused\":" << (paused || statPanel || stats.health <= 0 ? "true" : "false")
+        << ",\"news_transport\":\"physical_npc_contact\""
         << ",\"map\":{\"width\":" << map.Width << ",\"height\":" << map.Height << "}"
-        << ",\"counts\":{\"npc_total\":" << npcs.size() << ",\"npc_alive\":" << npcAlive
+        << ",\"counts\":{\"village_total\":"
+        << std::count_if(content.regions.begin(), content.regions.end(),
+                         [](const RegionDefinition& r)
+                         {
+                             return r.villageRadius > 0;
+                         })
+        << ",\"npc_total\":" << npcs.size() << ",\"npc_alive\":" << npcAlive
         << ",\"npc_dead\":" << npcs.size() - npcAlive << ",\"monster_total\":" << enemies.size()
         << ",\"monster_alive\":" << monsterAlive
         << ",\"monster_dead\":" << enemies.size() - monsterAlive
@@ -102,6 +111,8 @@ void LevelOne::PublishMonitoring(float dt)
             << ",\"cooldown_seconds\":" << n.cooldown << ",\"attack_attempts\":" << n.attackAttempts
             << ",\"attack_hits\":" << n.attackHits << ",\"attack_misses\":" << n.attackMisses
             << ",\"damage_dealt\":" << n.damageDealt
+            << ",\"is_courier\":" << (society.IsCourier(int(i)) ? "true" : "false")
+            << ",\"courier_destination\":" << JsonString(society.CourierDestination(int(i)))
             << ",\"last_attack\":" << JsonString(n.lastAttack)
             << ",\"speech\":" << JsonString(n.speech) << ",\"known_regions\":" << n.memories.size();
         if (i < lives.size())
@@ -177,9 +188,84 @@ void LevelOne::PublishMonitoring(float dt)
             localMonsters +=
                 !enemy.dead && map.DistrictAt(int(enemy.x), int(enemy.y)).id == region.id ? 1 : 0;
         }
+        const auto definition = std::find_if(content.regions.begin(), content.regions.end(),
+                                             [&](const RegionDefinition& r)
+                                             {
+                                                 return r.id == region.id;
+                                             });
+        const bool village = definition != content.regions.end() && definition->villageRadius > 0;
+        int residentTotal = 0, residentAlive = 0, wounded = 0, hungry = 0, threats = 0;
+        float healthSum = 0;
+        for (std::size_t i = 0; i < npcs.size(); ++i)
+        {
+            const auto& npc = npcs[i];
+            if (society.Regions()[npc.home].id == region.id)
+            {
+                ++residentTotal;
+                if (npc.Alive())
+                {
+                    ++residentAlive;
+                    healthSum += npc.health / 100;
+                    wounded += npc.health < 65;
+                    hungry +=
+                        !society.IsHive(int(i)) && i < lives.size() && lives[i].satiation < 35;
+                }
+            }
+            if (village && npc.Alive() && npc.faction != region.owner &&
+                std::hypot(npc.x - region.x, npc.y - region.y) < definition->villageRadius + 8)
+            {
+                ++threats;
+            }
+        }
+        if (village)
+        {
+            for (const auto& enemy : enemies)
+            {
+                if (!enemy.dead && society.WildlifeAffinity(region.owner, enemy.type.id) < 0 &&
+                    std::hypot(enemy.x - region.x, enemy.y - region.y) <
+                        definition->villageRadius + 8)
+                {
+                    ++threats;
+                }
+            }
+        }
+        const float healthRatio = residentAlive ? healthSum / residentAlive : 0;
+        const float fearRatio = std::max(region.fear, float(threats) / (threats + 4.f));
+        const float foodRatio = state ? float(state->food) : 0;
+        const float survival = residentTotal ? float(residentAlive) / residentTotal : 0;
+        const bool hive = region.owner >= 0 && factions[region.owner].id == "hive";
+        const float score = std::clamp(
+            hive ? .4f * region.hive + .3f * survival + .3f * (1 - fearRatio)
+                 : .3f * foodRatio + .25f * healthRatio + .2f * region.security +
+                       .25f * (1 - fearRatio) - .15f * (state ? float(state->infection) : 0),
+            0.f, 1.f);
+        const std::string mood = !residentAlive ? "거점 붕괴"
+                                 : threats >= 3 ? (hive ? "군체 소각 위협" : "전투 공포")
+                                 : !hive && (foodRatio < .3f || hungry > residentAlive / 3)
+                                     ? "굶주림"
+                                 : score < .4f  ? "불안과 침체"
+                                 : hive         ? "군체 확장"
+                                 : score < .65f ? "긴장 속 생존"
+                                                : "안정된 생활";
         out << "{\"id\":" << JsonString(region.id) << ",\"name\":" << JsonString(region.name)
             << ",\"x\":" << region.x << ",\"y\":" << region.y
-            << ",\"owner\":" << (region.owner >= 0 ? JsonString(factions[region.owner].id) : "null")
+            << ",\"is_village\":" << (village ? "true" : "false")
+            << ",\"resident_target\":" << (village ? definition->residents : 0)
+            << ",\"resident_total\":" << residentTotal << ",\"resident_alive\":" << residentAlive
+            << ",\"mood\":";
+        if (village)
+        {
+            out << "{\"label\":" << JsonString(mood) << ",\"score_ratio\":" << score
+                << ",\"fear_ratio\":" << fearRatio << ",\"health_ratio\":" << healthRatio
+                << ",\"food_ratio\":" << foodRatio << ",\"survival_ratio\":" << survival
+                << ",\"wounded_residents\":" << wounded << ",\"hungry_residents\":" << hungry
+                << ",\"nearby_hostiles\":" << threats << '}';
+        }
+        else
+        {
+            out << "null";
+        }
+        out << ",\"owner\":" << (region.owner >= 0 ? JsonString(factions[region.owner].id) : "null")
             << ",\"npc_alive\":" << localNpc << ",\"monster_alive\":" << localMonsters
             << ",\"food_ratio\":" << (state ? std::to_string(state->food) : "null")
             << ",\"infection_ratio\":" << (state ? std::to_string(state->infection) : "null")
@@ -249,7 +335,9 @@ void LevelOne::PublishMonitoring(float dt)
             << ",\"species\":" << JsonString(e.type.id) << ",\"x\":" << e.x << ",\"y\":" << e.y
             << ",\"health\":" << e.health << ",\"max_health\":" << e.maximumHealth
             << ",\"alive\":" << (!e.dead ? "true" : "false") << ",\"target_kind\":" << e.targetKind
-            << ",\"target_index\":" << e.targetIndex << '}';
+            << ",\"target_index\":" << e.targetIndex
+            << ",\"wilderness\":" << (e.wilderness ? "true" : "false")
+            << ",\"respawn_remaining_seconds\":" << e.respawnRemaining << '}';
     }
     out << "],\"campaigns\":[";
     comma = false;

@@ -343,11 +343,24 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
         npc.farTime = 0;
     }
     npc.cooldown = std::max(0.f, npc.cooldown - dt);
+    bool wildlifeChecked = false;
+    if (conflictEnabled && (npc.wildTarget >= 0 || npc.windup <= 0))
+    {
+        wildlifeChecked = true;
+        if (wildlife(npc, dt))
+        {
+            return;
+        }
+    }
     if (TickConflictActor(int(index), dt, world, map, player))
     {
         return;
     }
-    if (wildlife(npc, dt))
+    if (TickCourier(int(index), dt, world, map))
+    {
+        return;
+    }
+    if (!wildlifeChecked && wildlife(npc, dt))
     {
         if (conversationNpc == int(index))
         {

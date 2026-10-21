@@ -213,6 +213,8 @@
     <ClCompile Include="SocietyData.cpp" />
     <ClCompile Include="WorldSociety.cpp" />
     <ClCompile Include="SocietyCombat.cpp" />
+    <ClCompile Include="SocietyNews.cpp" />
+    <ClCompile Include="LevelOnePopulation.cpp" />
     <ClCompile Include="SocietyConflict.cpp" />
     <ClCompile Include="SocietyConflictCombat.cpp" />
     <ClCompile Include="SocietyConflictSave.cpp" />

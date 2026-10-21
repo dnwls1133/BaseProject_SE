@@ -273,6 +273,10 @@ int WorldSociety::LifeActivity(int npc) const
 
 std::string WorldSociety::LifeLabel(int npc) const
 {
+    if (IsCourier(npc))
+    {
+        return std::string("소식 운반 · ") + CourierDestination(npc);
+    }
     if (!HasLife() || npcs[npc].action == Action::Combat || npcs[npc].action == Action::Flee)
     {
         return ActionName(npcs[npc].action);

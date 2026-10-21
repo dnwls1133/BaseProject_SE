@@ -132,6 +132,32 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
                 loaded.regions.push_back(region);
                 Require(loaded.regions.size() <= 64, "too many regions");
             }
+            else if (command == "village")
+            {
+                const std::string id = row.Word();
+                auto it = std::find_if(loaded.regions.begin(), loaded.regions.end(),
+                                       [&](const RegionDefinition& r)
+                                       {
+                                           return r.id == id;
+                                       });
+                Require(it != loaded.regions.end() && singleton.insert("village:" + id).second,
+                        "unknown/duplicate village: " + id);
+                it->villageRadius = row.Number(6, 24);
+                it->residents = row.Integer(1, 100);
+            }
+            else if (command == "wilderness")
+            {
+                once(command);
+                loaded.wildernessCount = row.Integer(1, 512);
+                loaded.respawnSeconds = row.Number(1, 60);
+                loaded.respawnRelocation = row.Number(4, 64);
+                loaded.spawnPlayerClearance = row.Number(10, 64);
+                const int count = row.Integer(1, 16);
+                for (int i = 0; i < count; ++i)
+                {
+                    loaded.wildernessSpecies.push_back(row.Word());
+                }
+            }
             else if (command == "patch")
             {
                 TerrainPatch patch;
@@ -324,6 +350,10 @@ void LevelData::Load(const std::string& root, const std::string& relative, const
         {
             loaded.Enemy(id);
         }
+    }
+    for (const auto& id : loaded.wildernessSpecies)
+    {
+        loaded.Enemy(id);
     }
     bool shrine = false;
     for (const auto& prop : loaded.placements)

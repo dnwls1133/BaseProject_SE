@@ -140,6 +140,23 @@ void WorldSociety::Load(const std::string& root, const std::string& file, const 
                         "frontier objective must belong to a claimant");
                 loaded.frontiers.push_back(front);
             }
+            else if (command == "courier")
+            {
+                const int npc = loaded.NpcIndex(row.Word());
+                Require(npc >= 0 && loaded.courierRoutes.count(npc) == 0,
+                        "unknown/duplicate news courier");
+                const int count = row.Integer(2, 16);
+                auto& route = loaded.courierRoutes[npc];
+                for (int i = 0; i < count; ++i)
+                {
+                    const int region = loaded.RegionIndex(row.Word());
+                    Require(region >= 0 && loaded.regions[region].owner == loaded.npcs[npc].faction,
+                            "courier route must use friendly regions");
+                    Require(std::find(route.begin(), route.end(), region) == route.end(),
+                            "duplicate courier stop");
+                    route.push_back(region);
+                }
+            }
             else if (command == "conflict")
             {
                 Require(conflictFile.empty(), "duplicate conflict file");
@@ -304,6 +321,20 @@ void WorldSociety::Load(const std::string& root, const std::string& file, const 
     loaded.LoadLife(root, lifeFile);
     loaded.LoadEconomy(root, economyFile);
     loaded.LoadConflict(root, conflictFile, level);
+    for (const auto& definition : level.regions)
+    {
+        if (definition.residents > 0)
+        {
+            const int region = loaded.RegionIndex(definition.id);
+            const auto count = std::count_if(loaded.npcs.begin(), loaded.npcs.end(),
+                                             [&](const Npc& n)
+                                             {
+                                                 return n.home == region;
+                                             });
+            Require(count == definition.residents,
+                    "village resident count mismatch: " + definition.id);
+        }
+    }
     if (source == loaded.source)
     {
         Require(signature == loaded.signature,

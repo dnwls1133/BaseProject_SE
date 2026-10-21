@@ -124,6 +124,11 @@ void WorldSociety::Observe(int index, WorldSimulation& world)
 void WorldSociety::Send(int from, int to, int kind, int region, WorldSimulation& world,
                         std::uint64_t cause)
 {
+    if (from == to || !npcs[from].Alive() || !npcs[to].Alive() ||
+        std::hypot(npcs[from].x - npcs[to].x, npcs[from].y - npcs[to].y) > 2.5f)
+    {
+        return;
+    }
     if (messages.size() >= 256)
     {
         Profile::Add(Profile::Metric::SocialMessageDropped);
@@ -155,9 +160,9 @@ void WorldSociety::Send(int from, int to, int kind, int region, WorldSimulation&
     message.to = to;
     message.region = region;
     message.kind = kind;
-    const float distance = std::hypot(npcs[to].x - sender.x, npcs[to].y - sender.y);
-    message.due = minute + std::max(1, static_cast<int>(std::ceil(distance * .5f)));
+    message.due = minute;
     message.expires = minute + rules.messageLifetime;
+    message.observed = known->learned;
     message.food = known->food;
     message.infection = known->infection;
     message.confidence = known->confidence * .9f;
@@ -171,7 +176,7 @@ void WorldSociety::Send(int from, int to, int kind, int region, WorldSimulation&
     (void)world;
 }
 
-void WorldSociety::Deliver(WorldSimulation& world)
+void WorldSociety::Deliver(WorldSimulation& world, const RandomLevelMap& map)
 {
     PROFILE_SCOPE(SocialMessages);
     int budget = rules.messageBudget;
@@ -192,6 +197,13 @@ void WorldSociety::Deliver(WorldSimulation& world)
                    message.id);
             continue;
         }
+        if (!NewsContact(message.from, message.to, map))
+        {
+            Record("message_cancel", npcs[message.from].id, npcs[message.to].id,
+                   std::to_string(message.id), "cancelled", "실제 대면 없이 소식 전달 불가");
+            continue;
+        }
+        Profile::Add(Profile::Metric::NewsDelivered);
         auto& receiver = npcs[message.to];
         const float credibility =
             message.confidence + Trust(message.to, message.from) / 200 - receiver.traits[3] * .4f;
@@ -212,7 +224,7 @@ void WorldSociety::Deliver(WorldSimulation& world)
                       message.food,
                       message.infection,
                       std::clamp(credibility, 0.f, 1.f),
-                      minute};
+                      message.observed};
         auto old = std::find_if(receiver.memories.begin(), receiver.memories.end(),
                                 [&](const Memory& m)
                                 {
@@ -222,7 +234,7 @@ void WorldSociety::Deliver(WorldSimulation& world)
         {
             receiver.memories.push_back(memory);
         }
-        else if (old->learned < minute)
+        else if (old->learned < message.observed)
         {
             *old = memory;
         }

@@ -42,6 +42,8 @@ struct RegionDefinition
     Color water = Color(.105f, .24f, .25f);
     Color fog = Color(.36f, .45f, .43f, .17f);
     std::vector<std::string> population;
+    float villageRadius = 0;
+    int residents = 0;
 };
 
 struct TerrainPatch
@@ -75,6 +77,9 @@ struct LevelData
     std::string title, introduction, sourceFile, simulationFile, societyFile;
     std::uint32_t contentHash = 2166136261u;
     RpgRules rules;
+    int wildernessCount = 0;
+    float respawnSeconds = 4, respawnRelocation = 12, spawnPlayerClearance = 18;
+    std::vector<std::string> wildernessSpecies;
     std::vector<RegionDefinition> regions;
     std::vector<EnemyDefinition> enemies;
     std::vector<PropDefinition> props;

@@ -100,6 +100,8 @@ class WorldSociety
         std::string lastAttack;
         // Authored combat class; committed attack geometry is independent of target movement.
         int combatClass = 0, attackPattern = 0, attackSequence = 0;
+        int courierStop = 0;
+        float courierPause = 0;
         float attackDuration = 1, effectTime = 0;
         Point attackOrigin{0, 0}, attackPoint{0, 0};
 
@@ -120,6 +122,13 @@ class WorldSociety
     }
 
     bool IsHive(int index) const;
+
+    bool IsCourier(int index) const
+    {
+        return courierRoutes.count(index) != 0;
+    }
+
+    std::string CourierDestination(int index) const;
 
     const std::vector<Contamination>& ContaminationCells() const
     {
@@ -186,7 +195,7 @@ class WorldSociety
 
     struct Message
     {
-        std::uint64_t id = 0, cause = 0, due = 0, expires = 0;
+        std::uint64_t id = 0, cause = 0, due = 0, expires = 0, observed = 0;
         int from = -1, to = -1, region = 0, kind = 0;
         float food = 0, infection = 0, confidence = 1;
     };
@@ -506,6 +515,10 @@ class WorldSociety
     };
 
     std::array<ConflictAttack, 8> conflictAttacks;
+    std::map<int, std::vector<int>> courierRoutes;
+    bool NewsContact(int from, int to, const RandomLevelMap& map) const;
+    void ExchangeNews(WorldSimulation& world, const RandomLevelMap& map);
+    bool TickCourier(int index, float dt, WorldSimulation& world, const RandomLevelMap& map);
     bool conflictEnabled = false;
     int hiveFaction = -1, knightFaction = -1, contaminationWidth = 0;
     float conflictCell = 4, conflictClock = 0, spreadRate = .08f, scarSeconds = 35;
@@ -646,7 +659,7 @@ class WorldSociety
     void Observe(int npc, WorldSimulation& world);
     void Send(int from, int to, int kind, int region, WorldSimulation& world,
               std::uint64_t cause = 0);
-    void Deliver(WorldSimulation& world);
+    void Deliver(WorldSimulation& world, const RandomLevelMap& map);
     void Decide(int npc, WorldSimulation& world, const RandomLevelMap& map);
     void FactionTick(WorldSimulation& world);
     void QuestTick(WorldSimulation& world, Point player);

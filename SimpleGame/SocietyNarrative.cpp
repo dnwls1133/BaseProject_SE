@@ -97,14 +97,9 @@ void WorldSociety::SendStory(int from, int to, int fact)
         return;
     }
     const float distance = std::hypot(npcs[from].x - npcs[to].x, npcs[from].y - npcs[to].y);
-    if (distance > rules.talkRange && npcs[from].food < .25f)
+    if (distance > 2.5f)
     {
         return;
-    }
-    // Remote reports represent provisioned messengers; they are delayed, not omniscience.
-    if (distance > rules.talkRange)
-    {
-        npcs[from].food -= .25f;
     }
     StoryLetter l;
     l.id = Record("story_dispatch", npcs[from].id, npcs[to].id, "known", storyFacts[fact].id,
@@ -112,7 +107,7 @@ void WorldSociety::SendStory(int from, int to, int fact)
     l.from = from;
     l.to = to;
     l.evidence = *known;
-    l.due = minute + 3 + static_cast<std::uint64_t>(distance * 2);
+    l.due = minute;
     l.expires = l.due + 360;
     storyLetters.push_back(l);
 }
@@ -573,6 +568,10 @@ void WorldSociety::StoryTick(WorldSimulation& world, const RandomLevelMap& map, 
         {
             Record("story_report_cancelled", npcs[letter.from].id, npcs[letter.to].id, "pending",
                    "cancelled", "기한 경과 또는 전달 당사자 사망", letter.id);
+            continue;
+        }
+        if (!NewsContact(letter.from, letter.to, map))
+        {
             continue;
         }
         Belief b = letter.evidence;

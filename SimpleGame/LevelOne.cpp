@@ -122,6 +122,7 @@ bool LevelOne::Generate(std::uint32_t fixedSeed)
     // Read and resolve a complete candidate before invalidating any scene references.
     LevelData nextContent;
     RandomLevelMap nextMap;
+    std::vector<Point> nextWildernessSpawns;
     WorldSimulation nextSimulation = simulation;
     WorldSociety nextSociety = society;
     auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
@@ -149,6 +150,7 @@ bool LevelOne::Generate(std::uint32_t fixedSeed)
         nextSociety.Load(contentRoot, nextContent.societyFile, nextContent, modelCache,
                          seed ^ 0x8734u, nextSimulation.Minute());
         nextSociety.ReconcilePositions(nextMap);
+        nextWildernessSpawns = PrepareWildernessSpawns(nextContent, nextMap, nextSociety, seed);
         for (const auto& place : nextSociety.LifePlaces())
         {
             ContentData::Require(meshCache3D.Find(place.model) >= 0,
@@ -239,6 +241,9 @@ bool LevelOne::Generate(std::uint32_t fixedSeed)
             ++count;
         }
     }
+    wildernessSpawns = std::move(nextWildernessSpawns);
+    populationRandomState = seed ^ 0x53A92C17u;
+    BuildWildernessPopulation();
     // Keep the teaching item on valid ground even when the authored start changes.
     for (const auto& cell : map.reachable)
     {
@@ -406,6 +411,7 @@ void LevelOne::Kill(Enemy& enemy, bool playerCredit)
         return;
     }
     enemy.dead = true;
+    enemy.respawnRemaining = enemy.wilderness ? content.respawnSeconds : 0;
     enemy.health = 0;
     enemy.windup = 0;
     society.MonsterKilled(map.DistrictAt(static_cast<int>(enemy.x), static_cast<int>(enemy.y)).id,
@@ -564,6 +570,7 @@ void LevelOne::Update(float dt)
     noticeTime -= dt;
     simulation.Update(dt);
     society.Update(dt, simulation, map, {player.x, player.y});
+    UpdateRespawns(dt);
     BuildEcologyIndex();
     scene.Update(dt);
     focusedNpc = -1;

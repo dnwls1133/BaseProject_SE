@@ -226,9 +226,10 @@ bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
     auto& npc = npcs[index];
     auto& worker = economyWorkers[index];
     auto& life = lives[index];
-    if (EconomyParticipantBusy(index) || worker.order || minute < worker.nextJob ||
-        life.agreement || life.cargo > 0 || life.fatigue > 65 || npc.food < 2 || npc.health < 50 ||
-        npc.role == "guard" || npc.role == "healer" || npc.role == "leader")
+    if (IsHive(index) || IsCourier(index) || EconomyParticipantBusy(index) || worker.order ||
+        minute < worker.nextJob || life.agreement || life.cargo > 0 || life.fatigue > 65 ||
+        npc.food < 2 || npc.health < 50 || npc.role == "guard" || npc.role == "healer" ||
+        npc.role == "leader")
     {
         return false;
     }
@@ -236,6 +237,12 @@ bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
     float best = 0;
     for (auto& order : economyOrders)
     {
+        // A buyer must brief a carrier in person; orders are not a global radio channel.
+        if (npc.region != order.destination || order.receiver < 0 ||
+            std::hypot(npc.x - npcs[order.receiver].x, npc.y - npcs[order.receiver].y) > 2.5f)
+        {
+            continue;
+        }
         if (order.stage != 0 || minute < order.available || minute >= order.deadline)
         {
             continue;
@@ -253,11 +260,8 @@ bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
         {
             continue;
         }
-        // Reading a notice requires reaching its supplier district or knowing that home route.
-        if (order.source != npc.region && order.source != npc.home)
-        {
-            continue;
-        }
+        // The buyer just briefed this carrier in person. The authored route gives the
+        // supplier location, not remote knowledge of the supplier's actual stock.
         const int seller = regions[order.source].owner;
         if (seller < 0 || diplomacy[npc.faction][seller] < rules.hostility ||
             diplomacy[seller][npc.faction] < rules.hostility)

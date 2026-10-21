@@ -8,7 +8,7 @@
 
 void WorldSociety::OfferLife(int requester, int supplier, int kind)
 {
-    if (IsHive(requester) || IsHive(supplier))
+    if (IsHive(requester) || IsHive(supplier) || IsCourier(requester) || IsCourier(supplier))
     {
         return;
     }
@@ -677,7 +677,7 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
     {
         auto& n = npcs[i];
         auto& l = lives[i];
-        if (IsHive(int(i)))
+        if (IsHive(int(i)) || IsCourier(int(i)))
         {
             l.task = LifeTask::None;
             continue;

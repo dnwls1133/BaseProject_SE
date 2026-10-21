@@ -131,7 +131,7 @@ bool WorldSociety::TickConflictActor(int index, float dt, WorldSimulation& world
     }
     bool engagement = target >= 0 || againstPlayer;
     n.target = againstPlayer ? -1 : target;
-    if (!engagement && n.combatClass == 0)
+    if (!engagement && (n.combatClass == 0 || IsCourier(index)))
     {
         n.action = Action::Rest;
         return false;

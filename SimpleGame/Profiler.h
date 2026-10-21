@@ -6,6 +6,11 @@
 
 // Stable keys are the public JSONL schema. Timers are inclusive wall times, not CPU cycles.
 #define PROFILE_METRICS(X)                                                                         \
+    X(WildernessRespawn, cpu_wilderness_respawn_ms)                                                \
+    X(WildernessRespawnCount, wilderness_respawn_count)                                            \
+    X(NewsContact, cpu_npc_news_contact_ms)                                                        \
+    X(CourierMotion, cpu_npc_courier_motion_ms)                                                    \
+    X(NewsDelivered, npc_physical_news_delivered_count)                                            \
     X(ConflictField, cpu_contamination_update_ms)                                                  \
     X(ConflictCombat, cpu_faction_combat_ms)                                                       \
     X(ContaminatedCells, contamination_cell_count)                                                 \

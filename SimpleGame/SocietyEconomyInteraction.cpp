@@ -29,8 +29,8 @@ int WorldSociety::EconomyRepresentative(int region, int except, std::uint64_t or
     {
         const auto& npc = npcs[i];
         const auto& life = lives[i];
-        if (IsHive(int(i)) || int(i) == except || !npc.Alive() || npc.region != region ||
-            npc.faction != regions[region].owner || npc.role == "guard" ||
+        if (IsHive(int(i)) || IsCourier(int(i)) || int(i) == except || !npc.Alive() ||
+            npc.region != region || npc.faction != regions[region].owner || npc.role == "guard" ||
             npc.action == Action::Combat || npc.action == Action::Flee ||
             npc.action == Action::Escort || npc.wildTarget >= 0 || npc.playerThreat ||
             npc.health < 35 || life.satiation < 20 || life.fatigue > 90 || life.agreement ||

@@ -89,6 +89,8 @@
     <ClCompile Include="SocietyData.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="WorldSociety.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="SocietyCombat.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyNews.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="LevelOnePopulation.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="SocietyConflict.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="SocietyConflictCombat.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="SocietyConflictSave.cpp"><Filter>소스 파일</Filter></ClCompile>

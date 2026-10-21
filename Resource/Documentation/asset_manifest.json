@@ -1,0 +1,2127 @@
+{
+  "version": 1,
+  "units": "metres",
+  "blender_up": "Z",
+  "blender_forward": "-Y",
+  "gltf_up": "Y",
+  "triangle_limit_assembled_character": 9999,
+  "assets": [
+    {
+      "id": "Head_Ashen",
+      "category": "human_module",
+      "triangles": 236,
+      "file": "Characters\\Modules\\Head_Ashen.glb",
+      "slot": "head",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Head_Pale",
+      "category": "human_module",
+      "triangles": 236,
+      "file": "Characters\\Modules\\Head_Pale.glb",
+      "slot": "head",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Head_Umber",
+      "category": "human_module",
+      "triangles": 236,
+      "file": "Characters\\Modules\\Head_Umber.glb",
+      "slot": "head",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Face_Quiet",
+      "category": "human_module",
+      "triangles": 356,
+      "file": "Characters\\Modules\\Face_Quiet.glb",
+      "slot": "face",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Face_Weathered",
+      "category": "human_module",
+      "triangles": 392,
+      "file": "Characters\\Modules\\Face_Weathered.glb",
+      "slot": "face",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Face_Umber",
+      "category": "human_module",
+      "triangles": 380,
+      "file": "Characters\\Modules\\Face_Umber.glb",
+      "slot": "face",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Hair_Cropped",
+      "category": "human_module",
+      "triangles": 352,
+      "file": "Characters\\Modules\\Hair_Cropped.glb",
+      "slot": "hair",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Hair_Long",
+      "category": "human_module",
+      "triangles": 288,
+      "file": "Characters\\Modules\\Hair_Long.glb",
+      "slot": "hair",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Hood_Pilgrim",
+      "category": "human_module",
+      "triangles": 136,
+      "file": "Characters\\Modules\\Hood_Pilgrim.glb",
+      "slot": "headwear",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Helmet_Warden",
+      "category": "human_module",
+      "triangles": 200,
+      "file": "Characters\\Modules\\Helmet_Warden.glb",
+      "slot": "headwear",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Torso_Bare",
+      "category": "human_module",
+      "triangles": 176,
+      "file": "Characters\\Modules\\Torso_Bare.glb",
+      "slot": "torso",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Torso_Linen",
+      "category": "human_module",
+      "triangles": 304,
+      "file": "Characters\\Modules\\Torso_Linen.glb",
+      "slot": "torso",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Torso_Leather",
+      "category": "human_module",
+      "triangles": 336,
+      "file": "Characters\\Modules\\Torso_Leather.glb",
+      "slot": "torso",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Torso_Iron",
+      "category": "human_module",
+      "triangles": 460,
+      "file": "Characters\\Modules\\Torso_Iron.glb",
+      "slot": "torso",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Arms_Bare",
+      "category": "human_module",
+      "triangles": 192,
+      "file": "Characters\\Modules\\Arms_Bare.glb",
+      "slot": "arms",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Arms_Linen",
+      "category": "human_module",
+      "triangles": 248,
+      "file": "Characters\\Modules\\Arms_Linen.glb",
+      "slot": "arms",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Arms_Leather",
+      "category": "human_module",
+      "triangles": 248,
+      "file": "Characters\\Modules\\Arms_Leather.glb",
+      "slot": "arms",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Arms_Iron",
+      "category": "human_module",
+      "triangles": 464,
+      "file": "Characters\\Modules\\Arms_Iron.glb",
+      "slot": "arms",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Hands_Bare",
+      "category": "human_module",
+      "triangles": 356,
+      "file": "Characters\\Modules\\Hands_Bare.glb",
+      "slot": "hands",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Hands_Gloves",
+      "category": "human_module",
+      "triangles": 356,
+      "file": "Characters\\Modules\\Hands_Gloves.glb",
+      "slot": "hands",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Legs_Bare",
+      "category": "human_module",
+      "triangles": 236,
+      "file": "Characters\\Modules\\Legs_Bare.glb",
+      "slot": "legs",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Legs_Linen",
+      "category": "human_module",
+      "triangles": 236,
+      "file": "Characters\\Modules\\Legs_Linen.glb",
+      "slot": "legs",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Legs_Leather",
+      "category": "human_module",
+      "triangles": 236,
+      "file": "Characters\\Modules\\Legs_Leather.glb",
+      "slot": "legs",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Feet_Bare",
+      "category": "human_module",
+      "triangles": 120,
+      "file": "Characters\\Modules\\Feet_Bare.glb",
+      "slot": "feet",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Boots_Leather",
+      "category": "human_module",
+      "triangles": 328,
+      "file": "Characters\\Modules\\Boots_Leather.glb",
+      "slot": "feet",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Boots_Iron",
+      "category": "human_module",
+      "triangles": 328,
+      "file": "Characters\\Modules\\Boots_Iron.glb",
+      "slot": "feet",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Skirt_Pilgrim",
+      "category": "human_module",
+      "triangles": 72,
+      "file": "Characters\\Modules\\Skirt_Pilgrim.glb",
+      "slot": "skirt",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Skirt_Healer",
+      "category": "human_module",
+      "triangles": 72,
+      "file": "Characters\\Modules\\Skirt_Healer.glb",
+      "slot": "skirt",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Tabard_Warden",
+      "category": "human_module",
+      "triangles": 72,
+      "file": "Characters\\Modules\\Tabard_Warden.glb",
+      "slot": "skirt",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Cape_Pilgrim",
+      "category": "human_module",
+      "triangles": 72,
+      "file": "Characters\\Modules\\Cape_Pilgrim.glb",
+      "slot": "cape",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Cape_Healer",
+      "category": "human_module",
+      "triangles": 72,
+      "file": "Characters\\Modules\\Cape_Healer.glb",
+      "slot": "cape",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Gear_PouchAndBloodVial",
+      "category": "human_module",
+      "triangles": 168,
+      "file": "Characters\\Modules\\Gear_PouchAndBloodVial.glb",
+      "slot": "gear",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Shoulders_Iron",
+      "category": "human_module",
+      "triangles": 216,
+      "file": "Characters\\Modules\\Shoulders_Iron.glb",
+      "slot": "shoulders",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Gear_ScavengerPack",
+      "category": "human_module",
+      "triangles": 152,
+      "file": "Characters\\Modules\\Gear_ScavengerPack.glb",
+      "slot": "back",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Weapon_PilgrimSword",
+      "category": "human_module",
+      "triangles": 60,
+      "file": "Characters\\Modules\\Weapon_PilgrimSword.glb",
+      "slot": "weapon",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Weapon_WorkHammer",
+      "category": "human_module",
+      "triangles": 56,
+      "file": "Characters\\Modules\\Weapon_WorkHammer.glb",
+      "slot": "weapon",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Mutation_HornAndScab",
+      "category": "human_module",
+      "triangles": 124,
+      "file": "Characters\\Modules\\Mutation_HornAndScab.glb",
+      "slot": "mutation",
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Pilgrim",
+      "category": "character_preset",
+      "triangles": 2604,
+      "file": "Characters\\Presets\\Pilgrim.glb",
+      "modules": [
+        "Head_Ashen",
+        "Face_Quiet",
+        "Hood_Pilgrim",
+        "Torso_Leather",
+        "Arms_Linen",
+        "Hands_Gloves",
+        "Legs_Leather",
+        "Boots_Leather",
+        "Skirt_Pilgrim",
+        "Cape_Pilgrim",
+        "Gear_PouchAndBloodVial",
+        "Weapon_PilgrimSword"
+      ],
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Healer",
+      "category": "character_preset",
+      "triangles": 2700,
+      "file": "Characters\\Presets\\Healer.glb",
+      "modules": [
+        "Head_Pale",
+        "Face_Weathered",
+        "Hair_Long",
+        "Torso_Linen",
+        "Arms_Linen",
+        "Hands_Bare",
+        "Legs_Linen",
+        "Boots_Leather",
+        "Skirt_Healer",
+        "Cape_Healer",
+        "Gear_PouchAndBloodVial"
+      ],
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Warden",
+      "category": "character_preset",
+      "triangles": 2768,
+      "file": "Characters\\Presets\\Warden.glb",
+      "modules": [
+        "Head_Ashen",
+        "Face_Quiet",
+        "Helmet_Warden",
+        "Torso_Iron",
+        "Arms_Iron",
+        "Hands_Gloves",
+        "Legs_Leather",
+        "Boots_Iron",
+        "Tabard_Warden",
+        "Weapon_PilgrimSword"
+      ],
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Scavenger",
+      "category": "character_preset",
+      "triangles": 2680,
+      "file": "Characters\\Presets\\Scavenger.glb",
+      "modules": [
+        "Head_Umber",
+        "Face_Umber",
+        "Hair_Cropped",
+        "Torso_Leather",
+        "Arms_Leather",
+        "Hands_Gloves",
+        "Legs_Linen",
+        "Boots_Leather",
+        "Gear_ScavengerPack",
+        "Weapon_WorkHammer"
+      ],
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "InfectedWanderer",
+      "category": "character_preset",
+      "triangles": 1924,
+      "file": "Characters\\Presets\\InfectedWanderer.glb",
+      "modules": [
+        "Head_Ashen",
+        "Face_Quiet",
+        "Torso_Linen",
+        "Arms_Bare",
+        "Hands_Bare",
+        "Legs_Linen",
+        "Feet_Bare",
+        "Mutation_HornAndScab"
+      ],
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "Body_7H",
+      "category": "character_preset",
+      "triangles": 1672,
+      "file": "Characters\\Presets\\Body_7H.glb",
+      "modules": [
+        "Head_Ashen",
+        "Face_Quiet",
+        "Torso_Bare",
+        "Arms_Bare",
+        "Hands_Bare",
+        "Legs_Bare",
+        "Feet_Bare"
+      ],
+      "rig": "Human_7H_v1"
+    },
+    {
+      "id": "animal_Torso_ExposedRibs",
+      "category": "creature_module",
+      "triangles": 580,
+      "file": "Creatures\\Animal\\Modules\\Torso_ExposedRibs.glb",
+      "slot": "body",
+      "rig": "Animal_v1"
+    },
+    {
+      "id": "animal_Head_Hound",
+      "category": "creature_module",
+      "triangles": 480,
+      "file": "Creatures\\Animal\\Modules\\Head_Hound.glb",
+      "slot": "head",
+      "rig": "Animal_v1"
+    },
+    {
+      "id": "animal_Limbs_Hound",
+      "category": "creature_module",
+      "triangles": 888,
+      "file": "Creatures\\Animal\\Modules\\Limbs_Hound.glb",
+      "slot": "limbs",
+      "rig": "Animal_v1"
+    },
+    {
+      "id": "animal_Tail",
+      "category": "creature_module",
+      "triangles": 44,
+      "file": "Creatures\\Animal\\Modules\\Tail.glb",
+      "slot": "tail",
+      "rig": "Animal_v1"
+    },
+    {
+      "id": "animal_Danger_AntlersAndSpine",
+      "category": "creature_module",
+      "triangles": 216,
+      "file": "Creatures\\Animal\\Modules\\Danger_AntlersAndSpine.glb",
+      "slot": "growth",
+      "rig": "Animal_v1"
+    },
+    {
+      "id": "animal_Boss_HiveCrown",
+      "category": "creature_module",
+      "triangles": 584,
+      "file": "Creatures\\Animal\\Modules\\Boss_HiveCrown.glb",
+      "slot": "growth",
+      "rig": "Animal_v1"
+    },
+    {
+      "id": "Weak_StarvedHound",
+      "category": "creature",
+      "triangles": 1992,
+      "file": "Creatures\\Animal\\Weak_StarvedHound.glb",
+      "family": "animal",
+      "tier": "weak",
+      "modules": [
+        "Torso_ExposedRibs",
+        "Head_Hound",
+        "Limbs_Hound",
+        "Tail"
+      ],
+      "rig": "Animal_v1",
+      "root_scale": 0.8
+    },
+    {
+      "id": "Danger_ThornHound",
+      "category": "creature",
+      "triangles": 2208,
+      "file": "Creatures\\Animal\\Danger_ThornHound.glb",
+      "family": "animal",
+      "tier": "danger",
+      "modules": [
+        "Torso_ExposedRibs",
+        "Head_Hound",
+        "Limbs_Hound",
+        "Tail",
+        "Danger_AntlersAndSpine"
+      ],
+      "rig": "Animal_v1",
+      "root_scale": 1
+    },
+    {
+      "id": "Boss_HiveHart",
+      "category": "creature",
+      "triangles": 2576,
+      "file": "Creatures\\Animal\\Boss_HiveHart.glb",
+      "family": "animal",
+      "tier": "boss",
+      "modules": [
+        "Torso_ExposedRibs",
+        "Head_Hound",
+        "Limbs_Hound",
+        "Tail",
+        "Boss_HiveCrown"
+      ],
+      "rig": "Animal_v1",
+      "root_scale": 1.65
+    },
+    {
+      "id": "spider_Body_Carapace",
+      "category": "creature_module",
+      "triangles": 540,
+      "file": "Creatures\\Spider\\Modules\\Body_Carapace.glb",
+      "slot": "body",
+      "rig": "Spider_v1"
+    },
+    {
+      "id": "spider_Head_SixEyes",
+      "category": "creature_module",
+      "triangles": 456,
+      "file": "Creatures\\Spider\\Modules\\Head_SixEyes.glb",
+      "slot": "head",
+      "rig": "Spider_v1"
+    },
+    {
+      "id": "spider_Legs_Eight",
+      "category": "creature_module",
+      "triangles": 1280,
+      "file": "Creatures\\Spider\\Modules\\Legs_Eight.glb",
+      "slot": "limbs",
+      "rig": "Spider_v1"
+    },
+    {
+      "id": "spider_Danger_ThornShell",
+      "category": "creature_module",
+      "triangles": 160,
+      "file": "Creatures\\Spider\\Modules\\Danger_ThornShell.glb",
+      "slot": "growth",
+      "rig": "Spider_v1"
+    },
+    {
+      "id": "spider_Boss_BroodSacs",
+      "category": "creature_module",
+      "triangles": 862,
+      "file": "Creatures\\Spider\\Modules\\Boss_BroodSacs.glb",
+      "slot": "growth",
+      "rig": "Spider_v1"
+    },
+    {
+      "id": "Weak_AshWeaver",
+      "category": "creature",
+      "triangles": 2276,
+      "file": "Creatures\\Spider\\Weak_AshWeaver.glb",
+      "family": "spider",
+      "tier": "weak",
+      "modules": [
+        "Body_Carapace",
+        "Head_SixEyes",
+        "Legs_Eight"
+      ],
+      "rig": "Spider_v1",
+      "root_scale": 0.65
+    },
+    {
+      "id": "Danger_ThornWeaver",
+      "category": "creature",
+      "triangles": 2436,
+      "file": "Creatures\\Spider\\Danger_ThornWeaver.glb",
+      "family": "spider",
+      "tier": "danger",
+      "modules": [
+        "Body_Carapace",
+        "Head_SixEyes",
+        "Legs_Eight",
+        "Danger_ThornShell"
+      ],
+      "rig": "Spider_v1",
+      "root_scale": 1
+    },
+    {
+      "id": "Boss_BroodMatriarch",
+      "category": "creature",
+      "triangles": 3138,
+      "file": "Creatures\\Spider\\Boss_BroodMatriarch.glb",
+      "family": "spider",
+      "tier": "boss",
+      "modules": [
+        "Body_Carapace",
+        "Head_SixEyes",
+        "Legs_Eight",
+        "Boss_BroodSacs"
+      ],
+      "rig": "Spider_v1",
+      "root_scale": 1.65
+    },
+    {
+      "id": "giant_Body_RibGiant",
+      "category": "creature_module",
+      "triangles": 596,
+      "file": "Creatures\\Giant\\Modules\\Body_RibGiant.glb",
+      "slot": "body",
+      "rig": "Giant_v1"
+    },
+    {
+      "id": "giant_Head_Hollow",
+      "category": "creature_module",
+      "triangles": 508,
+      "file": "Creatures\\Giant\\Modules\\Head_Hollow.glb",
+      "slot": "head",
+      "rig": "Giant_v1"
+    },
+    {
+      "id": "giant_Limbs_Elongated",
+      "category": "creature_module",
+      "triangles": 1028,
+      "file": "Creatures\\Giant\\Modules\\Limbs_Elongated.glb",
+      "slot": "limbs",
+      "rig": "Giant_v1"
+    },
+    {
+      "id": "giant_Rags",
+      "category": "creature_module",
+      "triangles": 8,
+      "file": "Creatures\\Giant\\Modules\\Rags.glb",
+      "slot": "cloth",
+      "rig": "Giant_v1"
+    },
+    {
+      "id": "giant_Danger_ShoulderThorns",
+      "category": "creature_module",
+      "triangles": 176,
+      "file": "Creatures\\Giant\\Modules\\Danger_ShoulderThorns.glb",
+      "slot": "growth",
+      "rig": "Giant_v1"
+    },
+    {
+      "id": "giant_Boss_SaintCrown",
+      "category": "creature_module",
+      "triangles": 660,
+      "file": "Creatures\\Giant\\Modules\\Boss_SaintCrown.glb",
+      "slot": "growth",
+      "rig": "Giant_v1"
+    },
+    {
+      "id": "Weak_HollowThrall",
+      "category": "creature",
+      "triangles": 2140,
+      "file": "Creatures\\Giant\\Weak_HollowThrall.glb",
+      "family": "giant",
+      "tier": "weak",
+      "modules": [
+        "Body_RibGiant",
+        "Head_Hollow",
+        "Limbs_Elongated",
+        "Rags"
+      ],
+      "rig": "Giant_v1",
+      "root_scale": 0.85
+    },
+    {
+      "id": "Danger_RibBrute",
+      "category": "creature",
+      "triangles": 2316,
+      "file": "Creatures\\Giant\\Danger_RibBrute.glb",
+      "family": "giant",
+      "tier": "danger",
+      "modules": [
+        "Body_RibGiant",
+        "Head_Hollow",
+        "Limbs_Elongated",
+        "Rags",
+        "Danger_ShoulderThorns"
+      ],
+      "rig": "Giant_v1",
+      "root_scale": 1.1
+    },
+    {
+      "id": "Boss_CrownedAbomination",
+      "category": "creature",
+      "triangles": 2800,
+      "file": "Creatures\\Giant\\Boss_CrownedAbomination.glb",
+      "family": "giant",
+      "tier": "boss",
+      "modules": [
+        "Body_RibGiant",
+        "Head_Hollow",
+        "Limbs_Elongated",
+        "Rags",
+        "Boss_SaintCrown"
+      ],
+      "rig": "Giant_v1",
+      "root_scale": 1.5
+    },
+    {
+      "id": "Floor_Wood_2m",
+      "category": "architecture",
+      "triangles": 480,
+      "file": "Environment\\Architecture\\Floor_Wood_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Floor_Stone_2m",
+      "category": "architecture",
+      "triangles": 192,
+      "file": "Environment\\Architecture\\Floor_Stone_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Wall_Plaster_2m",
+      "category": "architecture",
+      "triangles": 72,
+      "file": "Environment\\Architecture\\Wall_Plaster_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Wall_Timber_2m",
+      "category": "architecture",
+      "triangles": 180,
+      "file": "Environment\\Architecture\\Wall_Timber_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Wall_Stone_2m",
+      "category": "architecture",
+      "triangles": 336,
+      "file": "Environment\\Architecture\\Wall_Stone_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Wall_Window_2m",
+      "category": "architecture",
+      "triangles": 180,
+      "file": "Environment\\Architecture\\Wall_Window_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Wall_Doorway_2m",
+      "category": "architecture",
+      "triangles": 120,
+      "file": "Environment\\Architecture\\Wall_Doorway_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Wall_Ruined_2m",
+      "category": "architecture",
+      "triangles": 260,
+      "file": "Environment\\Architecture\\Wall_Ruined_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Post_2m4",
+      "category": "architecture",
+      "triangles": 36,
+      "file": "Environment\\Architecture\\Post_2m4.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Post_1m2",
+      "category": "architecture",
+      "triangles": 36,
+      "file": "Environment\\Architecture\\Post_1m2.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Foundation_Corner",
+      "category": "architecture",
+      "triangles": 12,
+      "file": "Environment\\Architecture\\Foundation_Corner.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Roof_Slate_2m",
+      "category": "architecture",
+      "triangles": 468,
+      "file": "Environment\\Architecture\\Roof_Slate_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "roof_patch_center_xy_eave_z",
+      "rig": null
+    },
+    {
+      "id": "Roof_Wood_2m",
+      "category": "architecture",
+      "triangles": 468,
+      "file": "Environment\\Architecture\\Roof_Wood_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "roof_patch_center_xy_eave_z",
+      "rig": null
+    },
+    {
+      "id": "Roof_Ridge_2m",
+      "category": "architecture",
+      "triangles": 20,
+      "file": "Environment\\Architecture\\Roof_Ridge_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Gable_Triangle_2m",
+      "category": "architecture",
+      "triangles": 32,
+      "file": "Environment\\Architecture\\Gable_Triangle_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Chimney",
+      "category": "architecture",
+      "triangles": 84,
+      "file": "Environment\\Architecture\\Chimney.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Stairs_2m",
+      "category": "architecture",
+      "triangles": 60,
+      "file": "Environment\\Architecture\\Stairs_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Fence_2m",
+      "category": "architecture",
+      "triangles": 48,
+      "file": "Environment\\Architecture\\Fence_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Arch_Ruined_2m",
+      "category": "architecture",
+      "triangles": 144,
+      "file": "Environment\\Architecture\\Arch_Ruined_2m.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Shrine_MutantSaint",
+      "category": "architecture",
+      "triangles": 102,
+      "file": "Environment\\Architecture\\Shrine_MutantSaint.glb",
+      "grid_m": 2.0,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Door_Hinged",
+      "category": "prop",
+      "triangles": 132,
+      "file": "Environment\\Prop\\Door_Hinged.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Door_Hinge_v1"
+    },
+    {
+      "id": "Table",
+      "category": "prop",
+      "triangles": 108,
+      "file": "Environment\\Prop\\Table.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Bench",
+      "category": "prop",
+      "triangles": 108,
+      "file": "Environment\\Prop\\Bench.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Stool",
+      "category": "prop",
+      "triangles": 108,
+      "file": "Environment\\Prop\\Stool.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Chair",
+      "category": "prop",
+      "triangles": 108,
+      "file": "Environment\\Prop\\Chair.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Bed_Straw",
+      "category": "prop",
+      "triangles": 168,
+      "file": "Environment\\Prop\\Bed_Straw.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Crate_Small",
+      "category": "prop",
+      "triangles": 84,
+      "file": "Environment\\Prop\\Crate_Small.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Crate_Large",
+      "category": "prop",
+      "triangles": 84,
+      "file": "Environment\\Prop\\Crate_Large.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Barrel",
+      "category": "prop",
+      "triangles": 248,
+      "file": "Environment\\Prop\\Barrel.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Chest_Hinged",
+      "category": "prop",
+      "triangles": 108,
+      "file": "Environment\\Prop\\Chest_Hinged.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Chest_Hinge_v1"
+    },
+    {
+      "id": "Shelf",
+      "category": "prop",
+      "triangles": 72,
+      "file": "Environment\\Prop\\Shelf.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Cauldron",
+      "category": "prop",
+      "triangles": 276,
+      "file": "Environment\\Prop\\Cauldron.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Bucket",
+      "category": "prop",
+      "triangles": 172,
+      "file": "Environment\\Prop\\Bucket.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Bowl",
+      "category": "prop",
+      "triangles": 92,
+      "file": "Environment\\Prop\\Bowl.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Plate",
+      "category": "prop",
+      "triangles": 92,
+      "file": "Environment\\Prop\\Plate.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "BloodVial",
+      "category": "prop",
+      "triangles": 84,
+      "file": "Environment\\Prop\\BloodVial.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Lantern",
+      "category": "prop",
+      "triangles": 128,
+      "file": "Environment\\Prop\\Lantern.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "WorkHammer",
+      "category": "prop",
+      "triangles": 40,
+      "file": "Environment\\Prop\\WorkHammer.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Shovel",
+      "category": "prop",
+      "triangles": 76,
+      "file": "Environment\\Prop\\Shovel.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Altar",
+      "category": "prop",
+      "triangles": 102,
+      "file": "Environment\\Prop\\Altar.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Reliquary",
+      "category": "prop",
+      "triangles": 48,
+      "file": "Environment\\Prop\\Reliquary.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Sack",
+      "category": "prop",
+      "triangles": 128,
+      "file": "Environment\\Prop\\Sack.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "ColdHearth",
+      "category": "prop",
+      "triangles": 240,
+      "file": "Environment\\Prop\\ColdHearth.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Ground_GraveSoil",
+      "category": "nature",
+      "triangles": 128,
+      "file": "Environment\\Nature\\Ground_GraveSoil.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Ground_Contaminated",
+      "category": "nature",
+      "triangles": 128,
+      "file": "Environment\\Nature\\Ground_Contaminated.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Ground_Stone",
+      "category": "nature",
+      "triangles": 128,
+      "file": "Environment\\Nature\\Ground_Stone.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Ground_Mycelium",
+      "category": "nature",
+      "triangles": 128,
+      "file": "Environment\\Nature\\Ground_Mycelium.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Rock_Small",
+      "category": "nature",
+      "triangles": 66,
+      "file": "Environment\\Nature\\Rock_Small.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Rock_Medium",
+      "category": "nature",
+      "triangles": 66,
+      "file": "Environment\\Nature\\Rock_Medium.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Rock_Large",
+      "category": "nature",
+      "triangles": 66,
+      "file": "Environment\\Nature\\Rock_Large.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Rock_Spire",
+      "category": "nature",
+      "triangles": 52,
+      "file": "Environment\\Nature\\Rock_Spire.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Rubble_Cluster",
+      "category": "nature",
+      "triangles": 252,
+      "file": "Environment\\Nature\\Rubble_Cluster.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Tree_Dead_A",
+      "category": "nature",
+      "triangles": 720,
+      "file": "Environment\\Nature\\Tree_Dead_A.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Tree_Dead_A_Wind_v1"
+    },
+    {
+      "id": "Tree_Dead_B",
+      "category": "nature",
+      "triangles": 720,
+      "file": "Environment\\Nature\\Tree_Dead_B.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Tree_Dead_B_Wind_v1"
+    },
+    {
+      "id": "Tree_Infected",
+      "category": "nature",
+      "triangles": 1434,
+      "file": "Environment\\Nature\\Tree_Infected.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Tree_Infected_Wind_v1"
+    },
+    {
+      "id": "Tree_Stump",
+      "category": "nature",
+      "triangles": 182,
+      "file": "Environment\\Nature\\Tree_Stump.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Fallen_Log",
+      "category": "nature",
+      "triangles": 74,
+      "file": "Environment\\Nature\\Fallen_Log.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Grass_Dry_Clump",
+      "category": "nature",
+      "triangles": 60,
+      "file": "Environment\\Nature\\Grass_Dry_Clump.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Grass_Dry_Clump_Wind_v1"
+    },
+    {
+      "id": "Grass_Reeds",
+      "category": "nature",
+      "triangles": 440,
+      "file": "Environment\\Nature\\Grass_Reeds.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Grass_Reeds_Wind_v1"
+    },
+    {
+      "id": "Grass_Fungal",
+      "category": "nature",
+      "triangles": 60,
+      "file": "Environment\\Nature\\Grass_Fungal.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Grass_Fungal_Wind_v1"
+    },
+    {
+      "id": "Colony_Small",
+      "category": "nature",
+      "triangles": 1378,
+      "file": "Environment\\Nature\\Colony_Small.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Colony_Small_Pulse_v1"
+    },
+    {
+      "id": "Colony_Large",
+      "category": "nature",
+      "triangles": 1378,
+      "file": "Environment\\Nature\\Colony_Large.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": "Colony_Large_Pulse_v1"
+    },
+    {
+      "id": "Egg_Cluster",
+      "category": "nature",
+      "triangles": 688,
+      "file": "Environment\\Nature\\Egg_Cluster.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    },
+    {
+      "id": "Mycelium_Roots",
+      "category": "nature",
+      "triangles": 192,
+      "file": "Environment\\Nature\\Mycelium_Roots.glb",
+      "grid_m": 0.25,
+      "pivot": "ground_center",
+      "rig": null
+    }
+  ],
+  "animations": {
+    "Human_7H_v1": {
+      "BindPose_A": {
+        "frames": [
+          1,
+          2
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Idle": {
+        "frames": [
+          1,
+          60
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Walk": {
+        "frames": [
+          1,
+          32
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 1.0967741935483872,
+        "root_yaw_degrees": 0
+      },
+      "Run": {
+        "frames": [
+          1,
+          24
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 2.83695652173913,
+        "root_yaw_degrees": 0
+      },
+      "TurnLeft90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 90
+      },
+      "TurnRight90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": -90
+      },
+      "Attack": {
+        "frames": [
+          1,
+          30
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Jump": {
+        "frames": [
+          1,
+          36
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "WalkToRun": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "RunToWalk": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Hit": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Death": {
+        "frames": [
+          1,
+          48
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      }
+    },
+    "Animal_v1": {
+      "BindPose_A": {
+        "frames": [
+          1,
+          2
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Idle": {
+        "frames": [
+          1,
+          60
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Walk": {
+        "frames": [
+          1,
+          32
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 0.7741935483870968,
+        "root_yaw_degrees": 0
+      },
+      "Run": {
+        "frames": [
+          1,
+          24
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 2.0869565217391304,
+        "root_yaw_degrees": 0
+      },
+      "TurnLeft90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 90
+      },
+      "TurnRight90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": -90
+      },
+      "Attack": {
+        "frames": [
+          1,
+          30
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Jump": {
+        "frames": [
+          1,
+          36
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "WalkToRun": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "RunToWalk": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Hit": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Death": {
+        "frames": [
+          1,
+          48
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      }
+    },
+    "Spider_v1": {
+      "BindPose_A": {
+        "frames": [
+          1,
+          2
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Idle": {
+        "frames": [
+          1,
+          60
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Walk": {
+        "frames": [
+          1,
+          32
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 0.5483870967741936,
+        "root_yaw_degrees": 0
+      },
+      "Run": {
+        "frames": [
+          1,
+          24
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 1.434782608695652,
+        "root_yaw_degrees": 0
+      },
+      "TurnLeft90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 90
+      },
+      "TurnRight90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": -90
+      },
+      "Attack": {
+        "frames": [
+          1,
+          30
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Jump": {
+        "frames": [
+          1,
+          36
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "WalkToRun": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "RunToWalk": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Hit": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Death": {
+        "frames": [
+          1,
+          48
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      }
+    },
+    "Giant_v1": {
+      "BindPose_A": {
+        "frames": [
+          1,
+          2
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Idle": {
+        "frames": [
+          1,
+          60
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Walk": {
+        "frames": [
+          1,
+          32
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 1.9741935483870972,
+        "root_yaw_degrees": 0
+      },
+      "Run": {
+        "frames": [
+          1,
+          24
+        ],
+        "fps": 30,
+        "loop": true,
+        "nominal_speed_mps": 5.106521739130434,
+        "root_yaw_degrees": 0
+      },
+      "TurnLeft90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 90
+      },
+      "TurnRight90": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": -90
+      },
+      "Attack": {
+        "frames": [
+          1,
+          30
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Jump": {
+        "frames": [
+          1,
+          36
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "WalkToRun": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "RunToWalk": {
+        "frames": [
+          1,
+          20
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Hit": {
+        "frames": [
+          1,
+          18
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      },
+      "Death": {
+        "frames": [
+          1,
+          48
+        ],
+        "fps": 30,
+        "loop": false,
+        "nominal_speed_mps": 0,
+        "root_yaw_degrees": 0
+      }
+    },
+    "Door_Hinge_v1": {
+      "Open": {
+        "frames": [
+          1,
+          36
+        ],
+        "fps": 30,
+        "loop": false
+      },
+      "Close": {
+        "frames": [
+          1,
+          36
+        ],
+        "fps": 30,
+        "loop": false
+      }
+    },
+    "Chest_Hinge_v1": {
+      "Open": {
+        "frames": [
+          1,
+          30
+        ],
+        "fps": 30,
+        "loop": false
+      },
+      "Close": {
+        "frames": [
+          1,
+          30
+        ],
+        "fps": 30,
+        "loop": false
+      }
+    },
+    "Tree_Dead_A_Wind_v1": {
+      "Wind": {
+        "frames": [
+          1,
+          90
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    },
+    "Tree_Dead_B_Wind_v1": {
+      "Wind": {
+        "frames": [
+          1,
+          90
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    },
+    "Tree_Infected_Wind_v1": {
+      "Wind": {
+        "frames": [
+          1,
+          90
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    },
+    "Grass_Dry_Clump_Wind_v1": {
+      "Wind": {
+        "frames": [
+          1,
+          72
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    },
+    "Grass_Reeds_Wind_v1": {
+      "Wind": {
+        "frames": [
+          1,
+          72
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    },
+    "Grass_Fungal_Wind_v1": {
+      "Wind": {
+        "frames": [
+          1,
+          72
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    },
+    "Colony_Small_Pulse_v1": {
+      "Pulse": {
+        "frames": [
+          1,
+          120
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    },
+    "Colony_Large_Pulse_v1": {
+      "Pulse": {
+        "frames": [
+          1,
+          120
+        ],
+        "fps": 30,
+        "loop": true
+      }
+    }
+  },
+  "materials": [
+    {
+      "id": "AshSkin",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\AshSkin\\BaseColor.png",
+        "Materials\\AshSkin\\Roughness.png",
+        "Materials\\AshSkin\\Normal.png",
+        "Materials\\AshSkin\\Height.png"
+      ]
+    },
+    {
+      "id": "PaleSkin",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\PaleSkin\\BaseColor.png",
+        "Materials\\PaleSkin\\Roughness.png",
+        "Materials\\PaleSkin\\Normal.png",
+        "Materials\\PaleSkin\\Height.png"
+      ]
+    },
+    {
+      "id": "DarkSkin",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\DarkSkin\\BaseColor.png",
+        "Materials\\DarkSkin\\Roughness.png",
+        "Materials\\DarkSkin\\Normal.png",
+        "Materials\\DarkSkin\\Height.png"
+      ]
+    },
+    {
+      "id": "CharcoalCloth",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\CharcoalCloth\\BaseColor.png",
+        "Materials\\CharcoalCloth\\Roughness.png",
+        "Materials\\CharcoalCloth\\Normal.png",
+        "Materials\\CharcoalCloth\\Height.png"
+      ]
+    },
+    {
+      "id": "FadedLinen",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\FadedLinen\\BaseColor.png",
+        "Materials\\FadedLinen\\Roughness.png",
+        "Materials\\FadedLinen\\Normal.png",
+        "Materials\\FadedLinen\\Height.png"
+      ]
+    },
+    {
+      "id": "BloodCloth",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\BloodCloth\\BaseColor.png",
+        "Materials\\BloodCloth\\Roughness.png",
+        "Materials\\BloodCloth\\Normal.png",
+        "Materials\\BloodCloth\\Height.png"
+      ]
+    },
+    {
+      "id": "WornLeather",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\WornLeather\\BaseColor.png",
+        "Materials\\WornLeather\\Roughness.png",
+        "Materials\\WornLeather\\Normal.png",
+        "Materials\\WornLeather\\Height.png"
+      ]
+    },
+    {
+      "id": "RustedIron",
+      "size": 512,
+      "metallic": 0.7,
+      "maps": [
+        "Materials\\RustedIron\\BaseColor.png",
+        "Materials\\RustedIron\\Roughness.png",
+        "Materials\\RustedIron\\Normal.png",
+        "Materials\\RustedIron\\Height.png"
+      ]
+    },
+    {
+      "id": "TarnishedBrass",
+      "size": 512,
+      "metallic": 0.65,
+      "maps": [
+        "Materials\\TarnishedBrass\\BaseColor.png",
+        "Materials\\TarnishedBrass\\Roughness.png",
+        "Materials\\TarnishedBrass\\Normal.png",
+        "Materials\\TarnishedBrass\\Height.png"
+      ]
+    },
+    {
+      "id": "OldBone",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\OldBone\\BaseColor.png",
+        "Materials\\OldBone\\Roughness.png",
+        "Materials\\OldBone\\Normal.png",
+        "Materials\\OldBone\\Height.png"
+      ]
+    },
+    {
+      "id": "DeadWood",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\DeadWood\\BaseColor.png",
+        "Materials\\DeadWood\\Roughness.png",
+        "Materials\\DeadWood\\Normal.png",
+        "Materials\\DeadWood\\Height.png"
+      ]
+    },
+    {
+      "id": "SootStone",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\SootStone\\BaseColor.png",
+        "Materials\\SootStone\\Roughness.png",
+        "Materials\\SootStone\\Normal.png",
+        "Materials\\SootStone\\Height.png"
+      ]
+    },
+    {
+      "id": "Plaster",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\Plaster\\BaseColor.png",
+        "Materials\\Plaster\\Roughness.png",
+        "Materials\\Plaster\\Normal.png",
+        "Materials\\Plaster\\Height.png"
+      ]
+    },
+    {
+      "id": "Slate",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\Slate\\BaseColor.png",
+        "Materials\\Slate\\Roughness.png",
+        "Materials\\Slate\\Normal.png",
+        "Materials\\Slate\\Height.png"
+      ]
+    },
+    {
+      "id": "GraveSoil",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\GraveSoil\\BaseColor.png",
+        "Materials\\GraveSoil\\Roughness.png",
+        "Materials\\GraveSoil\\Normal.png",
+        "Materials\\GraveSoil\\Height.png"
+      ]
+    },
+    {
+      "id": "WitheredGrass",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\WitheredGrass\\BaseColor.png",
+        "Materials\\WitheredGrass\\Roughness.png",
+        "Materials\\WitheredGrass\\Normal.png",
+        "Materials\\WitheredGrass\\Height.png"
+      ]
+    },
+    {
+      "id": "ContaminatedSoil",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\ContaminatedSoil\\BaseColor.png",
+        "Materials\\ContaminatedSoil\\Roughness.png",
+        "Materials\\ContaminatedSoil\\Normal.png",
+        "Materials\\ContaminatedSoil\\Height.png"
+      ]
+    },
+    {
+      "id": "Mycelium",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\Mycelium\\BaseColor.png",
+        "Materials\\Mycelium\\Roughness.png",
+        "Materials\\Mycelium\\Normal.png",
+        "Materials\\Mycelium\\Height.png"
+      ]
+    },
+    {
+      "id": "InfectedFlesh",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\InfectedFlesh\\BaseColor.png",
+        "Materials\\InfectedFlesh\\Roughness.png",
+        "Materials\\InfectedFlesh\\Normal.png",
+        "Materials\\InfectedFlesh\\Height.png"
+      ]
+    },
+    {
+      "id": "Chitin",
+      "size": 512,
+      "metallic": 0.1,
+      "maps": [
+        "Materials\\Chitin\\BaseColor.png",
+        "Materials\\Chitin\\Roughness.png",
+        "Materials\\Chitin\\Normal.png",
+        "Materials\\Chitin\\Height.png"
+      ]
+    },
+    {
+      "id": "Black",
+      "size": 512,
+      "metallic": 0,
+      "maps": [
+        "Materials\\Black\\BaseColor.png",
+        "Materials\\Black\\Roughness.png",
+        "Materials\\Black\\Normal.png",
+        "Materials\\Black\\Height.png"
+      ]
+    },
+    {
+      "id": "Amber",
+      "size": 512,
+      "metallic": 0.05,
+      "maps": [
+        "Materials\\Amber\\BaseColor.png",
+        "Materials\\Amber\\Roughness.png",
+        "Materials\\Amber\\Normal.png",
+        "Materials\\Amber\\Height.png"
+      ]
+    }
+  ]
+}

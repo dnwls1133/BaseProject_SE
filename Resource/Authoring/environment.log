@@ -1,0 +1,412 @@
+INFO Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 5.0\5.0\scripts\addons_core\io_scene_gltf2\extern_draco.dll
+16:36:12 | INFO: Starting glTF 2.0 export
+16:36:12 | INFO: Extracting primitive: Floor_Wood_2m
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.11060357093811035 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Floor_Stone_2m
+16:36:13 | INFO: Primitives created: 1
+16:36:13 | INFO: Finished glTF 2.0 export in 0.05363726615905762 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Wall_Plaster_2m
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.10338878631591797 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Wall_Timber_2m
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.09616351127624512 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Wall_Stone_2m
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.09013819694519043 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Wall_Window_2m
+16:36:13 | INFO: Primitives created: 3
+16:36:13 | INFO: Finished glTF 2.0 export in 0.13628816604614258 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Wall_Doorway_2m
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.08665752410888672 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Wall_Ruined_2m
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.0940091609954834 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Post_2m4
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.08862829208374023 s
+
+16:36:13 | INFO: Starting glTF 2.0 export
+16:36:13 | INFO: Extracting primitive: Post_1m2
+16:36:13 | INFO: Primitives created: 2
+16:36:13 | INFO: Finished glTF 2.0 export in 0.10011458396911621 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Foundation_Corner
+16:36:14 | INFO: Primitives created: 1
+16:36:14 | INFO: Finished glTF 2.0 export in 0.046521902084350586 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Roof_Slate_2m
+16:36:14 | INFO: Primitives created: 2
+16:36:14 | INFO: Finished glTF 2.0 export in 0.09075474739074707 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Roof_Wood_2m
+16:36:14 | INFO: Primitives created: 1
+16:36:14 | INFO: Finished glTF 2.0 export in 0.0505528450012207 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Roof_Ridge_2m
+16:36:14 | INFO: Primitives created: 1
+16:36:14 | INFO: Finished glTF 2.0 export in 0.04854869842529297 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Gable_Triangle_2m
+16:36:14 | INFO: Primitives created: 2
+16:36:14 | INFO: Finished glTF 2.0 export in 0.09711027145385742 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Chimney
+16:36:14 | INFO: Primitives created: 1
+16:36:14 | INFO: Finished glTF 2.0 export in 0.05162930488586426 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Stairs_2m
+16:36:14 | INFO: Primitives created: 1
+16:36:14 | INFO: Finished glTF 2.0 export in 0.05908370018005371 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Fence_2m
+16:36:14 | INFO: Primitives created: 1
+16:36:14 | INFO: Finished glTF 2.0 export in 0.0670783519744873 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Arch_Ruined_2m
+16:36:14 | INFO: Primitives created: 1
+16:36:14 | INFO: Finished glTF 2.0 export in 0.06457781791687012 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Shrine_MutantSaint
+16:36:14 | INFO: Primitives created: 2
+16:36:14 | INFO: Finished glTF 2.0 export in 0.10616850852966309 s
+
+16:36:14 | INFO: Starting glTF 2.0 export
+16:36:14 | INFO: Extracting primitive: Door_Hinged
+16:36:14 | INFO: Primitives created: 3
+16:36:15 | INFO: Finished glTF 2.0 export in 0.21824240684509277 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Table
+16:36:15 | INFO: Primitives created: 1
+16:36:15 | INFO: Finished glTF 2.0 export in 0.04957318305969238 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Bench
+16:36:15 | INFO: Primitives created: 1
+16:36:15 | INFO: Finished glTF 2.0 export in 0.047527313232421875 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Stool
+16:36:15 | INFO: Primitives created: 1
+16:36:15 | INFO: Finished glTF 2.0 export in 0.0523836612701416 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Chair
+16:36:15 | INFO: Primitives created: 1
+16:36:15 | INFO: Finished glTF 2.0 export in 0.05054020881652832 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Bed_Straw
+16:36:15 | INFO: Primitives created: 3
+16:36:15 | INFO: Finished glTF 2.0 export in 0.1516423225402832 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Crate_Small
+16:36:15 | INFO: Primitives created: 1
+16:36:15 | INFO: Finished glTF 2.0 export in 0.05655932426452637 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Crate_Large
+16:36:15 | INFO: Primitives created: 1
+16:36:15 | INFO: Finished glTF 2.0 export in 0.0540468692779541 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Barrel
+16:36:15 | INFO: Primitives created: 2
+16:36:15 | INFO: Finished glTF 2.0 export in 0.09343338012695312 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Chest_Hinged
+16:36:15 | INFO: Primitives created: 3
+16:36:15 | INFO: Finished glTF 2.0 export in 0.19461989402770996 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Shelf
+16:36:15 | INFO: Primitives created: 1
+16:36:15 | INFO: Finished glTF 2.0 export in 0.053153276443481445 s
+
+16:36:15 | INFO: Starting glTF 2.0 export
+16:36:15 | INFO: Extracting primitive: Cauldron
+16:36:16 | INFO: Primitives created: 2
+16:36:16 | INFO: Finished glTF 2.0 export in 0.09622311592102051 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: Bucket
+16:36:16 | INFO: Primitives created: 2
+16:36:16 | INFO: Finished glTF 2.0 export in 0.09303998947143555 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: Bowl
+16:36:16 | INFO: Primitives created: 2
+16:36:16 | INFO: Finished glTF 2.0 export in 0.08929920196533203 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: Plate
+16:36:16 | INFO: Primitives created: 2
+16:36:16 | INFO: Finished glTF 2.0 export in 0.10046672821044922 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: BloodVial
+16:36:16 | INFO: Primitives created: 3
+16:36:16 | INFO: Finished glTF 2.0 export in 0.14610791206359863 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: Lantern
+16:36:16 | INFO: Primitives created: 2
+16:36:16 | INFO: Finished glTF 2.0 export in 0.09851598739624023 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: WorkHammer
+16:36:16 | INFO: Primitives created: 2
+16:36:16 | INFO: Finished glTF 2.0 export in 0.10435843467712402 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: Shovel
+16:36:16 | INFO: Primitives created: 2
+16:36:16 | INFO: Finished glTF 2.0 export in 0.09422874450683594 s
+
+16:36:16 | INFO: Starting glTF 2.0 export
+16:36:16 | INFO: Extracting primitive: Altar
+16:36:17 | INFO: Primitives created: 3
+16:36:17 | INFO: Finished glTF 2.0 export in 0.15515875816345215 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Reliquary
+16:36:17 | INFO: Primitives created: 2
+16:36:17 | INFO: Finished glTF 2.0 export in 0.08708357810974121 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Sack
+16:36:17 | INFO: Primitives created: 2
+16:36:17 | INFO: Finished glTF 2.0 export in 0.09586930274963379 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: ColdHearth
+16:36:17 | INFO: Primitives created: 2
+16:36:17 | INFO: Finished glTF 2.0 export in 0.09288382530212402 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Ground_GraveSoil
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.041005849838256836 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Ground_Contaminated
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.051729679107666016 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Ground_Stone
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.046186208724975586 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Ground_Mycelium
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.04822945594787598 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Rock_Small
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.04933929443359375 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Rock_Medium
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.04833197593688965 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Rock_Large
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.051709890365600586 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Rock_Spire
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.049753665924072266 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Rubble_Cluster
+16:36:17 | INFO: Primitives created: 1
+16:36:17 | INFO: Finished glTF 2.0 export in 0.04831433296203613 s
+
+16:36:17 | INFO: Starting glTF 2.0 export
+16:36:17 | INFO: Extracting primitive: Tree_Dead_A
+16:36:18 | INFO: Primitives created: 1
+16:36:18 | INFO: Finished glTF 2.0 export in 0.1133110523223877 s
+
+16:36:18 | INFO: Starting glTF 2.0 export
+16:36:18 | INFO: Extracting primitive: Tree_Dead_B
+16:36:18 | INFO: Primitives created: 1
+16:36:18 | INFO: Finished glTF 2.0 export in 0.10480666160583496 s
+
+16:36:18 | INFO: Starting glTF 2.0 export
+16:36:18 | INFO: Extracting primitive: Tree_Infected
+16:36:18 | INFO: Primitives created: 3
+16:36:18 | INFO: Finished glTF 2.0 export in 0.20279264450073242 s
+
+16:36:18 | INFO: Starting glTF 2.0 export
+16:36:18 | INFO: Extracting primitive: Tree_Stump
+16:36:18 | INFO: Primitives created: 2
+16:36:18 | INFO: Finished glTF 2.0 export in 0.0945289134979248 s
+
+16:36:18 | INFO: Starting glTF 2.0 export
+16:36:18 | INFO: Extracting primitive: Fallen_Log
+16:36:18 | INFO: Primitives created: 1
+16:36:18 | INFO: Finished glTF 2.0 export in 0.05066037178039551 s
+
+16:36:18 | INFO: Starting glTF 2.0 export
+16:36:18 | WARNING: Mesh Grass_Dry_Clump is not valid, and may be exported wrongly
+16:36:18 | INFO: Extracting primitive: Grass_Dry_Clump
+16:36:18 | INFO: Primitives created: 1
+16:36:18 | INFO: Finished glTF 2.0 export in 0.09359979629516602 s
+
+16:36:18 | INFO: Starting glTF 2.0 export
+16:36:18 | INFO: Extracting primitive: Grass_Reeds
+16:36:18 | INFO: Primitives created: 2
+16:36:19 | INFO: Finished glTF 2.0 export in 0.1589672565460205 s
+
+16:36:19 | INFO: Starting glTF 2.0 export
+16:36:19 | WARNING: Mesh Grass_Fungal is not valid, and may be exported wrongly
+16:36:19 | INFO: Extracting primitive: Grass_Fungal
+16:36:19 | INFO: Primitives created: 1
+16:36:19 | INFO: Finished glTF 2.0 export in 0.0971522331237793 s
+
+16:36:19 | INFO: Starting glTF 2.0 export
+16:36:19 | INFO: Extracting primitive: Colony_Small
+16:36:19 | INFO: Primitives created: 3
+16:36:19 | INFO: Finished glTF 2.0 export in 0.22625970840454102 s
+
+16:36:19 | INFO: Starting glTF 2.0 export
+16:36:19 | INFO: Extracting primitive: Colony_Large
+16:36:19 | INFO: Primitives created: 3
+16:36:19 | INFO: Finished glTF 2.0 export in 0.21056532859802246 s
+
+16:36:19 | INFO: Starting glTF 2.0 export
+16:36:19 | INFO: Extracting primitive: Egg_Cluster
+16:36:19 | INFO: Primitives created: 2
+16:36:19 | INFO: Finished glTF 2.0 export in 0.09403777122497559 s
+
+16:36:19 | INFO: Starting glTF 2.0 export
+16:36:19 | INFO: Extracting primitive: Mycelium_Roots
+16:36:19 | INFO: Primitives created: 1
+16:36:19 | INFO: Finished glTF 2.0 export in 0.08093500137329102 s
+00:38.281  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\03_Settlement.png'
+
+Info: Saved as "Environment_Modular_Library.blend"
+Info: Saved as "Settlement_Assembly_Example.blend"
+16:36:43 | INFO: Starting glTF 2.0 export
+16:36:43 | INFO: Extracting primitive: Floor_Wood_2m
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Wall_Window_2m
+16:36:43 | INFO: Primitives created: 3
+16:36:43 | INFO: Extracting primitive: Wall_Doorway_2m
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Wall_Plaster_2m
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Wall_Timber_2m
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Roof_Slate_2m
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Roof_Ridge_2m
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Gable_Triangle_2m
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Chimney
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Foundation_Corner
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Stairs_2m
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Fence_2m
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Wall_Ruined_2m
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Arch_Ruined_2m
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Table
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Chair
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Barrel
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Crate_Large
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: Crate_Small
+16:36:43 | INFO: Primitives created: 1
+16:36:43 | INFO: Extracting primitive: ColdHearth
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Bucket
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Lantern
+16:36:43 | INFO: Primitives created: 2
+16:36:43 | INFO: Extracting primitive: Sack
+16:36:44 | INFO: Primitives created: 2
+16:36:44 | INFO: Extracting primitive: Shrine_MutantSaint
+16:36:44 | INFO: Primitives created: 2
+16:36:44 | INFO: Extracting primitive: Altar
+16:36:44 | INFO: Primitives created: 3
+16:36:44 | INFO: Extracting primitive: Rock_Large
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Rock_Spire
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Tree_Stump
+16:36:44 | INFO: Primitives created: 2
+16:36:44 | INFO: Extracting primitive: Fallen_Log
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Egg_Cluster
+16:36:44 | INFO: Primitives created: 2
+16:36:44 | INFO: Extracting primitive: Mycelium_Roots
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Ground_GraveSoil
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Ground_Contaminated
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Tree_Dead_A
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Tree_Dead_B
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Tree_Infected
+16:36:44 | INFO: Primitives created: 3
+16:36:44 | INFO: Extracting primitive: Grass_Dry_Clump
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Grass_Fungal
+16:36:44 | INFO: Primitives created: 1
+16:36:44 | INFO: Extracting primitive: Colony_Large
+16:36:45 | INFO: Primitives created: 3
+16:36:45 | INFO: Finished glTF 2.0 export in 1.8329648971557617 s
+
+ENVIRONMENT_COMPLETE 64
+RESOURCE_BUILD_COMPLETE
+Blender 5.0.0 (hash a37564c4df7a built 2025-11-18 11:06:54)
+
+Blender quit

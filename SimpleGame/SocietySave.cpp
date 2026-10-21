@@ -70,7 +70,8 @@ void WorldSociety::Write(std::ostream& out) const
             << ' ' << n.facing << ' ' << n.windup << ' ' << n.cooldown << ' ' << n.flash << ' '
             << n.collapse << ' ' << n.farTime << ' ' << n.playerThreat << ' ' << n.speechTime << ' '
             << std::quoted(n.speech.empty() ? "-" : n.speech);
-        out << ' ' << n.wildTarget << ' ' << n.wildDecision;
+        out << ' ' << n.wildTarget << ' ' << n.wildDecision << ' ' << n.courierStop << ' '
+            << n.courierPause;
         for (float value : n.playerRelation)
         {
             out << ' ' << value;
@@ -102,8 +103,8 @@ void WorldSociety::Write(std::ostream& out) const
     for (const auto& m : messages)
     {
         out << "soc_message " << m.id << ' ' << m.cause << ' ' << m.due << ' ' << m.expires << ' '
-            << std::quoted(npcId(m.from)) << ' ' << std::quoted(npcId(m.to)) << ' '
-            << std::quoted(regions[m.region].id) << ' ' << m.kind << ' ' << m.food << ' '
+            << m.observed << ' ' << std::quoted(npcId(m.from)) << ' ' << std::quoted(npcId(m.to))
+            << ' ' << std::quoted(regions[m.region].id) << ' ' << m.kind << ' ' << m.food << ' '
             << m.infection << ' ' << m.confidence << '\n';
     }
     for (const auto& q : quests)
@@ -325,6 +326,8 @@ bool WorldSociety::ReadRow(const std::string& command, ContentData::Row& row)
         }
         n.wildTarget = row.Integer(-1, 1023);
         n.wildDecision = row.Number(-1, 1);
+        n.courierStop = row.Integer(0, 15);
+        n.courierPause = row.Number(0, 3);
         for (float& value : n.playerRelation)
         {
             value = row.Number(-100, 100);
@@ -381,6 +384,7 @@ bool WorldSociety::ReadRow(const std::string& command, ContentData::Row& row)
         m.cause = row.Unsigned();
         m.due = row.Unsigned();
         m.expires = row.Unsigned();
+        m.observed = row.Unsigned();
         m.from = readNpc();
         m.to = readNpc();
         m.region = readRegion();
@@ -475,6 +479,11 @@ void WorldSociety::FinishRestore(const RandomLevelMap& map)
     {
         Require(restoreSeen.count("soc_path:" + n.id) && map.CanStand(n.x, n.y),
                 "invalid saved NPC placement");
+        if (IsCourier(int(&n - npcs.data())))
+        {
+            Require(n.courierStop < int(courierRoutes.at(int(&n - npcs.data())).size()),
+                    "invalid saved courier stop");
+        }
         Require(n.pathCell < map.Width * map.Height, "invalid saved path destination");
         for (const Point point : n.path)
         {
@@ -483,7 +492,8 @@ void WorldSociety::FinishRestore(const RandomLevelMap& map)
     }
     for (const auto& m : messages)
     {
-        Require(m.id < serial && m.cause < serial, "invalid saved message sequence");
+        Require(m.id < serial && m.cause < serial && m.observed <= minute,
+                "invalid saved message sequence or observation time");
     }
     for (const auto& q : quests)
     {

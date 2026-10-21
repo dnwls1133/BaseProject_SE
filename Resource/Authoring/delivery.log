@@ -1,0 +1,16 @@
+00:02.469  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Characters\Human_Modular_Library.blend"
+00:02.562  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Creatures\Animal\Animal_Modular_Library.blend"
+00:02.625  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Creatures\Spider\Spider_Modular_Library.blend"
+00:02.672  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Creatures\Giant\Giant_Modular_Library.blend"
+00:02.734  blend            | Read blend: "C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Environment\Environment_Modular_Library.blend"
+00:18.297  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\05_Architecture_Inventory.png'
+00:32.453  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\05_Prop_Inventory.png'
+00:46.094  render           | Saved: 'C:\Users\dnwls\Desktop\게임소프트웨어공학\BaseProject_SE\Resource\Previews\05_Nature_Inventory.png'
+Info: Saved as "Human_Modular_Library.blend"
+Info: Saved as "Animal_Modular_Library.blend"
+Info: Saved as "Spider_Modular_Library.blend"
+Info: Saved as "Giant_Modular_Library.blend"
+FINAL_DELIVERY_READY
+Blender 5.0.0 (hash a37564c4df7a built 2025-11-18 11:06:54)
+
+Blender quit

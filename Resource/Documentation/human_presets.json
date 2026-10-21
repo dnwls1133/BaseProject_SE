@@ -1,0 +1,72 @@
+{
+  "Pilgrim": [
+    "Head_Ashen",
+    "Face_Quiet",
+    "Hood_Pilgrim",
+    "Torso_Leather",
+    "Arms_Linen",
+    "Hands_Gloves",
+    "Legs_Leather",
+    "Boots_Leather",
+    "Skirt_Pilgrim",
+    "Cape_Pilgrim",
+    "Gear_PouchAndBloodVial",
+    "Weapon_PilgrimSword"
+  ],
+  "Healer": [
+    "Head_Pale",
+    "Face_Weathered",
+    "Hair_Long",
+    "Torso_Linen",
+    "Arms_Linen",
+    "Hands_Bare",
+    "Legs_Linen",
+    "Boots_Leather",
+    "Skirt_Healer",
+    "Cape_Healer",
+    "Gear_PouchAndBloodVial"
+  ],
+  "Warden": [
+    "Head_Ashen",
+    "Face_Quiet",
+    "Helmet_Warden",
+    "Torso_Iron",
+    "Arms_Iron",
+    "Hands_Gloves",
+    "Legs_Leather",
+    "Boots_Iron",
+    "Tabard_Warden",
+    "Weapon_PilgrimSword"
+  ],
+  "Scavenger": [
+    "Head_Umber",
+    "Face_Umber",
+    "Hair_Cropped",
+    "Torso_Leather",
+    "Arms_Leather",
+    "Hands_Gloves",
+    "Legs_Linen",
+    "Boots_Leather",
+    "Gear_ScavengerPack",
+    "Weapon_WorkHammer"
+  ],
+  "InfectedWanderer": [
+    "Head_Ashen",
+    "Face_Quiet",
+    "Torso_Linen",
+    "Arms_Bare",
+    "Hands_Bare",
+    "Legs_Linen",
+    "Feet_Bare",
+    "Mutation_HornAndScab"
+  ],
+  "Body_7H": [
+    "Head_Ashen",
+    "Face_Quiet",
+    "Torso_Bare",
+    "Arms_Bare",
+    "Hands_Bare",
+    "Legs_Bare",
+    "Feet_Bare"
+  ]
+}

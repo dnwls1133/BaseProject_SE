@@ -1,0 +1,2068 @@
+{
+  "files": [
+    {
+      "file": "Characters/Modules/Arms_Bare.glb",
+      "triangles": 192,
+      "skins": 1,
+      "weighted_vertices": 360,
+      "animations": [],
+      "bytes": 944548
+    },
+    {
+      "file": "Characters/Modules/Arms_Iron.glb",
+      "triangles": 464,
+      "skins": 1,
+      "weighted_vertices": 960,
+      "animations": [],
+      "bytes": 1841696
+    },
+    {
+      "file": "Characters/Modules/Arms_Leather.glb",
+      "triangles": 248,
+      "skins": 1,
+      "weighted_vertices": 456,
+      "animations": [],
+      "bytes": 905652
+    },
+    {
+      "file": "Characters/Modules/Arms_Linen.glb",
+      "triangles": 248,
+      "skins": 1,
+      "weighted_vertices": 456,
+      "animations": [],
+      "bytes": 1942108
+    },
+    {
+      "file": "Characters/Modules/Boots_Iron.glb",
+      "triangles": 328,
+      "skins": 1,
+      "weighted_vertices": 672,
+      "animations": [],
+      "bytes": 2846548
+    },
+    {
+      "file": "Characters/Modules/Boots_Leather.glb",
+      "triangles": 328,
+      "skins": 1,
+      "weighted_vertices": 672,
+      "animations": [],
+      "bytes": 2808448
+    },
+    {
+      "file": "Characters/Modules/Cape_Healer.glb",
+      "triangles": 36,
+      "skins": 1,
+      "weighted_vertices": 72,
+      "animations": [],
+      "bytes": 1027240
+    },
+    {
+      "file": "Characters/Modules/Cape_Pilgrim.glb",
+      "triangles": 36,
+      "skins": 1,
+      "weighted_vertices": 72,
+      "animations": [],
+      "bytes": 1005088
+    },
+    {
+      "file": "Characters/Modules/Face_Quiet.glb",
+      "triangles": 356,
+      "skins": 1,
+      "weighted_vertices": 848,
+      "animations": [],
+      "bytes": 3517160
+    },
+    {
+      "file": "Characters/Modules/Face_Umber.glb",
+      "triangles": 380,
+      "skins": 1,
+      "weighted_vertices": 896,
+      "animations": [],
+      "bytes": 3490908
+    },
+    {
+      "file": "Characters/Modules/Face_Weathered.glb",
+      "triangles": 392,
+      "skins": 1,
+      "weighted_vertices": 920,
+      "animations": [],
+      "bytes": 3619736
+    },
+    {
+      "file": "Characters/Modules/Feet_Bare.glb",
+      "triangles": 120,
+      "skins": 1,
+      "weighted_vertices": 280,
+      "animations": [],
+      "bytes": 939940
+    },
+    {
+      "file": "Characters/Modules/Gear_PouchAndBloodVial.glb",
+      "triangles": 168,
+      "skins": 1,
+      "weighted_vertices": 356,
+      "animations": [],
+      "bytes": 3583936
+    },
+    {
+      "file": "Characters/Modules/Gear_ScavengerPack.glb",
+      "triangles": 152,
+      "skins": 1,
+      "weighted_vertices": 308,
+      "animations": [],
+      "bytes": 2924984
+    },
+    {
+      "file": "Characters/Modules/Hair_Cropped.glb",
+      "triangles": 352,
+      "skins": 1,
+      "weighted_vertices": 660,
+      "animations": [],
+      "bytes": 1037580
+    },
+    {
+      "file": "Characters/Modules/Hair_Long.glb",
+      "triangles": 288,
+      "skins": 1,
+      "weighted_vertices": 540,
+      "animations": [],
+      "bytes": 910256
+    },
+    {
+      "file": "Characters/Modules/Hands_Bare.glb",
+      "triangles": 356,
+      "skins": 1,
+      "weighted_vertices": 724,
+      "animations": [],
+      "bytes": 964468
+    },
+    {
+      "file": "Characters/Modules/Hands_Gloves.glb",
+      "triangles": 356,
+      "skins": 1,
+      "weighted_vertices": 724,
+      "animations": [],
+      "bytes": 920240
+    },
+    {
+      "file": "Characters/Modules/Head_Ashen.glb",
+      "triangles": 236,
+      "skins": 1,
+      "weighted_vertices": 488,
+      "animations": [],
+      "bytes": 951472
+    },
+    {
+      "file": "Characters/Modules/Head_Pale.glb",
+      "triangles": 236,
+      "skins": 1,
+      "weighted_vertices": 488,
+      "animations": [],
+      "bytes": 965892
+    },
+    {
+      "file": "Characters/Modules/Head_Umber.glb",
+      "triangles": 236,
+      "skins": 1,
+      "weighted_vertices": 488,
+      "animations": [],
+      "bytes": 922572
+    },
+    {
+      "file": "Characters/Modules/Helmet_Warden.glb",
+      "triangles": 200,
+      "skins": 1,
+      "weighted_vertices": 416,
+      "animations": [],
+      "bytes": 941396
+    },
+    {
+      "file": "Characters/Modules/Hood_Pilgrim.glb",
+      "triangles": 136,
+      "skins": 1,
+      "weighted_vertices": 264,
+      "animations": [],
+      "bytes": 2052148
+    },
+    {
+      "file": "Characters/Modules/Legs_Bare.glb",
+      "triangles": 236,
+      "skins": 1,
+      "weighted_vertices": 432,
+      "animations": [],
+      "bytes": 948560
+    },
+    {
+      "file": "Characters/Modules/Legs_Leather.glb",
+      "triangles": 236,
+      "skins": 1,
+      "weighted_vertices": 432,
+      "animations": [],
+      "bytes": 904336
+    },
+    {
+      "file": "Characters/Modules/Legs_Linen.glb",
+      "triangles": 236,
+      "skins": 1,
+      "weighted_vertices": 432,
+      "animations": [],
+      "bytes": 1070348
+    },
+    {
+      "file": "Characters/Modules/Mutation_HornAndScab.glb",
+      "triangles": 124,
+      "skins": 1,
+      "weighted_vertices": 252,
+      "animations": [],
+      "bytes": 1892300
+    },
+    {
+      "file": "Characters/Modules/Shoulders_Iron.glb",
+      "triangles": 216,
+      "skins": 1,
+      "weighted_vertices": 520,
+      "animations": [],
+      "bytes": 1847296
+    },
+    {
+      "file": "Characters/Modules/Skirt_Healer.glb",
+      "triangles": 72,
+      "skins": 1,
+      "weighted_vertices": 144,
+      "animations": [],
+      "bytes": 2045508
+    },
+    {
+      "file": "Characters/Modules/Skirt_Pilgrim.glb",
+      "triangles": 72,
+      "skins": 1,
+      "weighted_vertices": 144,
+      "animations": [],
+      "bytes": 2045504
+    },
+    {
+      "file": "Characters/Modules/Tabard_Warden.glb",
+      "triangles": 72,
+      "skins": 1,
+      "weighted_vertices": 144,
+      "animations": [],
+      "bytes": 2067664
+    },
+    {
+      "file": "Characters/Modules/Torso_Bare.glb",
+      "triangles": 176,
+      "skins": 1,
+      "weighted_vertices": 324,
+      "animations": [],
+      "bytes": 942584
+    },
+    {
+      "file": "Characters/Modules/Torso_Iron.glb",
+      "triangles": 460,
+      "skins": 1,
+      "weighted_vertices": 916,
+      "animations": [],
+      "bytes": 4611148
+    },
+    {
+      "file": "Characters/Modules/Torso_Leather.glb",
+      "triangles": 336,
+      "skins": 1,
+      "weighted_vertices": 624,
+      "animations": [],
+      "bytes": 4677804
+    },
+    {
+      "file": "Characters/Modules/Torso_Linen.glb",
+      "triangles": 304,
+      "skins": 1,
+      "weighted_vertices": 564,
+      "animations": [],
+      "bytes": 4719820
+    },
+    {
+      "file": "Characters/Modules/Weapon_PilgrimSword.glb",
+      "triangles": 60,
+      "skins": 1,
+      "weighted_vertices": 112,
+      "animations": [],
+      "bytes": 1795180
+    },
+    {
+      "file": "Characters/Modules/Weapon_WorkHammer.glb",
+      "triangles": 56,
+      "skins": 1,
+      "weighted_vertices": 104,
+      "animations": [],
+      "bytes": 1819972
+    },
+    {
+      "file": "Characters/Presets/Body_7H.glb",
+      "triangles": 1672,
+      "skins": 1,
+      "weighted_vertices": 3456,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 108,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 108,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 108,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 108,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 108,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 108,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 108,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 3923924
+    },
+    {
+      "file": "Characters/Presets/Healer.glb",
+      "triangles": 2664,
+      "skins": 1,
+      "weighted_vertices": 5368,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 108,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 108,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 108,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 108,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 108,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 108,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 108,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 10721068
+    },
+    {
+      "file": "Characters/Presets/InfectedWanderer.glb",
+      "triangles": 1924,
+      "skins": 1,
+      "weighted_vertices": 3948,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 108,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 108,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 108,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 108,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 108,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 108,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 108,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 7759204
+    },
+    {
+      "file": "Characters/Presets/Pilgrim.glb",
+      "triangles": 2568,
+      "skins": 1,
+      "weighted_vertices": 5192,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 108,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 108,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 108,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 108,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 108,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 108,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 108,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 10610064
+    },
+    {
+      "file": "Characters/Presets/Scavenger.glb",
+      "triangles": 2680,
+      "skins": 1,
+      "weighted_vertices": 5364,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 108,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 108,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 108,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 108,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 108,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 108,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 108,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 10610720
+    },
+    {
+      "file": "Characters/Presets/Warden.glb",
+      "triangles": 2768,
+      "skins": 1,
+      "weighted_vertices": 5712,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 108,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 108,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 108,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 108,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 108,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 108,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 108,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 108,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 108,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 9861764
+    },
+    {
+      "file": "Creatures/Animal/Boss_HiveHart.glb",
+      "triangles": 2576,
+      "skins": 1,
+      "weighted_vertices": 5324,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 54,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 54,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 54,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 54,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 54,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 54,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 54,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 54,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 54,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 6813768
+    },
+    {
+      "file": "Creatures/Animal/Danger_ThornHound.glb",
+      "triangles": 2208,
+      "skins": 1,
+      "weighted_vertices": 4452,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 54,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 54,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 54,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 54,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 54,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 54,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 54,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 54,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 54,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 5817684
+    },
+    {
+      "file": "Creatures/Animal/Modules/Boss_HiveCrown.glb",
+      "triangles": 584,
+      "skins": 1,
+      "weighted_vertices": 1264,
+      "animations": [],
+      "bytes": 2891260
+    },
+    {
+      "file": "Creatures/Animal/Modules/Danger_AntlersAndSpine.glb",
+      "triangles": 216,
+      "skins": 1,
+      "weighted_vertices": 392,
+      "animations": [],
+      "bytes": 984156
+    },
+    {
+      "file": "Creatures/Animal/Modules/Head_Hound.glb",
+      "triangles": 480,
+      "skins": 1,
+      "weighted_vertices": 1028,
+      "animations": [],
+      "bytes": 5470952
+    },
+    {
+      "file": "Creatures/Animal/Modules/Limbs_Hound.glb",
+      "triangles": 888,
+      "skins": 1,
+      "weighted_vertices": 1808,
+      "animations": [],
+      "bytes": 2964716
+    },
+    {
+      "file": "Creatures/Animal/Modules/Tail.glb",
+      "triangles": 44,
+      "skins": 1,
+      "weighted_vertices": 80,
+      "animations": [],
+      "bytes": 921940
+    },
+    {
+      "file": "Creatures/Animal/Modules/Torso_ExposedRibs.glb",
+      "triangles": 580,
+      "skins": 1,
+      "weighted_vertices": 1144,
+      "animations": [],
+      "bytes": 2928332
+    },
+    {
+      "file": "Creatures/Animal/Weak_StarvedHound.glb",
+      "triangles": 1992,
+      "skins": 1,
+      "weighted_vertices": 4060,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 54,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 54,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 54,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 54,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 54,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 54,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 54,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 54,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 54,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 54,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 5794948
+    },
+    {
+      "file": "Creatures/Giant/Boss_CrownedAbomination.glb",
+      "triangles": 2800,
+      "skins": 1,
+      "weighted_vertices": 5738,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 57,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 57,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 57,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 57,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 57,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 57,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 57,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 57,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 57,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 8769068
+    },
+    {
+      "file": "Creatures/Giant/Danger_RibBrute.glb",
+      "triangles": 2316,
+      "skins": 1,
+      "weighted_vertices": 4644,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 57,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 57,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 57,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 57,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 57,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 57,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 57,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 57,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 57,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 6851736
+    },
+    {
+      "file": "Creatures/Giant/Modules/Body_RibGiant.glb",
+      "triangles": 596,
+      "skins": 1,
+      "weighted_vertices": 1132,
+      "animations": [],
+      "bytes": 2928128
+    },
+    {
+      "file": "Creatures/Giant/Modules/Boss_SaintCrown.glb",
+      "triangles": 660,
+      "skins": 1,
+      "weighted_vertices": 1406,
+      "animations": [],
+      "bytes": 3807988
+    },
+    {
+      "file": "Creatures/Giant/Modules/Danger_ShoulderThorns.glb",
+      "triangles": 176,
+      "skins": 1,
+      "weighted_vertices": 312,
+      "animations": [],
+      "bytes": 980084
+    },
+    {
+      "file": "Creatures/Giant/Modules/Head_Hollow.glb",
+      "triangles": 508,
+      "skins": 1,
+      "weighted_vertices": 1116,
+      "animations": [],
+      "bytes": 3573120
+    },
+    {
+      "file": "Creatures/Giant/Modules/Limbs_Elongated.glb",
+      "triangles": 1028,
+      "skins": 1,
+      "weighted_vertices": 2068,
+      "animations": [],
+      "bytes": 3894100
+    },
+    {
+      "file": "Creatures/Giant/Modules/Rags.glb",
+      "triangles": 8,
+      "skins": 1,
+      "weighted_vertices": 16,
+      "animations": [],
+      "bytes": 1020244
+    },
+    {
+      "file": "Creatures/Giant/Weak_HollowThrall.glb",
+      "triangles": 2140,
+      "skins": 1,
+      "weighted_vertices": 4332,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 57,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 57,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 57,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 57,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 57,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 57,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 57,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 57,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 57,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 57,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 6833360
+    },
+    {
+      "file": "Creatures/Spider/Boss_BroodMatriarch.glb",
+      "triangles": 3138,
+      "skins": 1,
+      "weighted_vertices": 6974,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 69,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 69,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 69,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 69,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 69,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 69,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 69,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 69,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 69,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 6094460
+    },
+    {
+      "file": "Creatures/Spider/Danger_ThornWeaver.glb",
+      "triangles": 2436,
+      "skins": 1,
+      "weighted_vertices": 5248,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 69,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 69,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 69,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 69,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 69,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 69,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 69,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 69,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 69,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 5051460
+    },
+    {
+      "file": "Creatures/Spider/Modules/Body_Carapace.glb",
+      "triangles": 540,
+      "skins": 1,
+      "weighted_vertices": 1228,
+      "animations": [],
+      "bytes": 1875756
+    },
+    {
+      "file": "Creatures/Spider/Modules/Boss_BroodSacs.glb",
+      "triangles": 862,
+      "skins": 1,
+      "weighted_vertices": 2014,
+      "animations": [],
+      "bytes": 2933876
+    },
+    {
+      "file": "Creatures/Spider/Modules/Danger_ThornShell.glb",
+      "triangles": 160,
+      "skins": 1,
+      "weighted_vertices": 288,
+      "animations": [],
+      "bytes": 980328
+    },
+    {
+      "file": "Creatures/Spider/Modules/Head_SixEyes.glb",
+      "triangles": 456,
+      "skins": 1,
+      "weighted_vertices": 1012,
+      "animations": [],
+      "bytes": 2800020
+    },
+    {
+      "file": "Creatures/Spider/Modules/Legs_Eight.glb",
+      "triangles": 1280,
+      "skins": 1,
+      "weighted_vertices": 2720,
+      "animations": [],
+      "bytes": 2917660
+    },
+    {
+      "file": "Creatures/Spider/Weak_AshWeaver.glb",
+      "triangles": 2276,
+      "skins": 1,
+      "weighted_vertices": 4960,
+      "animations": [
+        {
+          "name": "Attack",
+          "channels": 69,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "BindPose_A",
+          "channels": 69,
+          "duration_s": 0.03333333507180214
+        },
+        {
+          "name": "Death",
+          "channels": 69,
+          "duration_s": 1.5666666887700558
+        },
+        {
+          "name": "Hit",
+          "channels": 69,
+          "duration_s": 0.5666666887700558
+        },
+        {
+          "name": "Idle",
+          "channels": 69,
+          "duration_s": 1.9666666649281979
+        },
+        {
+          "name": "Jump",
+          "channels": 69,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Run",
+          "channels": 69,
+          "duration_s": 0.7666666768491268
+        },
+        {
+          "name": "RunToWalk",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnLeft90",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "TurnRight90",
+          "channels": 69,
+          "duration_s": 0.6333333514630795
+        },
+        {
+          "name": "Walk",
+          "channels": 69,
+          "duration_s": 1.0333333872258663
+        },
+        {
+          "name": "WalkToRun",
+          "channels": 69,
+          "duration_s": 0.5666666887700558
+        }
+      ],
+      "bytes": 5034328
+    },
+    {
+      "file": "Environment/Architecture/Arch_Ruined_2m.glb",
+      "triangles": 144,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 905832
+    },
+    {
+      "file": "Environment/Architecture/Chimney.glb",
+      "triangles": 84,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 901652
+    },
+    {
+      "file": "Environment/Architecture/Fence_2m.glb",
+      "triangles": 48,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 899244
+    },
+    {
+      "file": "Environment/Architecture/Floor_Stone_2m.glb",
+      "triangles": 192,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 909228
+    },
+    {
+      "file": "Environment/Architecture/Floor_Wood_2m.glb",
+      "triangles": 480,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1843876
+    },
+    {
+      "file": "Environment/Architecture/Foundation_Corner.glb",
+      "triangles": 12,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 896620
+    },
+    {
+      "file": "Environment/Architecture/Gable_Triangle_2m.glb",
+      "triangles": 32,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1818996
+    },
+    {
+      "file": "Environment/Architecture/Post_1m2.glb",
+      "triangles": 36,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1806656
+    },
+    {
+      "file": "Environment/Architecture/Post_2m4.glb",
+      "triangles": 36,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1806656
+    },
+    {
+      "file": "Environment/Architecture/Roof_Ridge_2m.glb",
+      "triangles": 20,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 888408
+    },
+    {
+      "file": "Environment/Architecture/Roof_Slate_2m.glb",
+      "triangles": 468,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1815252
+    },
+    {
+      "file": "Environment/Architecture/Roof_Wood_2m.glb",
+      "triangles": 468,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 928664
+    },
+    {
+      "file": "Environment/Architecture/Shrine_MutantSaint.glb",
+      "triangles": 102,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1859664
+    },
+    {
+      "file": "Environment/Architecture/Stairs_2m.glb",
+      "triangles": 60,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 899920
+    },
+    {
+      "file": "Environment/Architecture/Wall_Doorway_2m.glb",
+      "triangles": 120,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1825064
+    },
+    {
+      "file": "Environment/Architecture/Wall_Plaster_2m.glb",
+      "triangles": 72,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1821696
+    },
+    {
+      "file": "Environment/Architecture/Wall_Ruined_2m.glb",
+      "triangles": 260,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1811564
+    },
+    {
+      "file": "Environment/Architecture/Wall_Stone_2m.glb",
+      "triangles": 336,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1814640
+    },
+    {
+      "file": "Environment/Architecture/Wall_Timber_2m.glb",
+      "triangles": 180,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1654844
+    },
+    {
+      "file": "Environment/Architecture/Wall_Window_2m.glb",
+      "triangles": 180,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 2737528
+    },
+    {
+      "file": "Environment/Nature/Colony_Large.glb",
+      "triangles": 1378,
+      "skins": 1,
+      "weighted_vertices": 2954,
+      "animations": [
+        {
+          "name": "Colony_Large_Pulse_v1_Pulse",
+          "channels": 6,
+          "duration_s": 3.966666664928198
+        }
+      ],
+      "bytes": 2916068
+    },
+    {
+      "file": "Environment/Nature/Colony_Small.glb",
+      "triangles": 1378,
+      "skins": 1,
+      "weighted_vertices": 2954,
+      "animations": [
+        {
+          "name": "Colony_Small_Pulse_v1_Pulse",
+          "channels": 6,
+          "duration_s": 3.966666664928198
+        }
+      ],
+      "bytes": 2916072
+    },
+    {
+      "file": "Environment/Nature/Egg_Cluster.glb",
+      "triangles": 688,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1856460
+    },
+    {
+      "file": "Environment/Nature/Fallen_Log.glb",
+      "triangles": 74,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 900584
+    },
+    {
+      "file": "Environment/Nature/Grass_Dry_Clump.glb",
+      "triangles": 30,
+      "skins": 1,
+      "weighted_vertices": 60,
+      "animations": [
+        {
+          "name": "Grass_Dry_Clump_Wind_v1_Wind",
+          "channels": 6,
+          "duration_s": 2.3666667602956295
+        }
+      ],
+      "bytes": 903024
+    },
+    {
+      "file": "Environment/Nature/Grass_Fungal.glb",
+      "triangles": 30,
+      "skins": 1,
+      "weighted_vertices": 60,
+      "animations": [
+        {
+          "name": "Grass_Fungal_Wind_v1_Wind",
+          "channels": 6,
+          "duration_s": 2.3666667602956295
+        }
+      ],
+      "bytes": 955248
+    },
+    {
+      "file": "Environment/Nature/Grass_Reeds.glb",
+      "triangles": 440,
+      "skins": 1,
+      "weighted_vertices": 990,
+      "animations": [
+        {
+          "name": "Grass_Reeds_Wind_v1_Wind",
+          "channels": 6,
+          "duration_s": 2.3666667602956295
+        }
+      ],
+      "bytes": 1824316
+    },
+    {
+      "file": "Environment/Nature/Ground_Contaminated.glb",
+      "triangles": 128,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 891368
+    },
+    {
+      "file": "Environment/Nature/Ground_GraveSoil.glb",
+      "triangles": 128,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 813108
+    },
+    {
+      "file": "Environment/Nature/Ground_Mycelium.glb",
+      "triangles": 128,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 956940
+    },
+    {
+      "file": "Environment/Nature/Ground_Stone.glb",
+      "triangles": 128,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 904696
+    },
+    {
+      "file": "Environment/Nature/Mycelium_Roots.glb",
+      "triangles": 192,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 960720
+    },
+    {
+      "file": "Environment/Nature/Rock_Large.glb",
+      "triangles": 66,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 901248
+    },
+    {
+      "file": "Environment/Nature/Rock_Medium.glb",
+      "triangles": 66,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 901248
+    },
+    {
+      "file": "Environment/Nature/Rock_Small.glb",
+      "triangles": 66,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 901252
+    },
+    {
+      "file": "Environment/Nature/Rock_Spire.glb",
+      "triangles": 52,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 899208
+    },
+    {
+      "file": "Environment/Nature/Rubble_Cluster.glb",
+      "triangles": 252,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 917484
+    },
+    {
+      "file": "Environment/Nature/Tree_Dead_A.glb",
+      "triangles": 720,
+      "skins": 1,
+      "weighted_vertices": 1324,
+      "animations": [
+        {
+          "name": "Tree_Dead_A_Wind_v1_Wind",
+          "channels": 9,
+          "duration_s": 2.966666664928198
+        }
+      ],
+      "bytes": 973956
+    },
+    {
+      "file": "Environment/Nature/Tree_Dead_B.glb",
+      "triangles": 720,
+      "skins": 1,
+      "weighted_vertices": 1324,
+      "animations": [
+        {
+          "name": "Tree_Dead_B_Wind_v1_Wind",
+          "channels": 9,
+          "duration_s": 2.966666664928198
+        }
+      ],
+      "bytes": 973960
+    },
+    {
+      "file": "Environment/Nature/Tree_Infected.glb",
+      "triangles": 1434,
+      "skins": 1,
+      "weighted_vertices": 2990,
+      "animations": [
+        {
+          "name": "Tree_Infected_Wind_v1_Wind",
+          "channels": 9,
+          "duration_s": 2.966666664928198
+        }
+      ],
+      "bytes": 2924664
+    },
+    {
+      "file": "Environment/Nature/Tree_Stump.glb",
+      "triangles": 182,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1654528
+    },
+    {
+      "file": "Environment/Prop/Altar.glb",
+      "triangles": 102,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 2872820
+    },
+    {
+      "file": "Environment/Prop/Barrel.glb",
+      "triangles": 248,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1819456
+    },
+    {
+      "file": "Environment/Prop/Bed_Straw.glb",
+      "triangles": 168,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 2935664
+    },
+    {
+      "file": "Environment/Prop/Bench.glb",
+      "triangles": 108,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 903468
+    },
+    {
+      "file": "Environment/Prop/BloodVial.glb",
+      "triangles": 84,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 2719448
+    },
+    {
+      "file": "Environment/Prop/Bowl.glb",
+      "triangles": 92,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1648968
+    },
+    {
+      "file": "Environment/Prop/Bucket.glb",
+      "triangles": 172,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1814656
+    },
+    {
+      "file": "Environment/Prop/Cauldron.glb",
+      "triangles": 276,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1675008
+    },
+    {
+      "file": "Environment/Prop/Chair.glb",
+      "triangles": 108,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 903448
+    },
+    {
+      "file": "Environment/Prop/Chest_Hinged.glb",
+      "triangles": 108,
+      "skins": 1,
+      "weighted_vertices": 216,
+      "animations": [
+        {
+          "name": "Chest_Hinge_v1_Close",
+          "channels": 6,
+          "duration_s": 0.9666666649281979
+        },
+        {
+          "name": "Chest_Hinge_v1_Open",
+          "channels": 6,
+          "duration_s": 0.9666666649281979
+        }
+      ],
+      "bytes": 2721388
+    },
+    {
+      "file": "Environment/Prop/ColdHearth.glb",
+      "triangles": 240,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1810104
+    },
+    {
+      "file": "Environment/Prop/Crate_Large.glb",
+      "triangles": 84,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 901780
+    },
+    {
+      "file": "Environment/Prop/Crate_Small.glb",
+      "triangles": 84,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 901776
+    },
+    {
+      "file": "Environment/Prop/Door_Hinged.glb",
+      "triangles": 132,
+      "skins": 1,
+      "weighted_vertices": 280,
+      "animations": [
+        {
+          "name": "Door_Hinge_v1_Close",
+          "channels": 6,
+          "duration_s": 1.1666667126119137
+        },
+        {
+          "name": "Door_Hinge_v1_Open",
+          "channels": 6,
+          "duration_s": 1.1666667126119137
+        }
+      ],
+      "bytes": 2725016
+    },
+    {
+      "file": "Environment/Prop/Lantern.glb",
+      "triangles": 128,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1804940
+    },
+    {
+      "file": "Environment/Prop/Plate.glb",
+      "triangles": 92,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1648852
+    },
+    {
+      "file": "Environment/Prop/Reliquary.glb",
+      "triangles": 48,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1799340
+    },
+    {
+      "file": "Environment/Prop/Sack.glb",
+      "triangles": 128,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1915840
+    },
+    {
+      "file": "Environment/Prop/Shelf.glb",
+      "triangles": 72,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 900928
+    },
+    {
+      "file": "Environment/Prop/Shovel.glb",
+      "triangles": 76,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1809720
+    },
+    {
+      "file": "Environment/Prop/Stool.glb",
+      "triangles": 108,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 903468
+    },
+    {
+      "file": "Environment/Prop/Table.glb",
+      "triangles": 108,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 903468
+    },
+    {
+      "file": "Environment/Prop/WorkHammer.glb",
+      "triangles": 40,
+      "skins": 0,
+      "weighted_vertices": 0,
+      "animations": [],
+      "bytes": 1806660
+    },
+    {
+      "file": "Environment/Settlement_Assembly_Example.glb",
+      "triangles": 9726,
+      "skins": 8,
+      "weighted_vertices": 9208,
+      "animations": [],
+      "bytes": 16302744
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "glb_files": 134,
+    "native_files": 10,
+    "png_maps": 88,
+    "max_character_triangles": 3138
+  }
+}

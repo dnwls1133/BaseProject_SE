@@ -171,3 +171,9 @@ ChurchRegalia, RefugeGear, SporeMantle, ResearchGear, PurgeArmor의 외부 장�
 ## 지속 목표 정책 — 2026-10-21
 - Simulation/level1.life의 planning 행에 허기/피로/목표 식량/인계 호출 거리/재판단 분/실패 회피 분/목표 기한 분/현장 대기 초를 추가했다. version 1과 기존 콘텐츠 해시를 유지한다.
 - 정책·실행 역할·schema 7의 상태 저장은 PERSISTENT_NPC_PLANS.md를 따른다. 기존 지도/인물/모델을 재사용한다.
+
+
+## 2026-10-21 다섯 마을 확장
+최신 첫 맵은 256×256이다. `village`/`wilderness` 레코드와 사회 데이터의 `courier`
+정의, 저장 스키마 9 및 분위기 JSON 필드는 docs/FIVE_VILLAGE_WORLD.md를 따른다.
+기존 80×64·256×200 및 첫 전장의 40명 배치는 과거 구현 기록이다.

@@ -108,11 +108,13 @@ void WorldSociety::Update(float dt, WorldSimulation& world, const RandomLevelMap
             }
             if (npc.nextDecision <= minute)
             {
+                Observe(static_cast<int>(i), world);
                 Decide(static_cast<int>(i), world, map);
                 npc.nextDecision = minute + rules.decisionPeriod;
             }
         }
-        Deliver(world);
+        ExchangeNews(world, map);
+        Deliver(world, map);
         StoryTick(world, map, player);
         EconomyTick(world);
         LifeTick(minute - previous, world, map);

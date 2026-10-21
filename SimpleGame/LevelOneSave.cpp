@@ -41,7 +41,7 @@ bool LevelOne::SaveWorld(bool manual)
         std::ostringstream out;
         out.imbue(std::locale::classic());
         out << std::setprecision(std::numeric_limits<double>::max_digits10);
-        out << "version 1\nsave_schema 8\nsave_header " << std::quoted(worldFile) << ' '
+        out << "version 1\nsave_schema 9\nsave_header " << std::quoted(worldFile) << ' '
             << society.Signature() << ' ' << map.seed << ' ' << enemies.size() << '\n';
         out << "player_stats " << stats.level << ' ' << stats.experience << ' '
             << stats.totalExperience << ' ' << stats.points << ' ' << stats.strength << ' '
@@ -52,6 +52,7 @@ bool LevelOne::SaveWorld(bool manual)
             << time << ' ' << phase << ' ' << movement << ' ' << facing << ' ' << aimX << ' '
             << aimY << ' ' << attackTime << ' ' << attackCooldown << ' ' << hurtTime << ' '
             << attackAimX << ' ' << attackAimY << ' ' << attackResolved << '\n';
+        out << "population_random " << populationRandomState << '\n';
         simulation.Write(out);
         society.Write(out);
         for (const auto& e : enemies)
@@ -61,7 +62,8 @@ bool LevelOne::SaveWorld(bool manual)
                 << e.flash << ' ' << e.phase << ' ' << e.attackX << ' ' << e.attackY << ' '
                 << e.movement << ' ' << e.facing << ' ' << e.strikeTime << ' ' << e.collapse << ' '
                 << e.targetKind << ' ' << e.targetIndex << ' ' << e.decisionTime << ' ' << e.homeX
-                << ' ' << e.homeY << ' ' << e.route.x << ' ' << e.route.y << ' ' << e.yaw << '\n';
+                << ' ' << e.homeY << ' ' << e.route.x << ' ' << e.route.y << ' ' << e.yaw << ' '
+                << e.wilderness << ' ' << e.respawnRemaining << '\n';
         }
         for (const auto& d : drops)
         {
@@ -148,7 +150,7 @@ bool LevelOne::RestoreWorld(bool automatic)
         std::array<float, 15> motion{};
         bool resolved = false;
         int restoredKills = 0, restoredPickups = 0, restoredExpedition = 0, expectedEnemies = 0;
-        std::uint32_t seed = 0;
+        std::uint32_t seed = 0, restoredPopulationRandom = 1;
         std::set<std::string> records;
         bool ended = false;
         ContentData::Rows(
@@ -160,7 +162,7 @@ bool LevelOne::RestoreWorld(bool automatic)
                 if (command == "save_schema")
                 {
                     Require(records.insert(command).second, "duplicate save schema");
-                    row.Integer(8, 8);
+                    row.Integer(9, 9);
                 }
                 else if (command == "save_header")
                 {
@@ -171,6 +173,11 @@ bool LevelOne::RestoreWorld(bool automatic)
                     seed = static_cast<std::uint32_t>(row.Unsigned(4294967295ULL));
                     Require(seed != 0, "invalid map seed");
                     expectedEnemies = row.Integer(0, 1024);
+                }
+                else if (command == "population_random")
+                {
+                    Require(records.insert(command).second, "duplicate population random state");
+                    restoredPopulationRandom = std::uint32_t(row.Unsigned(4294967295ULL));
                 }
                 else if (command == "player_stats")
                 {
@@ -236,6 +243,12 @@ bool LevelOne::RestoreWorld(bool automatic)
                     enemy.route.x = row.Number(0, static_cast<float>(map.Width));
                     enemy.route.y = row.Number(0, static_cast<float>(map.Height));
                     enemy.yaw = row.Number(-3.142f, 3.142f);
+                    enemy.wilderness = row.Integer(0, 1) != 0;
+                    enemy.respawnRemaining = row.Number(0, content.respawnSeconds);
+                    Require(!enemy.wilderness || content.wildernessCount > 0,
+                            "unexpected saved wilderness unit");
+                    Require(enemy.dead || enemy.respawnRemaining == 0,
+                            "living enemy has a respawn timer");
                     if (enemy.dead && enemy.collapse >= 1)
                     {
                         enemy.SetRenderPasses(ActorPassBit(ActorPass::Ground));
@@ -281,6 +294,14 @@ bool LevelOne::RestoreWorld(bool automatic)
             ContentData::Require(n.wildTarget < static_cast<int>(restoredEnemies.size()),
                                  "invalid wildlife target");
         }
+        ContentData::Require(records.count("population_random") != 0,
+                             "missing population random state");
+        ContentData::Require(std::count_if(restoredEnemies.begin(), restoredEnemies.end(),
+                                           [](const Enemy& enemy)
+                                           {
+                                               return enemy.wilderness;
+                                           }) == content.wildernessCount,
+                             "saved wilderness population does not match content");
         restoredSimulation.FinishRestore();
         ContentData::Require(restoredSimulation.Minute() == restoredSociety.Minute(),
                              "world clock mismatch");
@@ -313,6 +334,7 @@ bool LevelOne::RestoreWorld(bool automatic)
         society = std::move(restoredSociety);
         stats = restoredStats;
         enemies = std::move(restoredEnemies);
+        populationRandomState = restoredPopulationRandom;
         drops = std::move(restoredDrops);
         numbers.clear();
         kills = restoredKills;

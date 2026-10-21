@@ -1,0 +1,457 @@
+{
+  "schema": "resource.animation_blending",
+  "version": 1,
+  "fps": 30,
+  "status": "Authored asset combination metadata; no game state-machine implementation",
+  "profiles": {
+    "Human_7H_v1": {
+      "walk_reference_speed_mps": 1.0967741935483872,
+      "run_reference_speed_mps": 2.83695652173913,
+      "speed_calibration": "Baked stance foot travel / stance duration; multiply by preset root_scale",
+      "cycle_phase": {
+        "start_frame": 1,
+        "walk_end_frame": 32,
+        "run_end_frame": 24,
+        "opposite_side_offset": 0.5,
+        "stance_fraction_walk": 0.6,
+        "stance_fraction_run": 0.4,
+        "leg_pairing": "opposite left/right legs"
+      },
+      "states": {
+        "Idle": {
+          "clips": [
+            "Idle"
+          ]
+        },
+        "Locomotion": {
+          "clips": [
+            "Walk",
+            "Run"
+          ],
+          "blend_parameter": "planar_speed_mps",
+          "run_weight": "clamp((speed-walk_reference_speed)/(run_reference_speed-walk_reference_speed),0,1)",
+          "sample_at_shared_normalized_phase": true
+        },
+        "Turn": {
+          "clips": [
+            "TurnLeft90",
+            "TurnRight90"
+          ],
+          "root_yaw_degrees": [
+            90,
+            -90
+          ]
+        },
+        "Attack": {
+          "clips": [
+            "Attack"
+          ],
+          "suggested_contact_frames": [
+            18,
+            22
+          ],
+          "event_status": "suggested only"
+        },
+        "Jump": {
+          "clips": [
+            "Jump"
+          ],
+          "suggested_takeoff_frame": 8,
+          "suggested_landing_frame": 30,
+          "root_translation": false,
+          "visual_body_lift": true
+        },
+        "Hit": {
+          "clips": [
+            "Hit"
+          ]
+        },
+        "Death": {
+          "clips": [
+            "Death"
+          ],
+          "hold_last_frame": true
+        }
+      },
+      "transitions_seconds": {
+        "Idle_to_Locomotion": 0.15,
+        "Locomotion_to_Idle": 0.2,
+        "Walk_to_Run": 0.18,
+        "Run_to_Walk": 0.22,
+        "Turn_entry": 0.12,
+        "Turn_exit": 0.15,
+        "Attack_entry": 0.1,
+        "Attack_exit": 0.18,
+        "Hit_entry": 0.08,
+        "Hit_exit": 0.15
+      },
+      "authored_transition_clips": {
+        "WalkToRun": {
+          "frames": [
+            1,
+            18
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        },
+        "RunToWalk": {
+          "frames": [
+            1,
+            20
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        }
+      },
+      "root_motion_policy": {
+        "planar_translation": "in-place",
+        "turn_yaw": "consume once or strip before entity yaw",
+        "jump": "body bone visual lift; runtime physics displacement must avoid double lift"
+      },
+      "rotation_interpolation": "normalized quaternion shortest-path SLERP",
+      "reference_pose": "BindPose_A",
+      "neutral_transition_pose": "Idle"
+    },
+    "Animal_v1": {
+      "walk_reference_speed_mps": 0.7741935483870968,
+      "run_reference_speed_mps": 2.0869565217391304,
+      "speed_calibration": "Baked stance foot travel / stance duration; multiply by preset root_scale",
+      "cycle_phase": {
+        "start_frame": 1,
+        "walk_end_frame": 32,
+        "run_end_frame": 24,
+        "opposite_side_offset": 0.5,
+        "stance_fraction_walk": 0.6,
+        "stance_fraction_run": 0.4,
+        "leg_pairing": "diagonal trot"
+      },
+      "states": {
+        "Idle": {
+          "clips": [
+            "Idle"
+          ]
+        },
+        "Locomotion": {
+          "clips": [
+            "Walk",
+            "Run"
+          ],
+          "blend_parameter": "planar_speed_mps",
+          "run_weight": "clamp((speed-walk_reference_speed)/(run_reference_speed-walk_reference_speed),0,1)",
+          "sample_at_shared_normalized_phase": true
+        },
+        "Turn": {
+          "clips": [
+            "TurnLeft90",
+            "TurnRight90"
+          ],
+          "root_yaw_degrees": [
+            90,
+            -90
+          ]
+        },
+        "Attack": {
+          "clips": [
+            "Attack"
+          ],
+          "suggested_contact_frames": [
+            18,
+            22
+          ],
+          "event_status": "suggested only"
+        },
+        "Jump": {
+          "clips": [
+            "Jump"
+          ],
+          "suggested_takeoff_frame": 8,
+          "suggested_landing_frame": 30,
+          "root_translation": false,
+          "visual_body_lift": true
+        },
+        "Hit": {
+          "clips": [
+            "Hit"
+          ]
+        },
+        "Death": {
+          "clips": [
+            "Death"
+          ],
+          "hold_last_frame": true
+        }
+      },
+      "transitions_seconds": {
+        "Idle_to_Locomotion": 0.15,
+        "Locomotion_to_Idle": 0.2,
+        "Walk_to_Run": 0.18,
+        "Run_to_Walk": 0.22,
+        "Turn_entry": 0.12,
+        "Turn_exit": 0.15,
+        "Attack_entry": 0.1,
+        "Attack_exit": 0.18,
+        "Hit_entry": 0.08,
+        "Hit_exit": 0.15
+      },
+      "authored_transition_clips": {
+        "WalkToRun": {
+          "frames": [
+            1,
+            18
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        },
+        "RunToWalk": {
+          "frames": [
+            1,
+            20
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        }
+      },
+      "root_motion_policy": {
+        "planar_translation": "in-place",
+        "turn_yaw": "consume once or strip before entity yaw",
+        "jump": "body bone visual lift; runtime physics displacement must avoid double lift"
+      },
+      "rotation_interpolation": "normalized quaternion shortest-path SLERP",
+      "reference_pose": "BindPose_A",
+      "neutral_transition_pose": "Idle"
+    },
+    "Spider_v1": {
+      "walk_reference_speed_mps": 0.5483870967741936,
+      "run_reference_speed_mps": 1.434782608695652,
+      "speed_calibration": "Baked stance foot travel / stance duration; multiply by preset root_scale",
+      "cycle_phase": {
+        "start_frame": 1,
+        "walk_end_frame": 32,
+        "run_end_frame": 24,
+        "opposite_side_offset": 0.5,
+        "stance_fraction_walk": 0.6,
+        "stance_fraction_run": 0.4,
+        "leg_pairing": "alternating tetrapod"
+      },
+      "states": {
+        "Idle": {
+          "clips": [
+            "Idle"
+          ]
+        },
+        "Locomotion": {
+          "clips": [
+            "Walk",
+            "Run"
+          ],
+          "blend_parameter": "planar_speed_mps",
+          "run_weight": "clamp((speed-walk_reference_speed)/(run_reference_speed-walk_reference_speed),0,1)",
+          "sample_at_shared_normalized_phase": true
+        },
+        "Turn": {
+          "clips": [
+            "TurnLeft90",
+            "TurnRight90"
+          ],
+          "root_yaw_degrees": [
+            90,
+            -90
+          ]
+        },
+        "Attack": {
+          "clips": [
+            "Attack"
+          ],
+          "suggested_contact_frames": [
+            18,
+            22
+          ],
+          "event_status": "suggested only"
+        },
+        "Jump": {
+          "clips": [
+            "Jump"
+          ],
+          "suggested_takeoff_frame": 8,
+          "suggested_landing_frame": 30,
+          "root_translation": false,
+          "visual_body_lift": true
+        },
+        "Hit": {
+          "clips": [
+            "Hit"
+          ]
+        },
+        "Death": {
+          "clips": [
+            "Death"
+          ],
+          "hold_last_frame": true
+        }
+      },
+      "transitions_seconds": {
+        "Idle_to_Locomotion": 0.15,
+        "Locomotion_to_Idle": 0.2,
+        "Walk_to_Run": 0.18,
+        "Run_to_Walk": 0.22,
+        "Turn_entry": 0.12,
+        "Turn_exit": 0.15,
+        "Attack_entry": 0.1,
+        "Attack_exit": 0.18,
+        "Hit_entry": 0.08,
+        "Hit_exit": 0.15
+      },
+      "authored_transition_clips": {
+        "WalkToRun": {
+          "frames": [
+            1,
+            18
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        },
+        "RunToWalk": {
+          "frames": [
+            1,
+            20
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        }
+      },
+      "root_motion_policy": {
+        "planar_translation": "in-place",
+        "turn_yaw": "consume once or strip before entity yaw",
+        "jump": "body bone visual lift; runtime physics displacement must avoid double lift"
+      },
+      "rotation_interpolation": "normalized quaternion shortest-path SLERP",
+      "reference_pose": "BindPose_A",
+      "neutral_transition_pose": "Idle"
+    },
+    "Giant_v1": {
+      "walk_reference_speed_mps": 1.9741935483870972,
+      "run_reference_speed_mps": 5.106521739130434,
+      "speed_calibration": "Baked stance foot travel / stance duration; multiply by preset root_scale",
+      "cycle_phase": {
+        "start_frame": 1,
+        "walk_end_frame": 32,
+        "run_end_frame": 24,
+        "opposite_side_offset": 0.5,
+        "stance_fraction_walk": 0.6,
+        "stance_fraction_run": 0.4,
+        "leg_pairing": "opposite left/right legs"
+      },
+      "states": {
+        "Idle": {
+          "clips": [
+            "Idle"
+          ]
+        },
+        "Locomotion": {
+          "clips": [
+            "Walk",
+            "Run"
+          ],
+          "blend_parameter": "planar_speed_mps",
+          "run_weight": "clamp((speed-walk_reference_speed)/(run_reference_speed-walk_reference_speed),0,1)",
+          "sample_at_shared_normalized_phase": true
+        },
+        "Turn": {
+          "clips": [
+            "TurnLeft90",
+            "TurnRight90"
+          ],
+          "root_yaw_degrees": [
+            90,
+            -90
+          ]
+        },
+        "Attack": {
+          "clips": [
+            "Attack"
+          ],
+          "suggested_contact_frames": [
+            18,
+            22
+          ],
+          "event_status": "suggested only"
+        },
+        "Jump": {
+          "clips": [
+            "Jump"
+          ],
+          "suggested_takeoff_frame": 8,
+          "suggested_landing_frame": 30,
+          "root_translation": false,
+          "visual_body_lift": true
+        },
+        "Hit": {
+          "clips": [
+            "Hit"
+          ]
+        },
+        "Death": {
+          "clips": [
+            "Death"
+          ],
+          "hold_last_frame": true
+        }
+      },
+      "transitions_seconds": {
+        "Idle_to_Locomotion": 0.15,
+        "Locomotion_to_Idle": 0.2,
+        "Walk_to_Run": 0.18,
+        "Run_to_Walk": 0.22,
+        "Turn_entry": 0.12,
+        "Turn_exit": 0.15,
+        "Attack_entry": 0.1,
+        "Attack_exit": 0.18,
+        "Hit_entry": 0.08,
+        "Hit_exit": 0.15
+      },
+      "authored_transition_clips": {
+        "WalkToRun": {
+          "frames": [
+            1,
+            18
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        },
+        "RunToWalk": {
+          "frames": [
+            1,
+            20
+          ],
+          "entry_normalized_phase": 0,
+          "exit_normalized_phase": 0
+        }
+      },
+      "root_motion_policy": {
+        "planar_translation": "in-place",
+        "turn_yaw": "consume once or strip before entity yaw",
+        "jump": "body bone visual lift; runtime physics displacement must avoid double lift"
+      },
+      "rotation_interpolation": "normalized quaternion shortest-path SLERP",
+      "reference_pose": "BindPose_A",
+      "neutral_transition_pose": "Idle"
+    }
+  },
+  "preset_scales": {
+    "Pilgrim": 1,
+    "Healer": 1,
+    "Warden": 1,
+    "Scavenger": 1,
+    "InfectedWanderer": 1,
+    "Body_7H": 1,
+    "Weak_StarvedHound": 0.8,
+    "Danger_ThornHound": 1,
+    "Boss_HiveHart": 1.65,
+    "Weak_AshWeaver": 0.65,
+    "Danger_ThornWeaver": 1,
+    "Boss_BroodMatriarch": 1.65,
+    "Weak_HollowThrall": 0.85,
+    "Danger_RibBrute": 1.1,
+    "Boss_CrownedAbomination": 1.5
+  }
+}

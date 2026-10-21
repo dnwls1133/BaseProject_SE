@@ -1,0 +1,47 @@
+{
+  "export_animation_mode": [
+    [
+      "ACTIONS",
+      "Export actions (actives and on NLA tracks) as separate animations"
+    ],
+    [
+      "ACTIVE_ACTIONS",
+      "All the currently assigned actions become one glTF animation"
+    ],
+    [
+      "BROADCAST",
+      "Broadcast all compatible actions to all objects. Animated objects will get all actions compatible with them, others will get no animation at all"
+    ],
+    [
+      "NLA_TRACKS",
+      "Export individual NLA Tracks as separate animation"
+    ],
+    [
+      "SCENE",
+      "Export baked scene as a single animation"
+    ]
+  ],
+  "export_nla_strips": true,
+  "export_action_filter": false,
+  "export_anim_single_armature": true,
+  "export_reset_pose_bones": true,
+  "export_materials": [
+    [
+      "EXPORT",
+      "Export all materials used by included objects"
+    ],
+    [
+      "PLACEHOLDER",
+      "Do not export materials, but write multiple primitive groups per mesh, keeping material slot information"
+    ],
+    [
+      "VIEWPORT",
+      "Export minimal materials as defined in Viewport display properties"
+    ],
+    [
+      "NONE",
+      "Do not export materials, and combine mesh primitive groups, losing material slot information"
+    ]
+  ],
+  "export_shared_accessors": false
+}
