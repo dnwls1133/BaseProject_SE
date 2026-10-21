@@ -164,6 +164,9 @@ void main()
     }
     if (material == 9)
     {
+        float veins = sin(worldPosition.x * 5.0 + sin(worldPosition.z * 3.0)) *
+                      sin(worldPosition.z * 4.0 + time * .3);
+        result *= .82 + .18 * smoothstep(-.2, .4, veins);
         result += vec3(.09, .008, .02) * (1.0 + sin(time + worldPosition.x));
     }
     float fog = smoothstep(18.0, 62.0, length(worldPosition.xz - focus.xz)) * .68;

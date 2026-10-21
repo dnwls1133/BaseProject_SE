@@ -1,85 +1,59 @@
-# Definitions precede references. Traits: courage greed compassion suspicion zeal curiosity individuality.
 version 1
 rules 6 60 16 180 720 32 14 3 1.5 .8 2 -45
 weights .15 .2 .6 .8 .4 .5 .3 .9 .5 .8
-faction church "성혈 교단" "제국과 성혈의 질서를 지킨다" cathedral ChurchRegalia 0.78 0.55 0.25 0.3 12
-faction union "북부 자치연합" "굶주린 이웃과 함께 살아남는다" refuge RefugeGear 0.37 0.67 0.39 -0.1 8
-faction spore "포자 공동체" "자아를 지키며 연결 속에서 공존한다" growth SporeMantle 0.77 0.35 0.55 -0.85 6
-faction research "성혈 연구회" "기억과 기록으로 성혈의 진실을 찾는다" shallows ResearchGear 0.35 0.64 0.79 -0.25 10
-faction purge "정화 기사단" "감염을 막되 지켜야 할 생명을 묻는다" graves PurgeArmor 0.84 0.78 0.6 0.95 14
-territory refuge union .45 .5 .25 .2 .25
-territory pilgrimage union .45 .5 .25 .2 .25
-territory graves purge .45 .5 .25 .2 .25
-territory marsh spore .45 .5 .25 .2 .25
-territory cathedral church .45 .5 .25 .2 .25
-territory growth spore .45 .5 .25 .2 .25
-territory burial church .45 .5 .25 .2 .25
-territory redfield purge .45 .5 .25 .2 .25
-territory shallows research .45 .5 .25 .2 .25
-npc church_0 "에드릭" leader rule church cathedral Pilgrim 160.8 102.34 0.65 0.3 0.55 0.3 0.65 0.35 0.45 3 0.15 6 1.9
-npc church_1 "마르타" guard protect church cathedral Pilgrim 164.0 102.34 0.85 0.2 0.35 0.3 0.65 0.35 0.45 4 0.15 10 2.3
-npc church_2 "세베린" merchant profit church cathedral Pilgrim 167.2 102.34 0.35 0.85 0.35 0.3 0.65 0.35 0.45 5 0.15 6 1.9
-npc church_3 "이레나" healer aid church cathedral Pilgrim 80.8 47.66 0.3 0.15 0.9 0.3 0.65 0.35 0.85 6 0.15 6 1.9
-npc church_4 "카시안" scholar research church cathedral Pilgrim 80.8 52.34 0.4 0.3 0.65 0.3 0.65 0.85 0.85 7 0.15 6 1.9
-npc union_0 "아델" leader rule union refuge Pilgrim 36.0 49.22 0.65 0.3 0.55 0.35 0.2 0.35 0.45 3 0.15 6 1.9
-npc union_1 "로안" guard protect union refuge Pilgrim 39.2 49.22 0.85 0.2 0.35 0.35 0.2 0.35 0.45 4 0.15 10 2.3
-npc union_2 "밀라" merchant profit union refuge Pilgrim 42.4 49.22 0.35 0.85 0.35 0.35 0.2 0.35 0.45 5 0.15 6 1.9
-npc union_3 "테오" healer aid union refuge Pilgrim 84.0 47.66 0.3 0.15 0.9 0.35 0.2 0.35 0.85 6 0.15 6 1.9
-npc union_4 "네리" refugee survive union refuge Pilgrim 84.0 52.34 0.4 0.3 0.65 0.35 0.2 0.35 0.85 7 0.15 6 1.9
-npc spore_0 "세라" leader connect spore growth Pilgrim 215.2 149.22 0.65 0.3 0.55 0.4 0.2 0.35 0.45 3 0.6 6 1.9
-npc spore_1 "모르" guard protect spore growth Pilgrim 218.4 149.22 0.85 0.2 0.35 0.4 0.2 0.35 0.45 4 0.6 10 2.3
-npc spore_2 "리안" merchant profit spore growth Pilgrim 221.6 149.22 0.35 0.85 0.35 0.4 0.2 0.35 0.45 5 0.6 6 1.9
-npc spore_3 "에바" healer aid spore growth Pilgrim 87.2 47.66 0.3 0.15 0.9 0.4 0.2 0.35 0.85 6 0.6 6 1.9
-npc spore_4 "노아" refugee connect spore growth Pilgrim 87.2 52.34 0.4 0.3 0.65 0.4 0.2 0.35 0.85 7 0.6 6 1.9
-npc research_0 "벨렌" leader rule research shallows Pilgrim 215.2 64.84 0.65 0.3 0.55 0.45 0.2 0.35 0.45 3 0.15 6 1.9
-npc research_1 "유나" guard protect research shallows Pilgrim 218.4 64.84 0.85 0.2 0.35 0.45 0.2 0.35 0.45 4 0.15 10 2.3
-npc research_2 "오르" merchant profit research shallows Pilgrim 40.5 52.5 0.35 0.85 0.35 0.45 0.2 0.35 0.45 5 0.15 6 1.9
-npc research_3 "레아" healer aid research shallows Pilgrim 90.4 47.66 0.3 0.15 0.9 0.45 0.2 0.35 0.85 6 0.15 6 1.9
-npc research_4 "실렌" scholar research research shallows Pilgrim 90.4 52.34 0.4 0.3 0.65 0.45 0.2 0.85 0.85 7 0.15 6 1.9
-npc purge_0 "가렌" leader purify purge graves Pilgrim 151.2 42.97 0.65 0.3 0.55 0.5 0.85 0.35 0.45 3 0.15 6 1.9
+faction purge "정화 기사단" "마을의 생존을 위해 군체를 불태운다" graves PurgeArmor .84 .78 .6 .95 20
+faction hive "군체" "생존과 의지를 하나의 감염망으로 흡수한다" growth SporeMantle .55 .14 .32 -.95 20
+territory refuge purge .6 .3 .1 .3 .2
+territory pilgrimage purge .6 .3 .1 .3 .2
+territory graves purge .6 .3 .1 .3 .2
+territory marsh hive .6 .3 .8 .3 .2
+territory cathedral purge .6 .3 .1 .3 .2
+territory growth hive .6 .3 .8 .3 .2
+territory burial hive .6 .3 .8 .3 .2
+territory redfield hive .6 .3 .8 .3 .2
+territory shallows hive .6 .3 .8 .3 .2
+npc church_0 "에드릭" merchant rule purge cathedral Pilgrim 160.8 102.34 0.65 0.3 0.55 0.3 0.65 0.35 0.45 3 0.15 6 1.9
+npc church_1 "마르타" guard protect purge cathedral Pilgrim 164.0 102.34 0.85 0.2 0.35 0.3 0.65 0.35 0.45 4 0.15 10 2.3
+npc church_2 "세베린" merchant profit purge cathedral Pilgrim 167.2 102.34 0.35 0.85 0.35 0.3 0.65 0.35 0.45 5 0.15 6 1.9
+npc church_3 "이레나" healer aid purge pilgrimage Pilgrim 80.8 47.66 0.3 0.15 0.9 0.3 0.65 0.35 0.85 6 0.15 6 1.9
+npc church_4 "카시안" scholar research purge pilgrimage Pilgrim 80.8 52.34 0.4 0.3 0.65 0.3 0.65 0.85 0.85 7 0.15 6 1.9
+npc union_0 "아델" merchant rule purge refuge Pilgrim 36.0 49.22 0.65 0.3 0.55 0.35 0.2 0.35 0.45 3 0.15 6 1.9
+npc union_1 "로안" guard protect purge refuge Pilgrim 39.2 49.22 0.85 0.2 0.35 0.35 0.2 0.35 0.45 4 0.15 10 2.3
+npc union_2 "밀라" merchant profit purge refuge Pilgrim 42.4 49.22 0.35 0.85 0.35 0.35 0.2 0.35 0.45 5 0.15 6 1.9
+npc union_3 "테오" healer aid purge pilgrimage Pilgrim 84.0 47.66 0.3 0.15 0.9 0.35 0.2 0.35 0.85 6 0.15 6 1.9
+npc union_4 "네리" refugee survive purge pilgrimage Pilgrim 84.0 52.34 0.4 0.3 0.65 0.35 0.2 0.35 0.85 7 0.15 6 1.9
+npc spore_0 "골격 분쇄자 1" leader connect hive marsh Brute 72.5 72.5 .95 .05 .05 .8 .95 .2 .1 3 1 12 1.5
+npc spore_1 "갈고리 잠식자 2" guard connect hive marsh Crawler 75.5 72.5 .95 .05 .05 .8 .95 .2 .1 4 1 12 2.2
+npc spore_2 "포자 토사체 3" guard connect hive marsh Infected 72.5 75.5 .95 .05 .05 .8 .95 .2 .1 5 1 12 2.2
+npc spore_3 "균사 파종자 4" guard connect hive marsh Infected 75.5 75.5 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
+npc spore_4 "포자 토사체 5" guard connect hive growth Infected 218 147 .95 .05 .05 .8 .95 .2 .1 7 1 12 2.2
+npc research_0 "골격 분쇄자 6" guard connect hive growth Brute 221 149 .95 .05 .05 .8 .95 .2 .1 3 1 12 1.5
+npc research_1 "갈고리 잠식자 7" guard connect hive growth Crawler 218 151 .95 .05 .05 .8 .95 .2 .1 4 1 12 2.2
+npc research_2 "포자 토사체 8" guard connect hive growth Infected 221 153 .95 .05 .05 .8 .95 .2 .1 5 1 12 2.2
+npc research_3 "균사 파종자 9" guard connect hive redfield Infected 154 166 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
+npc research_4 "포자 토사체 10" guard connect hive redfield Infected 157 168 .95 .05 .05 .8 .95 .2 .1 7 1 12 2.2
+npc purge_0 "가렌 · 기사단장" leader purify purge graves Pilgrim 151.2 42.97 0.65 0.3 0.55 0.5 0.85 0.35 0.45 3 0.15 6 1.9
 npc purge_1 "엘사" guard purify purge graves Pilgrim 154.4 42.97 0.85 0.2 0.35 0.5 0.85 0.35 0.45 4 0.15 10 2.3
 npc purge_2 "다릭" merchant profit purge graves Pilgrim 157.6 42.97 0.35 0.85 0.35 0.5 0.85 0.35 0.45 5 0.15 6 1.9
-npc purge_3 "루스" healer aid purge graves Pilgrim 93.6 47.66 0.3 0.15 0.9 0.5 0.85 0.35 0.85 6 0.15 6 1.9
-npc purge_4 "에단" guard purify purge graves Pilgrim 93.6 52.34 0.85 0.3 0.35 0.5 0.85 0.85 0.85 7 0.15 10 1.9
-npc union_5 "하린" guard protect union refuge Pilgrim 36.5 51.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc union_6 "보른" guard protect union refuge Pilgrim 38.5 51.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc union_7 "유엘" guard protect union refuge Pilgrim 40.5 51.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc church_5 "마렉" guard protect church cathedral Pilgrim 161.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc church_6 "엘린" guard protect church cathedral Pilgrim 163.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc church_7 "바르" guard protect church cathedral Pilgrim 165.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc spore_5 "이솔" guard protect spore growth Pilgrim 68.5 69.5 .85 .2 .45 .45 .35 .35 .45 6 .6 12 2.3
-npc spore_6 "루엔" guard protect spore growth Pilgrim 70.5 69.5 .85 .2 .45 .45 .35 .35 .45 6 .6 12 2.3
-npc spore_7 "미르" guard protect spore growth Pilgrim 220.5 151.5 .85 .2 .45 .45 .35 .35 .45 6 .6 12 2.3
-npc research_5 "도린" guard protect research shallows Pilgrim 216.5 66.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc research_6 "카엘" guard protect research shallows Pilgrim 218.5 66.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc research_7 "리브" guard protect research shallows Pilgrim 220.5 66.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
-npc purge_5 "세인" guard protect purge graves Pilgrim 59.5 60.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
-npc purge_6 "루카" guard protect purge graves Pilgrim 61.5 60.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
+npc purge_3 "루스" healer aid purge pilgrimage Pilgrim 93.6 47.66 0.3 0.15 0.9 0.5 0.85 0.35 0.85 6 0.15 6 1.9
+npc purge_4 "에단" guard purify purge pilgrimage Pilgrim 93.6 52.34 0.85 0.3 0.35 0.5 0.85 0.85 0.85 7 0.15 10 1.9
+npc union_5 "하린" guard protect purge refuge Pilgrim 64.5 61.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
+npc union_6 "보른" guard protect purge refuge Pilgrim 66.5 63.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
+npc union_7 "유엘" guard protect purge refuge Pilgrim 40.5 51.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
+npc church_5 "마렉" guard protect purge cathedral Pilgrim 161.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
+npc church_6 "엘린" guard protect purge cathedral Pilgrim 163.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
+npc church_7 "바르" guard protect purge cathedral Pilgrim 165.5 104.5 .85 .2 .45 .45 .35 .35 .45 6 .15 12 2.3
+npc spore_5 "갈고리 잠식자 11" guard connect hive redfield Crawler 154 170 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
+npc spore_6 "골격 분쇄자 12" guard connect hive redfield Brute 157 172 .95 .05 .05 .8 .95 .2 .1 6 1 12 1.5
+npc spore_7 "균사 파종자 13" guard connect hive shallows Infected 218 62 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
+npc research_5 "갈고리 잠식자 14" guard connect hive shallows Crawler 221 64 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
+npc research_6 "골격 분쇄자 15" guard connect hive shallows Brute 218 66 .95 .05 .05 .8 .95 .2 .1 6 1 12 1.5
+npc research_7 "균사 파종자 16" guard connect hive shallows Infected 221 68 .95 .05 .05 .8 .95 .2 .1 6 1 12 2.2
+npc purge_5 "세인" guard protect purge graves Pilgrim 60.5 61.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
+npc purge_6 "루카" guard protect purge graves Pilgrim 62.5 63.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
 npc purge_7 "헤르" guard protect purge graves Pilgrim 156.5 45.5 .85 .2 .45 .45 .8 .35 .45 6 .15 12 2.3
-diplomacy church union -10
-diplomacy church spore -35
-diplomacy church research 20
-diplomacy church purge 35
-diplomacy union spore 20
-diplomacy union research 15
-diplomacy union purge -25
-diplomacy spore research 30
-diplomacy spore purge -70
-diplomacy research purge -45
-relationship church_4 church_0 -40 -15 0 5 0 -30
-relationship church_4 church_3 35 20 15 0 10 30
-relationship church_3 church_4 30 20 15 0 10 30
-
-# faction / creature affinity. Negative: threat; nonnegative: coexistence.
-ecology spore crawler 60
-ecology spore penitent -35
-ecology spore bellkeeper -60
-ecology church penitent 15
-ecology church bellkeeper 25
-war_rules -60 2 0.35 1440
-story Simulation/level1.story
-
+diplomacy purge hive -100
+war_rules -60 2 .35 1440
 life Simulation/level1.life
-
-# factionA factionB objectiveRegion rallyAx rallyAy rallyBx rallyBy
-frontier purge spore marsh 60.5 60.5 68.5 69.5
+economy Simulation/level1.economy
+conflict Simulation/level1.conflict

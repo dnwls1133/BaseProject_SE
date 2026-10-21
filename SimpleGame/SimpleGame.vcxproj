@@ -171,6 +171,7 @@
     <ClInclude Include="LevelData.h" />
     <ClInclude Include="WorldSimulation.h" />
     <ClInclude Include="WorldSociety.h" />
+    <ClInclude Include="Economy.h" />
     <ClInclude Include="ModelCache.h" />
     <ClInclude Include="RandomLevelMap.h" />
     <ClInclude Include="RpgStats.h" />
@@ -184,6 +185,11 @@
     <ClCompile Include="Terrain3D.cpp" />
     <ClCompile Include="NpcLifeData.cpp" />
     <ClCompile Include="NpcLife.cpp" />
+    <ClCompile Include="NpcPlanning.cpp" />
+    <ClCompile Include="SocietyEconomyInteraction.cpp" />
+    <ClCompile Include="SocietyEconomy.cpp" />
+    <ClCompile Include="SocietyEconomyTrade.cpp" />
+    <ClCompile Include="SocietyEconomySave.cpp" />
     <ClCompile Include="NpcLifeSave.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Profiler.cpp" />
@@ -207,6 +213,9 @@
     <ClCompile Include="SocietyData.cpp" />
     <ClCompile Include="WorldSociety.cpp" />
     <ClCompile Include="SocietyCombat.cpp" />
+    <ClCompile Include="SocietyConflict.cpp" />
+    <ClCompile Include="SocietyConflictCombat.cpp" />
+    <ClCompile Include="SocietyConflictSave.cpp" />
     <ClCompile Include="SocietyFactions.cpp" />
     <ClCompile Include="SocietyAI.cpp" />
     <ClCompile Include="ModelCache.cpp" />

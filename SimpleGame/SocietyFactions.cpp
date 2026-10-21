@@ -11,6 +11,11 @@
 
 void WorldSociety::SetFaction(int index, int faction, const std::string& reason)
 {
+    if (conflictEnabled)
+    {
+        return;
+    }
+
     auto& npc = npcs[index];
     const int previous = npc.faction;
     if (previous == faction)
@@ -28,6 +33,11 @@ void WorldSociety::SetFaction(int index, int faction, const std::string& reason)
 
 void WorldSociety::FactionTick(WorldSimulation& world)
 {
+    if (conflictEnabled)
+    {
+        return;
+    }
+
     PROFILE_SCOPE(FactionDecision);
     Profile::Add(Profile::Metric::FactionDecisions);
     // Mutations occur here, outside Actor/Scene iteration. No references survive an append.
@@ -262,12 +272,15 @@ void WorldSociety::FactionTick(WorldSimulation& world)
         }
         const int strongest =
             static_cast<int>(std::max_element(presence.begin(), presence.end()) - presence.begin());
-        const bool contested = std::any_of(campaigns.begin(), campaigns.end(),
-                                           [&](const Campaign& c)
-                                           {
-                                               return c.active && c.region == static_cast<int>(r) &&
-                                                      c.attacker == strongest;
-                                           });
+        const bool contested = std::any_of(
+            campaigns.begin(), campaigns.end(),
+            [&](const Campaign& c)
+            {
+                return c.active &&
+                       ((c.region == static_cast<int>(r) && c.attacker == strongest) ||
+                        (c.stage == 4 && factions[c.attacker].home == static_cast<int>(r) &&
+                         c.defender == strongest));
+            });
         if (presence[strongest] >= 3 &&
             (region.owner < 0 ||
              (contested && strongest != region.owner && presence[region.owner] == 0 &&

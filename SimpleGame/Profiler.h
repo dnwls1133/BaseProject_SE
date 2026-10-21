@@ -6,6 +6,11 @@
 
 // Stable keys are the public JSONL schema. Timers are inclusive wall times, not CPU cycles.
 #define PROFILE_METRICS(X)                                                                         \
+    X(ConflictField, cpu_contamination_update_ms)                                                  \
+    X(ConflictCombat, cpu_faction_combat_ms)                                                       \
+    X(ContaminatedCells, contamination_cell_count)                                                 \
+    X(BurningCells, burning_cell_count)                                                            \
+    X(ConflictStrikes, faction_attack_resolved_count)                                              \
     X(FrameInterval, frame_present_interval_ms)                                                    \
     X(Update, cpu_update_ms)                                                                       \
     X(Render, cpu_render_submit_ms)                                                                \
@@ -143,6 +148,13 @@
     X(World3DSmallLod, world_3d_small_lod_count)                                                   \
     X(SceneBoundsRebuild, scene_3d_bounds_rebuild_count)                                           \
     X(StaticModelParts, static_model_cached_part_count)                                            \
+    X(EconomyDecision, cpu_economy_decision_ms)                                                    \
+    X(EconomyProduction, cpu_economy_production_ms)                                                \
+    X(EconomyTransfer, cpu_economy_transfer_ms)                                                    \
+    X(EconomyOrders, economy_active_order_count)                                                   \
+    X(EconomyDeliveries, economy_delivery_count)                                                   \
+    X(NpcPlanning, cpu_npc_goal_planning_ms)                                                       \
+    X(NpcPlanTransitions, npc_plan_transition_count)                                               \
     X(NpcLife, cpu_npc_life_ms)                                                                    \
     X(NpcPlans, npc_active_plan_count)                                                             \
     X(NpcAgreements, npc_active_agreement_count)                                                   \

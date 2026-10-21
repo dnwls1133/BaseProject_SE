@@ -427,12 +427,16 @@ void LevelOne::Kill(Enemy& enemy, bool playerCredit)
 
 void LevelOne::Attack()
 {
-    // Deliberate hostile action: hold X while attacking to include inhabitants.
-    if (keys['x'])
+    // Hive units are ordinary hostiles; X is still required to attack inhabitants.
+    if (keys['x'] || society.TwoFactionWar())
     {
         for (std::size_t i = 0; i < society.Npcs().size(); ++i)
         {
             const auto& npc = society.Npcs()[i];
+            if (!keys['x'] && !society.IsHive(int(i)))
+            {
+                continue;
+            }
             const float dx = npc.x - player.x, dy = npc.y - player.y;
             const float distance = std::hypot(dx, dy);
             const float alignment =
@@ -645,6 +649,55 @@ void LevelOne::Render(Renderer& r)
 void LevelOne::DrawGround(Renderer& r)
 {
     terrain3D.Draw(r);
+    const auto& cells = society.ContaminationCells();
+    const int width = society.ContaminationWidth();
+    const float size = society.ContaminationCellSize();
+    if (!width)
+    {
+        return;
+    }
+    // The terrain CallbackActor owns this pass. Only visible vicinity is submitted;
+    // simulation continues over the whole map, independent of this rendering bound.
+    const int height = int(cells.size()) / width;
+    const int x0 = std::max(0, int((cx - 40) / size));
+    const int x1 = std::min(width - 1, int((cx + 40) / size));
+    const int y0 = std::max(0, int((cy - 40) / size));
+    const int y1 = std::min(height - 1, int((cy + 40) / size));
+    for (int y = y0; y <= y1; ++y)
+    {
+        for (int x = x0; x <= x1; ++x)
+        {
+            const auto& cell = cells[y * width + x];
+            if (cell.density < .015f && cell.scar <= 0)
+            {
+                continue;
+            }
+            for (int part = 0; part < 4; ++part)
+            {
+                const float px = (x + .25f + (part % 2) * .5f) * size;
+                const float py = (y + .25f + (part / 2) * .5f) * size;
+                if (!map.CanStand(px, py))
+                {
+                    continue;
+                }
+                const float coverage =
+                    cell.scar > 0 ? .95f : std::min(1.f, .15f + cell.density * 1.5f);
+                const float radius = size * .34f * coverage;
+                r.Submit3D(1,
+                           Mat4::Translation({px, Terrain3D::Height(px, py) + .025f, py}) *
+                               Mat4::Scale({radius, .055f, radius}),
+                           cell.scar > 0 ? Color(.07f, .065f, .06f) : Color(.29f, .055f, .13f),
+                           cell.scar > 0 ? Material::Earth : Material::Organic);
+                if (cell.fire > 0)
+                {
+                    r.Submit3D(1,
+                               Mat4::Translation({px, Terrain3D::Height(px, py) + .4f, py}) *
+                                   Mat4::Scale({.22f, .65f, .22f}),
+                               Color(.9f, .23f, .025f), Material::Flame);
+                }
+            }
+        }
+    }
 }
 
 void LevelOne::DrawAtmosphere(Renderer& r)

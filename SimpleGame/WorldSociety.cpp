@@ -88,6 +88,7 @@ void WorldSociety::Update(float dt, WorldSimulation& world, const RandomLevelMap
                 .push_back(static_cast<int>(i));
         }
     }
+    TickContamination(dt, world, map);
     const auto previous = minute;
     minute = world.Minute();
     if (minute > previous)
@@ -113,6 +114,7 @@ void WorldSociety::Update(float dt, WorldSimulation& world, const RandomLevelMap
         }
         Deliver(world);
         StoryTick(world, map, player);
+        EconomyTick(world);
         LifeTick(minute - previous, world, map);
         if (minute >= lastFactionTick + rules.factionPeriod)
         {
@@ -132,6 +134,12 @@ void WorldSociety::Update(float dt, WorldSimulation& world, const RandomLevelMap
             ++activePlans;
         }
     }
+    Profile::Set(Profile::Metric::EconomyOrders,
+                 double(std::count_if(economyOrders.begin(), economyOrders.end(),
+                                      [](const EconomyOrder& order)
+                                      {
+                                          return order.stage < 4;
+                                      })));
     // Emit gauges even on frames without a world-minute decision tick.
     Profile::Set(Profile::Metric::NpcPlans, double(activePlans));
     Profile::Set(Profile::Metric::NpcAgreements, double(agreements.size()));

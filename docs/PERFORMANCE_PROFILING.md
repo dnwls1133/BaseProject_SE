@@ -146,3 +146,12 @@ A* 탐색 노드/예산 대기/실패/부분 경로, 그림자 인스턴스, 작
 - cpu_world_monitor_snapshot_ms: 첫 레벨에서 약 1초마다 상태 JSON을 구성하고 작업 스레드에 제출하는 게임 스레드 시간. 별도 스레드의 파일 I/O는 포함하지 않는다. 대기 스냅샷은 최신 하나만 유지한다.
 - snapshot.json의 attack_attempts/hits/misses/damage_dealt와 last_attack은 현재 세션 진단이다. 준비 취소는 완료 시도 수에 포함하지 않으며 damage_dealt는 NPC/몬스터 체력 감소량만 포함한다. 영속 사건 전체 기록은 기존 JSONL을 사용한다. 모니터 최근 사건은 제한된 History다.
 - 새 궤적/파편도 기존 3D 배치를 사용하나 실제 draw call/인스턴스/GPU 비용은 사용자 실측으로 판단한다. 빌드·실행·테스트·성능 확인은 수행하지 않았다.
+
+## 경제 계측 — 2026-10-14
+- cpu_economy_decision_ms: 주문 생성·취소·가격 판단. cpu_economy_production_ms: 현장 생산 처리. cpu_economy_transfer_ms: 화물 출고/납품 처리. 부모 생활/사회 시간과 중복 합산하지 않는다.
+- economy_active_order_count: 미완료 주문 수. economy_delivery_count: 실제 납품 횟수. society_change의 economy_* 사건에 거래 ID·원인·재고 변화·취소 사유를 기록한다.
+- 주문은 최대 64개, 판단은 세계 분 주기로 제한한다. 새 기능의 CPU/GPU 비용과 FPS는 아직 측정하지 않았다.
+
+## 지속 목표 계측 — 2026-10-21
+- cpu_npc_goal_planning_ms: 목표 유지/완료 판단, 알려진 작업장 후보 평가와 단계 선택 시간. npc_plan_transition_count: 실제 실행 단계 전환 횟수. 부모 NpcLife 시간과 중복 합산하지 않는다.
+- society_change의 npc_goal_selected/npc_plan_stage에 계획 ID와 원인·판단 값을 기록한다. 모니터의 behavior_model, plan 및 계약 담당자 필드로 실행 버전과 정체 지점을 구분한다. 성능 실측 전이다.

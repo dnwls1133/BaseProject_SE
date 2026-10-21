@@ -34,7 +34,8 @@ bool WorldSociety::CampaignGoal(int index, Point& goal) const
         }
         else
         {
-            goal = {regions[c.region].x, regions[c.region].y};
+            const int target = c.stage == 4 ? factions[c.attacker].home : c.region;
+            goal = {regions[target].x, regions[target].y};
         }
         // Stable formation slots prevent all soldiers walking onto one point.
         goal.x += float(index % 3 - 1) * 1.1f;
@@ -79,6 +80,11 @@ bool WorldSociety::CampaignOrder(int index)
 
 void WorldSociety::CampaignTick(WorldSimulation& world)
 {
+    if (conflictEnabled)
+    {
+        return;
+    }
+
     PROFILE_SCOPE(WarDecision);
     auto strength = [&](int faction)
     {
@@ -100,7 +106,8 @@ void WorldSociety::CampaignTick(WorldSimulation& world)
         }
         auto& a = factions[c.attacker];
         auto& b = factions[c.defender];
-        const bool captured = regions[c.region].owner == c.attacker;
+        const bool captured = c.stage == 4 ? regions[a.home].owner == c.defender
+                                           : regions[c.region].owner == c.attacker;
         const bool exhausted = a.supplies < warCost || b.supplies < warCost ||
                                strength(c.attacker) < 1 || strength(c.defender) < 1;
         const bool settled =
@@ -161,6 +168,10 @@ void WorldSociety::CampaignTick(WorldSimulation& world)
         {
             c.stage = 3;
         }
+        else if (c.stage == 2 && fieldB >= 2 && fieldA == 0)
+        {
+            c.stage = 4;
+        }
         if (c.stage != previousStage)
         {
             c.stageSince = minute;
@@ -168,6 +179,7 @@ void WorldSociety::CampaignTick(WorldSimulation& world)
                    std::to_string(c.stage),
                    c.stage == 1   ? "집결 후 전선으로 이동"
                    : c.stage == 2 ? "양측 병력 전선 접촉"
+                   : c.stage == 4 ? "수비대가 전선을 확보하고 공격 측 거점으로 반격"
                                   : "수비선 이탈을 확인하고 거점으로 진격");
         }
         const float beforeA = a.supplies, beforeB = b.supplies;

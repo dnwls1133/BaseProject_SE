@@ -1,6 +1,6 @@
 # Open countryside. Terrain: 0 blocked outcrop, 1 paving, 2 shallow water, 3 meadow, 4 dirt road.
 version 1
-title "성혈의 변경 · 다섯 세력"
+title "성혈의 변경 · 정화와 군체"
 introduction "성혈의 변경 · F 주민 대화 · J 세계 기록 · K 저장 · L 불러오기. 주민들은 당신 없이도 행동합니다."
 size 256 200
 start 38 47
@@ -12,15 +12,15 @@ society Simulation/level1.society
 goal 3 1 1
 
 # Region: id style name centerX centerY radiusX radiusY floorRGB waterRGB fogRGBA populationCount enemyIDs...
-region refuge 0 "북부 피난지" 38 47 19 16 .30 .34 .28 .10 .23 .22 .36 .45 .43 .13 0
-region pilgrimage 1 "국경 교역로" 86 50 22 16 .28 .30 .23 .10 .23 .22 .36 .45 .43 .12 1 penitent
-region graves 2 "정화 기사단 전초" 154 41 22 19 .29 .28 .22 .16 .21 .19 .39 .40 .34 .15 3 penitent penitent bellkeeper
-region marsh 3 "성혈의 습지" 86 109 26 19 .23 .29 .25 .105 .24 .25 .36 .45 .43 .17 3 crawler crawler bellkeeper
-region cathedral 4 "성도 외곽 수도원" 163 100 26 22 .33 .35 .30 .10 .23 .22 .36 .45 .43 .14 4 penitent crawler bellkeeper penitent
-region growth 5 "포자 공동체의 숲" 218 147 22 19 .26 .29 .23 .25 .105 .14 .43 .23 .27 .15 3 crawler crawler bellkeeper
-region burial 2 "버려진 운구 행렬" 35 150 19 19 .29 .28 .22 .16 .21 .19 .39 .40 .34 .12 3 penitent crawler bellkeeper
-region redfield 5 "붉은 분쟁지" 154 166 22 16 .27 .29 .23 .25 .105 .14 .43 .23 .27 .14 3 crawler penitent bellkeeper
-region shallows 3 "침수된 기록도시" 218 62 22 22 .23 .29 .26 .105 .24 .25 .36 .45 .43 .15 3 crawler penitent bellkeeper
+region refuge 0 "기사단 피난 마을" 38 47 19 16 .30 .34 .28 .10 .23 .22 .36 .45 .43 .13 0
+region pilgrimage 1 "기사단 보급 교역촌" 86 50 22 16 .28 .30 .23 .10 .23 .22 .36 .45 .43 .12 0
+region graves 2 "정화 요새" 154 41 22 19 .29 .28 .22 .16 .21 .19 .39 .40 .34 .15 0
+region marsh 3 "잠식된 습지" 86 109 26 19 .23 .29 .25 .105 .24 .25 .36 .45 .43 .17 0
+region cathedral 4 "정화 수도원" 163 100 26 22 .33 .35 .30 .10 .23 .22 .36 .45 .43 .14 0
+region growth 5 "군체 심장림" 218 147 22 19 .26 .29 .23 .25 .105 .14 .43 .23 .27 .15 0
+region burial 2 "변이자의 묘역" 35 150 19 19 .29 .28 .22 .16 .21 .19 .39 .40 .34 .12 0
+region redfield 5 "핏빛 산란지" 154 166 22 16 .27 .29 .23 .25 .105 .14 .43 .23 .27 .14 0
+region shallows 3 "침수된 군체 둥지" 218 62 22 22 .23 .29 .26 .105 .24 .25 .36 .45 .43 .15 0
 
 # Local clearings and irregular natural obstacles; the surrounding ground stays open.
 patch 1 38 47 16 12
@@ -245,3 +245,9 @@ scatter dead_tree 154 55 18 7 12 4
 place ledger_table 221.5 63.5 .85 1
 place ration_board 41.5 50.5 .9 1
 place boundary_marker 91.5 111.5 .8 1
+
+# Purification front landmarks; existing occupied-cell rules remain in use.
+place brazier 57.5 59.5 1 1
+place brazier 63.5 58.5 1 1
+place fungal 76.5 78.5 1.2 1
+place roots 74.5 80.5 1 1

@@ -267,6 +267,11 @@ void WorldSociety::Deliver(WorldSimulation& world)
 
 void WorldSociety::Decide(int index, WorldSimulation& world, const RandomLevelMap& map)
 {
+    if (conflictEnabled)
+    {
+        return;
+    }
+
     PROFILE_SCOPE(NpcDecision);
     Profile::Add(Profile::Metric::NpcDecisions);
     auto& npc = npcs[index];
@@ -287,7 +292,11 @@ void WorldSociety::Decide(int index, WorldSimulation& world, const RandomLevelMa
         const float urgency =
             20.f / (distance + 1) +
             (person.target == index && person.action == Action::Combat ? 10.f : 0.f);
-        if (hostility < rules.hostility && urgency > threatScore &&
+        const bool assault = person.action == Action::Combat && person.target >= 0 &&
+                             (person.target == index ||
+                              (npc.role == "guard" && npcs[person.target].faction == npc.faction));
+        const bool retaliation = npc.action == Action::Combat && npc.target == other;
+        if ((hostility < rules.hostility || assault || retaliation) && urgency > threatScore &&
             map.Visible(npc.x, npc.y, person.x, person.y))
         {
             threat = other;
@@ -303,7 +312,7 @@ void WorldSociety::Decide(int index, WorldSimulation& world, const RandomLevelMa
     {
         if (!CampaignOrder(index))
         {
-            npc.action = Action::Rest;
+            npc.action = lives[index].task == LifeTask::None ? Action::Rest : Action::Travel;
             npc.target = -1;
         }
         return;
@@ -402,6 +411,11 @@ void WorldSociety::Decide(int index, WorldSimulation& world, const RandomLevelMa
     }
     else
     {
+        for (int action = 0; action < 7; ++action)
+        {
+            score[action] = -100;
+        }
+        score[8] += npc.role == "guard" ? .8f : 0;
         score[7] += 2 + danger / std::max(1.f, npc.health) - 1;
         score[8] += 2 + npc.health / std::max(1.f, danger) - 1;
     }

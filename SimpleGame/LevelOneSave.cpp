@@ -41,7 +41,7 @@ bool LevelOne::SaveWorld(bool manual)
         std::ostringstream out;
         out.imbue(std::locale::classic());
         out << std::setprecision(std::numeric_limits<double>::max_digits10);
-        out << "version 1\nsave_schema 5\nsave_header " << std::quoted(worldFile) << ' '
+        out << "version 1\nsave_schema 8\nsave_header " << std::quoted(worldFile) << ' '
             << society.Signature() << ' ' << map.seed << ' ' << enemies.size() << '\n';
         out << "player_stats " << stats.level << ' ' << stats.experience << ' '
             << stats.totalExperience << ' ' << stats.points << ' ' << stats.strength << ' '
@@ -160,7 +160,7 @@ bool LevelOne::RestoreWorld(bool automatic)
                 if (command == "save_schema")
                 {
                     Require(records.insert(command).second, "duplicate save schema");
-                    row.Integer(5, 5);
+                    row.Integer(8, 8);
                 }
                 else if (command == "save_header")
                 {

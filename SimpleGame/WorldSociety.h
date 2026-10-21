@@ -1,5 +1,6 @@
 #pragma once
 #include "ModelCache.h"
+#include "Economy.h"
 #include <array>
 #include <functional>
 #include <map>
@@ -97,12 +98,50 @@ class WorldSociety
         std::uint64_t attackAttempts = 0, attackHits = 0, attackMisses = 0;
         float damageDealt = 0;
         std::string lastAttack;
+        // Authored combat class; committed attack geometry is independent of target movement.
+        int combatClass = 0, attackPattern = 0, attackSequence = 0;
+        float attackDuration = 1, effectTime = 0;
+        Point attackOrigin{0, 0}, attackPoint{0, 0};
 
         bool Alive() const
         {
             return health > 0;
         }
     };
+
+    struct Contamination
+    {
+        float density = 0, scar = 0, fire = 0;
+    };
+
+    bool TwoFactionWar() const
+    {
+        return conflictEnabled;
+    }
+
+    bool IsHive(int index) const;
+
+    const std::vector<Contamination>& ContaminationCells() const
+    {
+        return contamination;
+    }
+
+    int ContaminationWidth() const
+    {
+        return contaminationWidth;
+    }
+
+    float ContaminationCellSize() const
+    {
+        return conflictCell;
+    }
+
+    const char* AttackPatternName(int pattern) const;
+
+    float AttackRadius(int pattern) const
+    {
+        return conflictAttacks[pattern].radius;
+    }
 
     struct Faction
     {
@@ -241,8 +280,51 @@ class WorldSociety
         std::string reason;
     };
 
+    enum class LifeGoal
+    {
+        None,
+        Survive,
+        Recover,
+        Earn,
+        Supply,
+        Care,
+        Patrol,
+        Discover
+    };
+    enum class PlanStage
+    {
+        Idle,
+        Planning,
+        Moving,
+        Working,
+        Waiting,
+        Suspended,
+        Complete,
+        Failed
+    };
+
+    struct GoalPlan
+    {
+        LifeGoal goal = LifeGoal::None;
+        PlanStage stage = PlanStage::Idle;
+        std::uint64_t id = 0, started = 0, retryAt = 0, avoidUntil = 0;
+        int avoidedPlace = -1, steps = 0;
+        float initialCoins = 0, waitingSeconds = 0;
+        std::string blocked, outcome;
+    };
+
+    struct PlanningRules
+    {
+        float hunger = 35, fatigue = 75, stock = 3, serviceRange = 12, handoffSeconds = 90;
+        int retryMinutes = 12, avoidMinutes = 120, goalMinutes = 900;
+    };
+
+    static const char* GoalName(LifeGoal goal);
+    static const char* PlanStageName(PlanStage stage);
+
     struct LifeState
     {
+        GoalPlan plan;
         LifeTask task = LifeTask::None;
         int home = -1, work = -1, place = -1, partner = -1, delivery = -1, slot = -1;
         std::uint64_t agreement = 0, until = 0, nextSocial = 0, cause = 0, nextTrade = 0;
@@ -284,6 +366,36 @@ class WorldSociety
     {
         return diplomacy[from][to];
     }
+
+    bool HasEconomy() const
+    {
+        return !economyRegions.empty();
+    }
+
+    bool HasLife() const
+    {
+        return !places.empty();
+    }
+
+    const std::vector<EconomyRegion>& EconomyRegions() const
+    {
+        return economyRegions;
+    }
+
+    const std::vector<EconomyWorker>& EconomyWorkers() const
+    {
+        return economyWorkers;
+    }
+
+    const std::vector<EconomyOrder>& EconomyOrders() const
+    {
+        return economyOrders;
+    }
+
+    float EconomyStock(int region, int good, const WorldSimulation& world) const;
+    int EconomyCargoKind(int npc) const;
+    float EconomyProgress(int place) const;
+    static const char* EconomyGoodName(int good);
 
     int LifeActivity(int npc) const;
     std::string LifeLabel(int npc) const;
@@ -388,6 +500,24 @@ class WorldSociety
     static const char* QuestStatus(QuestState state);
 
   private:
+    struct ConflictAttack
+    {
+        float range = 2, radius = 1, windup = 1, cooldown = 2, damage = 1;
+    };
+
+    std::array<ConflictAttack, 8> conflictAttacks;
+    bool conflictEnabled = false;
+    int hiveFaction = -1, knightFaction = -1, contaminationWidth = 0;
+    float conflictCell = 4, conflictClock = 0, spreadRate = .08f, scarSeconds = 35;
+    std::vector<Contamination> contamination;
+    void LoadConflict(const std::string& root, const std::string& file, const LevelData& level);
+    void TickContamination(float dt, WorldSimulation& world, const RandomLevelMap& map);
+    bool TickConflictActor(int index, float dt, WorldSimulation& world, const RandomLevelMap& map,
+                           Point player);
+    void BurnContamination(Point center, float radius, int actor);
+    void WriteConflict(std::ostream& out) const;
+    bool ReadConflict(const std::string& command, ContentData::Row& row);
+    void FinishConflictRestore() const;
     std::vector<Npc> npcs;
     std::vector<Faction> factions;
     std::vector<Region> regions;
@@ -406,11 +536,37 @@ class WorldSociety
     float lifeWorkSeconds = 10, lifeRestSeconds = 16, lifeFoodPerDay = 9;
     int lifeSocialMinutes = 90;
 
-    bool HasLife() const
-    {
-        return !places.empty();
-    }
+    std::vector<EconomyRegion> economyRegions;
+    std::vector<EconomyWorker> economyWorkers;
+    std::vector<EconomyRecipe> economyRecipes;
+    std::vector<EconomyOrder> economyOrders;
+    EconomyRules economyRules;
+    std::uint64_t nextEconomyTick = 0;
+    void LoadEconomy(const std::string& root, const std::string& file);
+    void EconomyTick(WorldSimulation& world);
+    float EconomyAvailable(int region, int good, const WorldSimulation& world) const;
+    bool ChangeEconomyStock(int region, int good, float amount, WorldSimulation& world,
+                            const std::string& actor, std::uint64_t cause);
+    float EconomyWorkScore(int npc, int place, const WorldSimulation& world) const;
+    bool EconomyWork(int npc, WorldSimulation& world);
+    bool PlanEconomyOrder(int npc, WorldSimulation& world);
+    bool ExecuteEconomyOrder(int npc, float dt, WorldSimulation& world, const RandomLevelMap& map);
+    void CancelEconomyOrder(EconomyOrder& order, WorldSimulation& world, const std::string& reason);
+    bool BuyEconomyFood(int npc, WorldSimulation& world);
+    void WriteEconomy(std::ostream& out) const;
+    bool ReadEconomy(const std::string& command, ContentData::Row& row);
+    void FinishEconomyRestore();
 
+    PlanningRules planningRules;
+    bool ChooseGoalPlan(int npc, WorldSimulation& world, const RandomLevelMap& map);
+    bool StartPlanStep(int npc, LifeTask task, int place, const std::string& reason);
+    bool KnownWorkplace(int npc, int place) const;
+    void SetPlanStage(int npc, PlanStage stage, const std::string& reason);
+    void FinishGoal(int npc, bool success, const std::string& reason);
+    int EconomyRepresentative(int region, int except, std::uint64_t order = 0) const;
+    bool EconomicService(int npc, float dt, const RandomLevelMap& map);
+    bool EconomicContact(int npc, const EconomyOrder& order, const RandomLevelMap& map) const;
+    bool EconomyParticipantBusy(int npc, std::uint64_t except = 0) const;
     void LoadLife(const std::string& root, const std::string& file);
     void LifeTick(std::uint64_t elapsed, WorldSimulation& world, const RandomLevelMap& map);
     void ChooseLife(int npc, WorldSimulation& world, const RandomLevelMap& map);

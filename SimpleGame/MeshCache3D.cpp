@@ -262,7 +262,21 @@ void MeshCache3D::Draw(Renderer& r, int id, Vec3 position, float yaw, float scal
     const float preparation = pose.attack > 0 && pose.attack < .45f ? pose.attack / .45f : 0;
     const float release =
         pose.attack >= .45f ? std::sin((pose.attack - .45f) / .55f * 3.14159f) : 0;
-    const float twist = preparation * -.28f + release * .42f;
+    const float twist =
+        pose.attackStyle == 2 || pose.attackStyle == 5 ? 0.f : preparation * -.28f + release * .42f;
+    if (pose.attackStyle == 4)
+    {
+        position.y += release * .65f - preparation * .12f;
+    }
+    if (pose.attackStyle == 2)
+    {
+        position.x -= std::sin(yaw) * release * .4f;
+        position.z -= std::cos(yaw) * release * .4f;
+    }
+    if (pose.attackStyle == 5 || pose.attackStyle == 7)
+    {
+        position.y += preparation * .12f - release * .08f;
+    }
     Mat4 base = Mat4::Translation(position) * Mat4::Rotation({0, 1, 0}, yaw + twist) *
                 Mat4::Rotation({1, 0, 0}, preparation * -.08f + release * .16f) *
                 Mat4::Rotation({1, 0, 0}, pose.activity == 5 ? 1.45f : 0) *
@@ -322,6 +336,25 @@ void MeshCache3D::Draw(Renderer& r, int id, Vec3 position, float yaw, float scal
         {
             angle = std::sin(pose.phase + float(i) * 2.1f) * pose.movement * .4f;
             axis = {0, 0, 1};
+        }
+        if (pose.attack > 0)
+        {
+            if ((pose.attackStyle == 2 || pose.attackStyle == 3) && i == 4)
+            {
+                angle = -1.3f - release * .3f;
+            }
+            if (pose.attackStyle == 6 && (i == 3 || i == 4))
+            {
+                angle = -2.5f * preparation + release * .8f;
+            }
+            if ((pose.attackStyle == 5 || pose.attackStyle == 7) && i == 0)
+            {
+                angle = preparation * -.3f + release * .4f;
+            }
+            if (crawler && i > 0)
+            {
+                angle += (i % 2 ? 1.f : -1.f) * (preparation * .5f - release * .7f);
+            }
         }
         Mat4 local = Mat4::Translation(joint.pivot) * Mat4::Rotation(axis, angle) *
                      Mat4::Translation(joint.pivot * -1);

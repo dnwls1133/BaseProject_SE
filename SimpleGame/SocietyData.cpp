@@ -53,7 +53,7 @@ void WorldSociety::Load(const std::string& root, const std::string& file, const 
         return;
     }
     WorldSociety loaded;
-    std::string storyFile, lifeFile;
+    std::string storyFile, lifeFile, economyFile, conflictFile;
     loaded.source = ContentData::Path(root, file);
     const std::string text = ContentData::Read(loaded.source);
     loaded.signature = level.contentHash;
@@ -139,6 +139,16 @@ void WorldSociety::Load(const std::string& root, const std::string& file, const 
                             loaded.regions[front.region].owner == front.second,
                         "frontier objective must belong to a claimant");
                 loaded.frontiers.push_back(front);
+            }
+            else if (command == "conflict")
+            {
+                Require(conflictFile.empty(), "duplicate conflict file");
+                conflictFile = row.Word();
+            }
+            else if (command == "economy")
+            {
+                Require(economyFile.empty(), "duplicate economy definition");
+                economyFile = row.Word();
             }
             else if (command == "life")
             {
@@ -292,6 +302,8 @@ void WorldSociety::Load(const std::string& root, const std::string& file, const 
     }
     loaded.LoadStory(root, storyFile);
     loaded.LoadLife(root, lifeFile);
+    loaded.LoadEconomy(root, economyFile);
+    loaded.LoadConflict(root, conflictFile, level);
     if (source == loaded.source)
     {
         Require(signature == loaded.signature,

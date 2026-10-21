@@ -106,7 +106,7 @@ void WorldSociety::QuestTick(WorldSimulation& world, Point player)
     for (std::size_t i = 0; i < npcs.size(); ++i)
     {
         const auto& npc = npcs[i];
-        if (!npc.Alive())
+        if (!npc.Alive() || IsHive(int(i)))
         {
             continue;
         }
@@ -142,6 +142,10 @@ void WorldSociety::QuestTick(WorldSimulation& world, Point player)
         }
         for (int other : Nearby(npc))
         {
+            if (conflictEnabled && npcs[other].faction != npc.faction)
+            {
+                continue;
+            }
             if (npcs[other].health < 65 && npc.traits[2] > .5f)
             {
                 q.kind = QuestKind::Heal;
@@ -545,6 +549,10 @@ bool WorldSociety::BeginConversation(int index)
 {
     EndConversation();
     if (index < 0 || index >= int(npcs.size()))
+    {
+        return false;
+    }
+    if (IsHive(index))
     {
         return false;
     }

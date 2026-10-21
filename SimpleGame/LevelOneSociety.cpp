@@ -94,26 +94,96 @@ void LevelOne::DrawCitizen(Renderer& r, const Citizen& citizen, ActorPass pass)
         pose.collapse = npc.collapse;
         pose.attack =
             npc.windup > 0
-                ? .01f + .44f * (1 - std::min(1.f, npc.windup / society.AttackWindupDuration()))
+                ? .01f + .44f * (1 -
+                                 std::min(1.f, npc.windup / (society.TwoFactionWar()
+                                                                 ? npc.attackDuration
+                                                                 : society.AttackWindupDuration())))
             : npc.strikeTime > 0 ? .45f + .55f * (1 - npc.strikeTime / .3f)
                                  : 0;
+        pose.attackStyle = society.TwoFactionWar() ? npc.attackPattern : 0;
         pose.activity = society.LifeActivity(static_cast<int>(citizen.index));
         Vec3 position{npc.x, Terrain3D::Height(npc.x, npc.y) + npc.collapse * .25f, npc.y};
         meshCache3D.Draw(r, static_cast<int>(npc.model), position, npc.yaw, .94f, pose);
-        meshCache3D.Draw(r, static_cast<int>(faction.emblem), position, npc.yaw, .94f, pose);
+        if (!society.IsHive(int(citizen.index)))
+        {
+            meshCache3D.Draw(r, static_cast<int>(faction.emblem), position, npc.yaw, .94f, pose);
+        }
+        if (society.TwoFactionWar() && npc.Alive() && (npc.windup > 0 || npc.effectTime > 0))
+        {
+            const bool hive = society.IsHive(int(citizen.index));
+            const Color effect = hive ? Color(.52f, .16f, .38f) : Color(1.f, .42f, .07f);
+            const float progress = npc.windup > 0 ? 1 - npc.windup / npc.attackDuration : 1;
+            const float ax = npc.attackPoint.x, ay = npc.attackPoint.y;
+            const float radius = society.AttackRadius(npc.attackPattern);
+            // Discrete emissive rim stays legible without an opaque screen overlay.
+            for (int i = 0; i < 16; ++i)
+            {
+                const float angle = float(i) * 6.283185f / 16;
+                const float x = ax + std::cos(angle) * radius;
+                const float y = ay + std::sin(angle) * radius;
+                r.Submit3D(1,
+                           Mat4::Translation({x, Terrain3D::Height(x, y) + .07f, y}) *
+                               Mat4::Scale({.09f, .035f, .09f}),
+                           effect, Material::SoftLight);
+            }
+            if (npc.attackPattern == 5 || npc.attackPattern == 7)
+            {
+                const float flight = std::clamp((progress - .55f) / .45f, 0.f, 1.f);
+                const float x = npc.attackOrigin.x + (ax - npc.attackOrigin.x) * flight;
+                const float y = npc.attackOrigin.y + (ay - npc.attackOrigin.y) * flight;
+                r.Submit3D(
+                    1,
+                    Mat4::Translation(
+                        {x, Terrain3D::Height(x, y) + .4f + std::sin(flight * 3.14159f), y}) *
+                        Mat4::Scale({.22f, .22f, .22f}),
+                    effect, Material::Organic);
+            }
+            if (npc.attackPattern == 3 && npc.effectTime > 0)
+            {
+                for (int i = 1; i <= 7; ++i)
+                {
+                    const float t = float(i) / 7;
+                    const float x = npc.attackOrigin.x + (ax - npc.attackOrigin.x) * t;
+                    const float y = npc.attackOrigin.y + (ay - npc.attackOrigin.y) * t;
+                    r.Submit3D(1,
+                               Mat4::Translation({x, Terrain3D::Height(x, y) + .5f, y}) *
+                                   Mat4::Scale({.15f + t * .4f, .6f, .15f + t * .4f}),
+                               effect, Material::Flame);
+                }
+            }
+            if (npc.effectTime > 0 && npc.attackPattern >= 4)
+            {
+                for (int i = 0; i < 8; ++i)
+                {
+                    const float angle = float(i) * .785398f;
+                    const float reach = (1 - npc.effectTime / .55f) * radius;
+                    r.Submit3D(1,
+                               Mat4::Translation({ax + std::cos(angle) * reach,
+                                                  Terrain3D::Height(ax, ay) + npc.effectTime,
+                                                  ay + std::sin(angle) * reach}) *
+                                   Mat4::Scale({.12f, .12f, .12f}),
+                               effect, Material::Organic);
+                }
+            }
+        }
         if (npc.Alive() && pose.attack > 0)
         {
             DrawAttackEffect(r, position, npc.yaw, pose.attack, society.CombatRange(),
                              faction.color);
         }
         if (npc.Alive() &&
-            (society.StoryCargo(static_cast<int>(citizen.index)) > 0 || pose.activity == 2))
+            (society.StoryCargo(static_cast<int>(citizen.index)) > 0 || pose.activity == 2 ||
+             (society.HasLife() && society.LifeStates()[citizen.index].cargo > 0)))
         {
+            const int good = society.EconomyCargoKind(int(citizen.index));
+            const Color cargoColor = good == 1   ? Color(.62f, .18f, .23f)
+                                     : good == 2 ? Color(.32f, .40f, .44f)
+                                                 : Color(.57f, .43f, .22f);
             r.Submit3D(0,
                        Mat4::Translation({npc.x - std::sin(npc.yaw) * .45f, position.y + .95f,
                                           npc.y - std::cos(npc.yaw) * .45f}) *
                            Mat4::Rotation({0, 1, 0}, npc.yaw) * Mat4::Scale({.55f, .45f, .4f}),
-                       Color(.43f, .30f, .16f), Material::Wood);
+                       cargoColor, Material::Wood);
         }
     }
     else if (pass == ActorPass::Overlay && npc.Alive())
@@ -418,6 +488,25 @@ void LevelOne::DrawActivityPlace(Renderer& r, const ActivityPlace& actor, ActorP
                              {position.x, Terrain3D::Height(position.x, position.y), position.y},
                              yaw, 1, pose);
         }
+        if (society.HasEconomy() && (place.kind == "warehouse" || place.kind == "market"))
+        {
+            for (int good = 0; good < 3; ++good)
+            {
+                const int stacks = std::min(
+                    4, int(std::ceil(society.EconomyStock(place.region, good, simulation) / 10)));
+                const Color color = good == 1   ? Color(.62f, .18f, .23f)
+                                    : good == 2 ? Color(.32f, .40f, .44f)
+                                                : Color(.57f, .43f, .22f);
+                for (int item = 0; item < stacks; ++item)
+                {
+                    const Vec3 position{actor.x + (good - 1) * .55f,
+                                        Terrain3D::Height(actor.x, actor.y) + .2f + item * .23f,
+                                        actor.y + .8f};
+                    r.Submit3D(0, Mat4::Translation(position) * Mat4::Scale({.45f, .2f, .38f}),
+                               color, Material::Wood);
+                }
+            }
+        }
         if (place.kind == "clinic")
         {
             int bottles = std::min(4, static_cast<int>(place.medicine));
@@ -434,6 +523,12 @@ void LevelOne::DrawActivityPlace(Renderer& r, const ActivityPlace& actor, ActorP
              std::hypot(actor.x - player.x, actor.y - player.y) < 2)
     {
         Point p = Project(actor.x, actor.y, 68, r);
+        const float progress = society.EconomyProgress(int(actor.index));
+        if (progress > 0)
+        {
+            r.Rect(p.x - 28, p.y + 7, 56, 5, Color(.08f, .07f, .06f));
+            r.Rect(p.x - 28, p.y + 7, 56 * progress, 5, Color(.65f, .52f, .27f));
+        }
         r.Text(p.x - r.TextWidth(place.name, 12) * .5f, p.y, place.name, Color(.72f, .67f, .48f),
                12);
     }

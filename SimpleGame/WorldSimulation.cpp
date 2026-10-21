@@ -83,8 +83,7 @@ void WorldSimulation::Load(const std::string& root, const std::string& relative,
                 ContentData::Require(false, "unknown simulation record: " + command);
             }
         });
-    ContentData::Require(records.count("clock") && records.count("event"),
-                         loaded.sourceFile + ": clock and event required");
+    ContentData::Require(records.count("clock"), loaded.sourceFile + ": clock required");
     ContentData::Require(loaded.regions.size() == definitions.size(),
                          loaded.sourceFile + ": every world region needs simulation state");
 
@@ -148,8 +147,8 @@ void WorldSimulation::AdvanceMinute()
                                " food_ratio=" + std::to_string(region.food) +
                                " infection_ratio=" + std::to_string(region.infection));
         }
-        if (region.food > foodThreshold || region.infection < infectionThreshold ||
-            minute < region.nextEventMinute)
+        if (eventId.empty() || region.food > foodThreshold ||
+            region.infection < infectionThreshold || minute < region.nextEventMinute)
         {
             continue;
         }

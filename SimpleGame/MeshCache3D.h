@@ -5,6 +5,7 @@
 struct Pose3D
 {
     float phase = 0, movement = 0, attack = 0, collapse = 0, time = 0, flash = 0;
+    int attackStyle = 0;
     int activity = 0; // 0 idle, 1 work, 2 carry, 3 treat, 4 converse, 5 sleep.
 };
 

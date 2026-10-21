@@ -29,6 +29,12 @@ void WorldSociety::WriteLife(std::ostream& out) const
             << l.helped << ' ' << l.broken << ' ' << npcs[i].yaw << ' '
             << std::quoted(l.reason.empty() ? "-" : l.reason) << ' '
             << std::quoted(l.lastMemory.empty() ? "-" : l.lastMemory) << '\n';
+        const auto& p = l.plan;
+        out << "life_plan " << std::quoted(npcs[i].id) << ' ' << int(p.goal) << ' ' << int(p.stage)
+            << ' ' << p.id << ' ' << p.started << ' ' << p.retryAt << ' ' << p.avoidUntil << ' '
+            << std::quoted(site(p.avoidedPlace)) << ' ' << p.steps << ' ' << p.initialCoins << ' '
+            << p.waitingSeconds << ' ' << std::quoted(p.blocked.empty() ? "-" : p.blocked) << ' '
+            << std::quoted(p.outcome.empty() ? "-" : p.outcome) << '\n';
     }
     for (const auto& p : places)
     {
@@ -83,7 +89,33 @@ bool WorldSociety::ReadLife(const std::string& command, ContentData::Row& row)
         Require(false, "unknown saved activity place");
         return -1;
     };
-    if (command == "life_npc")
+    if (command == "life_plan")
+    {
+        const int n = npc(false);
+        unique(npcs[n].id);
+        auto& p = lives[n].plan;
+        p.goal = LifeGoal(row.Integer(0, 7));
+        p.stage = PlanStage(row.Integer(0, 7));
+        p.id = row.Unsigned();
+        p.started = row.Unsigned();
+        p.retryAt = row.Unsigned();
+        p.avoidUntil = row.Unsigned();
+        p.avoidedPlace = site(true);
+        p.steps = row.Integer(0, 1000000);
+        p.initialCoins = row.Number(0, 1e7f);
+        p.waitingSeconds = row.Number(0, 1000);
+        p.blocked = row.Word();
+        p.outcome = row.Word();
+        if (p.blocked == "-")
+        {
+            p.blocked.clear();
+        }
+        if (p.outcome == "-")
+        {
+            p.outcome.clear();
+        }
+    }
+    else if (command == "life_npc")
     {
         const int n = npc(false);
         unique(npcs[n].id);
@@ -185,11 +217,14 @@ void WorldSociety::FinishLifeRestore()
     for (std::size_t i = 0; i < npcs.size(); ++i)
     {
         const auto& l = lives[i];
+        Require(restoreSeen.count("life_plan:" + npcs[i].id) && l.plan.id < serial,
+                "missing or invalid persistent goal");
         Require(restoreSeen.count("life_npc:" + npcs[i].id) != 0 && l.cause < serial,
                 "incomplete life plans");
         if (npcs[i].Alive() && l.task != LifeTask::None && l.place >= 0)
         {
-            Require(l.slot >= 0 && occupied.insert({l.place, l.slot}).second,
+            const bool waitingForDock = HasEconomy() && economyWorkers[i].order && l.slot == -1;
+            Require(waitingForDock || (l.slot >= 0 && occupied.insert({l.place, l.slot}).second),
                     "missing or duplicate reserved activity slot");
         }
         if (l.agreement)
@@ -212,7 +247,7 @@ void WorldSociety::FinishLifeRestore()
     for (const auto& a : agreements)
     {
         Require(a.id > 0 && a.id < serial && lives[a.requester].agreement == a.id &&
-                    lives[a.supplier].agreement == a.id,
+                    (a.stage == 0 || lives[a.supplier].agreement == a.id),
                 "inconsistent bilateral agreement");
     }
 }

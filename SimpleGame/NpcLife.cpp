@@ -8,6 +8,14 @@
 
 void WorldSociety::OfferLife(int requester, int supplier, int kind)
 {
+    if (IsHive(requester) || IsHive(supplier))
+    {
+        return;
+    }
+    if (HasEconomy() && (economyWorkers[requester].order || economyWorkers[supplier].order))
+    {
+        return;
+    }
     if (conversationNpc == requester || conversationNpc == supplier || agreements.size() >= 64 ||
         lives[requester].agreement || lives[supplier].agreement || lives[requester].cargo > 0 ||
         lives[supplier].cargo > 0 || !npcs[requester].Alive() || !npcs[supplier].Alive() ||
@@ -16,6 +24,23 @@ void WorldSociety::OfferLife(int requester, int supplier, int kind)
         npcs[requester].action == Action::Escort || npcs[supplier].action == Action::Escort ||
         npcs[requester].wildTarget >= 0 || npcs[supplier].wildTarget >= 0 ||
         npcs[requester].playerThreat || npcs[supplier].playerThreat)
+    {
+        return;
+    }
+    if ((kind == 1 &&
+         (npcs[requester].health >= 85 || PersonalRegard(requester, supplier) < -25)) ||
+        (kind == 0 && npcs[requester].food >= planningRules.stock))
+    {
+        return;
+    }
+    if (EconomyParticipantBusy(requester) || EconomyParticipantBusy(supplier) ||
+        std::any_of(agreements.begin(), agreements.end(),
+                    [&](const Agreement& pending)
+                    {
+                        return pending.stage < 3 &&
+                               (pending.requester == requester || pending.supplier == requester ||
+                                pending.requester == supplier || pending.supplier == supplier);
+                    }))
     {
         return;
     }
@@ -31,7 +56,7 @@ void WorldSociety::OfferLife(int requester, int supplier, int kind)
     a.due = minute + 6;
     a.deadline = minute + 180;
     agreements.push_back(a);
-    for (int index : {requester, supplier})
+    for (int index : {requester})
     {
         auto& l = lives[index];
         // A carried delivery must finish before accepting a second obligation.
@@ -77,6 +102,7 @@ void WorldSociety::EndAgreement(Agreement& a, bool success, const std::string& r
         Relate(a.requester, a.supplier, -3, 1, reason, a.id);
         SayLife(a.requester, "cancel", a.supplier, -1, reason);
     }
+    const bool accepted = a.stage > 0;
     a.cargo = 0;
     a.payment = 0;
     a.stage = success ? 3 : 4;
@@ -91,9 +117,14 @@ void WorldSociety::EndAgreement(Agreement& a, bool success, const std::string& r
             ++l.helped;
             l.social = std::max(0.f, l.social - 45);
         }
-        else
+        else if (accepted)
         {
             ++l.broken;
+        }
+        if ((l.plan.goal == LifeGoal::Care || l.plan.goal == LifeGoal::Discover) &&
+            l.plan.stage == PlanStage::Waiting)
+        {
+            FinishGoal(index, success, reason);
         }
         if (l.agreement == a.id)
         {
@@ -109,6 +140,10 @@ void WorldSociety::EndAgreement(Agreement& a, bool success, const std::string& r
 
 void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLevelMap& map)
 {
+    if (ChooseGoalPlan(index, world, map))
+    {
+        return;
+    }
     auto& n = npcs[index];
     auto& l = lives[index];
     if (conversationNpc == index || l.task != LifeTask::None || l.agreement)
@@ -220,6 +255,10 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
         }
         l.nextSocial = minute + 20;
     }
+    if (PlanEconomyOrder(index, world))
+    {
+        return;
+    }
     if (n.food < 3)
     {
         int site = LifeSite(index, "warehouse");
@@ -227,12 +266,17 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
         {
             const auto* stock = world.FindRegion(regions[places[site].region].id);
             if (stock && stock->food >= .015 &&
+                (!HasEconomy() ||
+                 (EconomyAvailable(places[site].region, 0, world) >= 1 &&
+                  (n.food < 1 ||
+                   economyWorkers[index].coins >= economyRegions[places[site].region].price[0]))) &&
                 plan(LifeTask::Collect, site, "배급소에서 실제 비축 식량을 수령"))
             {
                 return;
             }
         }
-        if (plan(LifeTask::Work, LifeSite(index, "farm"), "비축이 부족해 식량 생산에 참여"))
+        if (!HasEconomy() &&
+            plan(LifeTask::Work, LifeSite(index, "farm"), "비축이 부족해 식량 생산에 참여"))
         {
             return;
         }
@@ -296,7 +340,11 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
     if (warehouse >= 0)
     {
         const auto* stock = world.FindRegion(regions[places[warehouse].region].id);
-        if (stock && stock->food >= .015)
+        if (stock && stock->food >= .015 && n.food < 3 &&
+            (!HasEconomy() ||
+             (EconomyAvailable(places[warehouse].region, 0, world) >= 1 &&
+              (n.food < 1 ||
+               economyWorkers[index].coins >= economyRegions[places[warehouse].region].price[0]))))
         {
             consider(LifeTask::Collect, warehouse, std::max(0.f, 5 - n.food) * .8f,
                      "개인 식량 부족을 가까운 실제 재고로 보충");
@@ -328,6 +376,24 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
             }
         }
         const std::string type = kind;
+        if (HasEconomy() && (type == "farm" || type == "clinic" || type == "archive"))
+        {
+            const float score = EconomyWorkScore(index, place, world);
+            if (score > -100)
+            {
+                consider(LifeTask::Work, place, score, "실제 부족 재고·원재료·임금에 따른 생산");
+            }
+            continue;
+        }
+        if (HasEconomy() && type == "market")
+        {
+            continue;
+        }
+        if (HasEconomy() && type == "watch" &&
+            (n.role != "guard" || regions[places[place].region].security >= .8f))
+        {
+            continue;
+        }
         float value = .6f;
         LifeTask task = LifeTask::Work;
         if (type == "farm")
@@ -363,7 +429,8 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
         value -= l.fatigue * .025f;
         consider(task, place, value, type + " : 알고 있는 수요·직책·성향·피로 비교");
     }
-    if (n.role == "merchant" && n.food >= 3 && minute >= l.nextTrade && l.fatigue < 70)
+    if (!HasEconomy() && n.role == "merchant" && n.food >= 3 && minute >= l.nextTrade &&
+        l.fatigue < 70)
     {
         for (const auto& route : tradeRoutes)
         {
@@ -478,6 +545,27 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
                 EndAgreement(a, false, "요청을 거절함");
                 continue;
             }
+            if (lives[a.supplier].agreement || EconomyParticipantBusy(a.supplier) ||
+                (HasEconomy() && economyWorkers[a.supplier].order) ||
+                lives[a.supplier].satiation < 20 || lives[a.supplier].fatigue > 90)
+            {
+                EndAgreement(a, false, "상대가 다른 의무 또는 긴급한 생존 문제로 거절");
+                continue;
+            }
+            auto& acceptedLife = lives[a.supplier];
+            Record("agreement_accepted", supplier.id, receiver.id,
+                   std::to_string(int(acceptedLife.task)), "meeting",
+                   "상대가 조건을 검토하고 기존 행동을 중단해 합류", a.id);
+            acceptedLife.agreement = a.id;
+            acceptedLife.task = LifeTask::Meet;
+            acceptedLife.partner = a.requester;
+            acceptedLife.place = -1;
+            acceptedLife.slot = -1;
+            acceptedLife.progress = 0;
+            acceptedLife.until = a.deadline;
+            acceptedLife.reason = "제안을 수락하고 상대에게 이동";
+            supplier.action = Action::Travel;
+            SetPlanStage(a.supplier, PlanStage::Waiting, acceptedLife.reason);
             a.payment =
                 a.kind == 0 && supplier.traits[2] < .75f ? .2f + supplier.traits[1] * .3f : 0;
             a.stage = 1;
@@ -488,6 +576,12 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
         }
         else if (a.stage == 1)
         {
+            if ((a.kind == 0 && receiver.food >= planningRules.stock) ||
+                (a.kind == 1 && receiver.health >= 85))
+            {
+                EndAgreement(a, false, "요청자가 현재 필요와 가격을 재검토하고 제안 철회");
+                continue;
+            }
             if (factions[receiver.faction].supplies < a.payment ||
                 (a.kind == 0 && supplier.food < 3) ||
                 (a.kind == 1 && lives[a.supplier].medicine < 1))
@@ -583,6 +677,11 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
     {
         auto& n = npcs[i];
         auto& l = lives[i];
+        if (IsHive(int(i)))
+        {
+            l.task = LifeTask::None;
+            continue;
+        }
         if (!n.Alive())
         {
             if (l.cargo > 0)
@@ -597,12 +696,13 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
         l.social = std::min(100.f, l.social + minutes * .10f);
         l.satiation = std::max(0.f, l.satiation - lifeFoodPerDay * minutes * 50 / 1440);
         Point campaignGoal;
-        if (l.satiation < 35 && n.food >= 1 && CampaignGoal(int(i), campaignGoal))
+        if (l.satiation < planningRules.hunger && n.food >= 1 &&
+            (CampaignGoal(int(i), campaignGoal) || (HasEconomy() && economyWorkers[i].order)))
         {
             n.food -= 1;
             l.satiation = std::min(100.f, l.satiation + 55);
             Record("campaign_ration", n.id, factions[n.faction].id, "food=1", "consumed",
-                   "출정 중 소지 식량으로 허기 해소");
+                   "출정/운송 중 실제 소지 식량으로 허기 해소");
         }
         if (l.satiation == 0 && minute / 60 != (minute - elapsed) / 60)
         {
@@ -618,7 +718,9 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
         }
         if (threatened(int(i)) || CampaignOrder(int(i)))
         {
-            if (!l.agreement && l.cargo == 0 && l.task != LifeTask::None)
+            SetPlanStage(int(i), PlanStage::Suspended,
+                         "위협 또는 군사 명령이 우선: 기존 목표 보존");
+            if (!HasEconomy() && !l.agreement && l.cargo == 0 && l.task != LifeTask::None)
             {
                 l.task = LifeTask::None;
                 l.progress = 0;
@@ -628,8 +730,11 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
             }
             continue;
         }
-        if (!l.agreement && l.cargo == 0 && l.task != LifeTask::None && l.task != LifeTask::Rest &&
-            l.task != LifeTask::Eat && (l.fatigue > 85 || l.satiation < 20 || n.health < 40))
+        if ((!HasEconomy() || !economyWorkers[i].order) && !l.agreement && l.cargo == 0 &&
+            l.task != LifeTask::None && l.task != LifeTask::Rest && l.task != LifeTask::Eat &&
+            (!HasEconomy() ||
+             (l.plan.goal != LifeGoal::Survive && l.plan.goal != LifeGoal::Recover)) &&
+            (l.fatigue > 85 || l.satiation < 20 || n.health < 40))
         {
             Record("life_plan_reconsidered", n.id, l.place >= 0 ? places[l.place].id : "none",
                    "active", "urgent_need", "몸 상태가 달라져 회복과 생존을 다시 평가", l.cause);
@@ -638,7 +743,8 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
             l.place = -1;
             l.slot = -1;
         }
-        if (l.task != LifeTask::None && minute >= l.until && !l.agreement)
+        if ((!HasEconomy() || !economyWorkers[i].order) && l.task != LifeTask::None &&
+            minute >= l.until && !l.agreement)
         {
             Record("life_plan_cancelled", n.id, l.place >= 0 ? places[l.place].id : "none",
                    "active", "expired", "작업 기한 경과", l.cause);
@@ -649,6 +755,12 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
                 l.cargo = 0;
             }
             l.task = LifeTask::None;
+            if (HasEconomy())
+            {
+                FinishGoal(int(i), false,
+                           l.stalled > 25 ? "이동 정체로 목적지 회피 후 다른 방법 탐색"
+                                          : "작업 기한 경과");
+            }
         }
         ChooseLife(int(i), world, map);
     }
@@ -665,6 +777,16 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
     if (l.task == LifeTask::None)
     {
         return true;
+    }
+    if (HasEconomy() && economyWorkers[index].order && l.slot < 0)
+    {
+        l.slot = LifeSlot(index, l.place);
+        if (l.slot < 0)
+        {
+            l.plan.waitingSeconds += dt;
+            SetPlanStage(index, PlanStage::Waiting, "목적지 작업 자리 사용 중");
+            return true;
+        }
     }
     Point goal{n.x, n.y};
     float stop = .3f;
@@ -689,6 +811,7 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
     const float distance = std::hypot(n.x - goal.x, n.y - goal.y);
     if (distance > stop)
     {
+        SetPlanStage(index, PlanStage::Moving, l.reason);
         const Point before{n.x, n.y};
         MoveTo(n, goal, dt, map);
         if (std::hypot(n.x - before.x, n.y - before.y) > .001f)
@@ -710,6 +833,7 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
     }
     if (l.task == LifeTask::Meet)
     {
+        SetPlanStage(index, PlanStage::Waiting, "대면 완료: 상대 응답과 합의된 인계 대기");
         n.yaw = std::atan2(n.x - goal.x, n.y - goal.y);
         return true;
     }
@@ -722,6 +846,10 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
         const auto center = places[l.place].position;
         n.yaw = std::atan2(n.x - center.x, n.y - center.y);
     }
+    if (!HasEconomy() || !economyWorkers[index].order)
+    {
+        SetPlanStage(index, PlanStage::Working, l.reason);
+    }
     l.progress += dt;
     if (l.progress <= dt + .001f)
     {
@@ -731,6 +859,10 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
                 : l.task == LifeTask::Research ? "research"
                                                : "work",
                 -1, l.place);
+    }
+    if (ExecuteEconomyOrder(index, dt, world, map))
+    {
+        return true;
     }
     if (l.task == LifeTask::Rest)
     {
@@ -757,6 +889,10 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
     }
     else if (l.task == LifeTask::Collect)
     {
+        if (BuyEconomyFood(index, world))
+        {
+            return true;
+        }
         if (l.progress < 3)
         {
             return true;
@@ -909,6 +1045,10 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
     else
     {
         l.fatigue = std::min(100.f, l.fatigue + dt * .5f);
+        if (EconomyWork(index, world))
+        {
+            return true;
+        }
         if (l.progress < lifeWorkSeconds)
         {
             return true;
@@ -992,6 +1132,7 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
             }
         }
     }
+    ++l.plan.steps;
     l.task = LifeTask::None;
     l.progress = 0;
     n.nextDecision = minute;

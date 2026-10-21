@@ -35,6 +35,8 @@ void WorldSociety::Write(std::ostream& out) const
     }
     WriteStory(out);
     WriteLife(out);
+    WriteEconomy(out);
+    WriteConflict(out);
     out << "soc_state " << minute << ' ' << serial << ' ' << randomState << ' ' << lastFactionTick
         << ' ' << nextQuestTick << ' ' << std::quoted(factionId(playerFaction)) << ' '
         << playerFood;
@@ -120,6 +122,7 @@ void WorldSociety::Write(std::ostream& out) const
 
 void WorldSociety::BeginRestore()
 {
+    economyOrders.clear();
     restoreSeen.clear();
     restoredState = false;
     restoredNpcs.assign(npcs.size(), false);
@@ -146,6 +149,14 @@ void WorldSociety::BeginRestore()
 bool WorldSociety::ReadRow(const std::string& command, ContentData::Row& row)
 {
     using ContentData::Require;
+    if (ReadConflict(command, row))
+    {
+        return true;
+    }
+    if (ReadEconomy(command, row))
+    {
+        return true;
+    }
     if (ReadLife(command, row))
     {
         return true;
@@ -247,7 +258,7 @@ bool WorldSociety::ReadRow(const std::string& command, ContentData::Row& row)
                std::to_string(std::max(c.attacker, c.defender)));
         c.active = row.Integer(0, 1) != 0;
         c.until = row.Unsigned();
-        c.stage = row.Integer(0, 3);
+        c.stage = row.Integer(0, 4);
         c.stageSince = row.Unsigned();
         c.attackRally = {row.Number(0, 1024), row.Number(0, 1024)};
         c.defendRally = {row.Number(0, 1024), row.Number(0, 1024)};
@@ -420,6 +431,7 @@ bool WorldSociety::ReadRow(const std::string& command, ContentData::Row& row)
 void WorldSociety::FinishRestore(const RandomLevelMap& map)
 {
     using ContentData::Require;
+    FinishConflictRestore();
     Require(restoredState &&
                 std::all_of(restoredNpcs.begin(), restoredNpcs.end(),
                             [](bool v)
@@ -479,5 +491,6 @@ void WorldSociety::FinishRestore(const RandomLevelMap& map)
     }
     FinishStoryRestore();
     FinishLifeRestore();
+    FinishEconomyRestore();
     neighborhood.clear();
 }

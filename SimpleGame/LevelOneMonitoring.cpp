@@ -67,9 +67,10 @@ void LevelOne::PublishMonitoring(float dt)
     out.imbue(std::locale::classic());
     out << std::fixed << std::setprecision(3);
     out << "{\"schema_version\":1,\"session_id\":" << GetCurrentProcessId()
-        << ",\"sequence\":" << ++monitorSequence << ",\"sampled_at_unix_ms\":" << timestamp
-        << ",\"generation\":" << expedition << ",\"world_minute\":" << simulation.Minute()
-        << ",\"world\":" << JsonString(worldFile)
+        << ",\"behavior_model\":\"persistent_goals_v1\",\"content_signature\":"
+        << society.Signature() << ",\"sequence\":" << ++monitorSequence
+        << ",\"sampled_at_unix_ms\":" << timestamp << ",\"generation\":" << expedition
+        << ",\"world_minute\":" << simulation.Minute() << ",\"world\":" << JsonString(worldFile)
         << ",\"paused\":" << (paused || statPanel || stats.health <= 0 ? "true" : "false")
         << ",\"map\":{\"width\":" << map.Width << ",\"height\":" << map.Height << "}"
         << ",\"counts\":{\"npc_total\":" << npcs.size() << ",\"npc_alive\":" << npcAlive
@@ -106,6 +107,18 @@ void LevelOne::PublishMonitoring(float dt)
         if (i < lives.size())
         {
             const auto& l = lives[i];
+            const auto& plan = l.plan;
+            out << ",\"plan\":{\"id\":" << plan.id
+                << ",\"goal\":" << JsonString(WorldSociety::GoalName(plan.goal))
+                << ",\"stage\":" << JsonString(WorldSociety::PlanStageName(plan.stage))
+                << ",\"blocked_reason\":" << JsonString(plan.blocked)
+                << ",\"outcome\":" << JsonString(plan.outcome)
+                << ",\"waiting_seconds\":" << plan.waitingSeconds
+                << ",\"steps_completed\":" << plan.steps << ",\"started_minute\":" << plan.started
+                << ",\"retry_minute\":" << plan.retryAt << ",\"avoided_place\":"
+                << (plan.avoidedPlace < 0 ? "null"
+                                          : JsonString(society.LifePlaces()[plan.avoidedPlace].id))
+                << '}';
             out << ",\"life\":{\"task\":" << int(l.task) << ",\"fatigue\":" << l.fatigue
                 << ",\"satiation\":" << l.satiation << ",\"social_need\":" << l.social
                 << ",\"cargo_units\":" << l.cargo << ",\"medicine_units\":" << l.medicine
@@ -136,6 +149,11 @@ void LevelOne::PublishMonitoring(float dt)
                     << '}';
             }
             out << "]}";
+        }
+        if (society.HasEconomy())
+        {
+            const auto& worker = society.EconomyWorkers()[i];
+            out << ",\"coins\":" << worker.coins << ",\"economic_order\":" << worker.order;
         }
         out << '}';
     }
@@ -251,7 +269,54 @@ void LevelOne::PublishMonitoring(float dt)
             << ",\"region\":" << JsonString(society.Regions()[campaign.region].id)
             << ",\"stage\":" << campaign.stage << '}';
     }
-    out << "],\"events\":[";
+    out << "],\"economy\":{\"regions\":[";
+    for (std::size_t i = 0; i < society.EconomyRegions().size(); ++i)
+    {
+        if (i)
+        {
+            out << ',';
+        }
+        const auto& market = society.EconomyRegions()[i];
+        out << "{\"id\":" << JsonString(society.Regions()[i].id) << ",\"coins\":" << market.coins
+            << ",\"goods\":[";
+        for (int good = 0; good < 3; ++good)
+        {
+            if (good)
+            {
+                out << ',';
+            }
+            out << "{\"name\":" << JsonString(WorldSociety::EconomyGoodName(good))
+                << ",\"stock\":" << society.EconomyStock(int(i), good, simulation)
+                << ",\"target\":" << market.target[good] << ",\"price\":" << market.price[good]
+                << ",\"produced\":" << market.produced[good]
+                << ",\"imported\":" << market.imported[good]
+                << ",\"exported\":" << market.exported[good] << '}';
+        }
+        out << "]}";
+    }
+    out << "],\"orders\":[";
+    comma = false;
+    for (const auto& order : society.EconomyOrders())
+    {
+        if (comma)
+        {
+            out << ',';
+        }
+        comma = true;
+        out << "{\"id\":" << order.id
+            << ",\"source\":" << JsonString(society.Regions()[order.source].id)
+            << ",\"destination\":" << JsonString(society.Regions()[order.destination].id)
+            << ",\"good\":" << JsonString(WorldSociety::EconomyGoodName(order.good))
+            << ",\"units\":" << order.units << ",\"stage\":" << order.stage
+            << ",\"escrow\":" << order.escrow << ",\"freight\":" << order.freight
+            << ",\"carrier\":" << (order.carrier < 0 ? "null" : JsonString(npcs[order.carrier].id))
+            << ",\"supplier\":"
+            << (order.supplier < 0 ? "null" : JsonString(npcs[order.supplier].id))
+            << ",\"receiver\":"
+            << (order.receiver < 0 ? "null" : JsonString(npcs[order.receiver].id))
+            << ",\"outcome\":" << JsonString(order.outcome) << '}';
+    }
+    out << "]},\"events\":[";
     comma = false;
     for (const auto& event : society.History())
     {

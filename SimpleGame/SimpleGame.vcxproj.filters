@@ -41,6 +41,7 @@
     <ClInclude Include="LevelData.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="WorldSimulation.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="WorldSociety.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="Economy.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="LevelOne.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="ModelCache.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="RandomLevelMap.h"><Filter>헤더 파일</Filter></ClInclude>
@@ -56,6 +57,11 @@
     <ClCompile Include="Terrain3D.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="NpcLifeData.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="NpcLife.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="NpcPlanning.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyEconomyInteraction.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyEconomy.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyEconomyTrade.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyEconomySave.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="NpcLifeSave.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일</Filter>
@@ -83,6 +89,9 @@
     <ClCompile Include="SocietyData.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="WorldSociety.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="SocietyCombat.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyConflict.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyConflictCombat.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="SocietyConflictSave.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="SocietyFactions.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="SocietyAI.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="LevelOne.cpp"><Filter>소스 파일</Filter></ClCompile>

@@ -65,7 +65,7 @@ class LevelOne
         {
             SetRenderPasses(ActorPassBit(ActorPass::Shadow) | ActorPassBit(ActorPass::World) |
                             ActorPassBit(ActorPass::Overlay));
-            SetRenderBounds({-240, -180, 340, 120});
+            SetRenderBounds({-650, -450, 650, 400});
         }
 
         LevelOne* owner;

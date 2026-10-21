@@ -40,6 +40,18 @@ void WorldSociety::LoadLife(const std::string& root, const std::string& file)
                               lifeFoodPerDay = row.Number(1, 30);
                               lifeSocialMinutes = row.Integer(30, 720);
                           }
+                          else if (cmd == "planning")
+                          {
+                              Require(seen.insert(cmd).second, "duplicate planning policy");
+                              planningRules.hunger = row.Number(10, 60);
+                              planningRules.fatigue = row.Number(40, 95);
+                              planningRules.stock = row.Number(1, 6);
+                              planningRules.serviceRange = row.Number(3, 30);
+                              planningRules.retryMinutes = row.Integer(3, 120);
+                              planningRules.avoidMinutes = row.Integer(30, 720);
+                              planningRules.goalMinutes = row.Integer(120, 2880);
+                              planningRules.handoffSeconds = row.Number(10, 300);
+                          }
                           else if (cmd == "place")
                           {
                               LifePlace p;
@@ -277,7 +289,8 @@ std::string WorldSociety::LifeLabel(int npc) const
             if (campaign.active &&
                 (npcs[npc].faction == campaign.attacker || npcs[npc].faction == campaign.defender))
             {
-                static const char* phases[] = {"병력 집결", "전선 이동", "전선 교전", "거점 진격"};
+                static const char* phases[] = {"병력 집결", "전선 이동", "전선 교전", "거점 진격",
+                                               "방어군 반격"};
                 return std::string(phases[campaign.stage]) + " · " + regions[campaign.region].name;
             }
         }
@@ -285,6 +298,11 @@ std::string WorldSociety::LifeLabel(int npc) const
     const auto& l = lives[npc];
     static const char* names[] = {"다음 일 결정", "휴식",      "식사", "작업",     "물자 수령",
                                   "운송",         "약속 이행", "순찰", "기록 조사"};
+    if (HasEconomy())
+    {
+        return std::string(GoalName(l.plan.goal)) + " · " + PlanStageName(l.plan.stage) +
+               (l.partner >= 0 ? " · " + npcs[l.partner].name : "");
+    }
     return std::string(names[static_cast<int>(l.task)]) +
            (l.partner >= 0 ? " · " + npcs[l.partner].name
             : l.place >= 0 ? " · " + places[l.place].name
@@ -303,6 +321,10 @@ std::vector<std::string> WorldSociety::LifeJournal() const
                         std::to_string(int(l.satiation)) + " · 피로 " +
                         std::to_string(int(l.fatigue)) + " · 약품 " +
                         std::to_string(int(l.medicine)) + " · " + l.reason);
+        if (HasEconomy() && !l.plan.blocked.empty())
+        {
+            lines.push_back("중단/대기: " + l.plan.blocked);
+        }
         if (l.agreement)
         {
             lines.push_back("진행 중인 약속 #" + std::to_string(l.agreement) + " · 상대 " +

@@ -163,3 +163,11 @@ ChurchRegalia, RefugeGear, SporeMantle, ResearchGear, PurgeArmor의 외부 장�
 ## 공격·생활 판단·모니터 — 2026-10-12
 - 기존 .life/.society/.story/.mesh/rpg.rules 형식과 저장 schema5를 유지한다. 공통 생활 후보 비교와 공격 관절 표현을 확장했으며 모델/콘텐츠 복제는 하지 않았다.
 - NPC 진단/후보 점수는 재생성 가능한 일시 상태로 세이브와 별개다. 모니터 원본은 tools/world_monitor, 런타임 스냅샷은 실행 파일 옆 Logs/WorldMonitor다. 상세 사용법은 COMBAT_SOCIAL_MONITORING.md를 따른다.
+
+## 경제 데이터 추가 — 2026-10-14
+- level1.society의 economy 항목 → Simulation/level1.economy. version 1의 rules/market/recipe 레코드로 지역 금고·자재·목표 재고·가격·생산 투입/산출/임금을 정의한다.
+- 장소와 운송 경로는 level1.life를 재사용하며 기존 모델 캐시 형식은 변경하지 않는다. 상세 스키마와 저장 변경은 ECONOMY_AND_RECIPROCAL_CONFLICT.md를 따른다.
+
+## 지속 목표 정책 — 2026-10-21
+- Simulation/level1.life의 planning 행에 허기/피로/목표 식량/인계 호출 거리/재판단 분/실패 회피 분/목표 기한 분/현장 대기 초를 추가했다. version 1과 기존 콘텐츠 해시를 유지한다.
+- 정책·실행 역할·schema 7의 상태 저장은 PERSISTENT_NPC_PLANS.md를 따른다. 기존 지도/인물/모델을 재사용한다.

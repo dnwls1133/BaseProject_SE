@@ -38,6 +38,20 @@ void WorldSociety::Damage(int attacker, int target, float amount, WorldSimulatio
         std::min(1.f, regions[victim.region].fear + (starvation ? .005f : .03f));
     if (attacker >= 0)
     {
+        if (victim.Alive() && npcs[attacker].Alive())
+        {
+            if (victim.target != attacker)
+            {
+                victim.windup = 0;
+            }
+            victim.target = attacker;
+            victim.wildTarget = -1;
+            victim.action = victim.health < 25 ? Action::Flee : Action::Combat;
+            victim.nextDecision = minute + rules.decisionPeriod;
+            Record("combat_response", victim.id, npcs[attacker].id, "hit",
+                   victim.health < 25 ? "retreat" : "retaliate", "피격자가 실제 공격자를 즉시 인지",
+                   cause);
+        }
         Relate(target, attacker, -15, 8, "공격을 받음", cause);
         diplomacy[victim.faction][npcs[attacker].faction] =
             std::max(-100.f, diplomacy[victim.faction][npcs[attacker].faction] - 2);
@@ -51,6 +65,13 @@ void WorldSociety::Damage(int attacker, int target, float amount, WorldSimulatio
     }
     if (!victim.Alive())
     {
+        for (auto& order : economyOrders)
+        {
+            if (order.carrier == target && order.stage < 4)
+            {
+                CancelEconomyOrder(order, world, "운송자 사망으로 계약 종료");
+            }
+        }
         victim.action = Action::Rest;
         victim.target = -1;
         victim.windup = 0;
@@ -322,6 +343,10 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
         npc.farTime = 0;
     }
     npc.cooldown = std::max(0.f, npc.cooldown - dt);
+    if (TickConflictActor(int(index), dt, world, map, player))
+    {
+        return;
+    }
     if (wildlife(npc, dt))
     {
         if (conversationNpc == int(index))
@@ -421,6 +446,10 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
     if (HasLife() && npc.action != Action::Combat && npc.action != Action::Raid &&
         npc.action != Action::Flee && npc.action != Action::Escort && !CampaignOrder(int(index)))
     {
+        if (EconomicService(int(index), dt, map))
+        {
+            return;
+        }
         TickLife(int(index), dt, world, map);
         return;
     }
