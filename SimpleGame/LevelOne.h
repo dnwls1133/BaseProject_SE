@@ -161,6 +161,7 @@ class LevelOne
 
         LevelOne* owner;
         ModelId model;
+        int mesh3D = -1;
         PropDefinition type;
         std::vector<MeshCache3D::PlacedPart> placedParts;
         float scale = 1, facing = 1;
@@ -245,6 +246,7 @@ class LevelOne
                                                std::uint32_t seed) const;
     void UpdateRespawns(float dt);
     void DrawCitizen(Renderer& renderer, const Citizen& citizen, ActorPass pass);
+    int CitizenModel(const WorldSociety::Npc& npc) const;
     void DrawSocietyUI(Renderer& renderer);
     bool SocietyKey(unsigned char key);
     void CreateCitizens();

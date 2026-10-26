@@ -197,7 +197,7 @@ void LevelOne::UpdateEnemy(Enemy& e, float dt)
     Profile::Add(Profile::Metric::EnemyUpdates);
     if (e.dead)
     {
-        e.collapse = std::min(1.f, e.collapse + dt * 3.5f);
+        e.collapse = std::min(1.f, e.collapse + dt / 1.6f);
         if (e.collapse >= 1)
         {
             e.SetRenderPasses(ActorPassBit(ActorPass::Ground));

@@ -120,8 +120,10 @@ void Game::Person(Renderer& r, float x, float y, bool player)
     pose.time = time;
     pose.phase = walkPhase;
     pose.movement = player ? motion : 0;
+    pose.speed = player ? motion * 3.7f : 0;
+    pose.distance = walkPhase / 3.8f;
     pose.activity = player ? 0 : 3;
-    meshCache3D.Draw(r, meshCache3D.Find(player ? "Pilgrim" : "Infected"),
+    meshCache3D.Draw(r, meshCache3D.Find(player ? "Pilgrim" : "ResourceInfected"),
                      {x, Terrain3D::Height(x, y), y}, player ? this->player.yaw : 2.3f, 1, pose);
 }
 
@@ -410,19 +412,16 @@ void Game::DrawObjectActor(Renderer& r, const Object& o, ActorPass pass)
     pose.time = time;
     if (o.type == "wall")
     {
-        float height = std::max(.5f, o.height / 42.f);
-        r.Submit3D(0,
-                   Mat4::Translation({o.x, floor + height * .5f, o.y}) *
-                       Mat4::Scale({o.w, height, o.h}),
-                   Color(.34f, .34f, .30f), Material::Stone);
-        for (int i = 0; i < 3; ++i)
+        const bool alongX = o.w >= o.h;
+        const float length = std::max(o.w, o.h);
+        const int pieces = std::max(1, int(std::ceil(length / 2)));
+        for (int i = 0; i < pieces; ++i)
         {
-            float x = o.x + (i - 1) * o.w * .29f;
-            r.Submit3D(0,
-                       Mat4::Translation({x, floor + height + .09f, o.y}) *
-                           Mat4::Rotation({0, 0, 1}, (i - 1) * .12f) *
-                           Mat4::Scale({o.w * .23f, .25f, o.h * .95f}),
-                       Color(.29f, .3f, .27f), Material::Stone);
+            const float offset = (float(i) + .5f) * length / pieces - length * .5f;
+            const float x = o.x + (alongX ? offset : 0);
+            const float y = o.y + (alongX ? 0 : offset);
+            meshCache3D.Draw(r, meshCache3D.Find("BrokenWall"), {x, Terrain3D::Height(x, y), y},
+                             alongX ? 0 : 1.570796f, length / pieces / 2, pose);
         }
         return;
     }
@@ -449,6 +448,7 @@ void Game::BuildVillage3D()
 {
     villageGround3D = std::make_shared<Geometry3D>();
     auto& mesh = *villageGround3D;
+    mesh.surfaces = meshCache3D.Surfaces();
     mesh.minimum = {0, -1, 0};
     mesh.maximum = {mapWidth, 1, mapHeight};
     for (int y = 0; y < int(mapHeight); ++y)
@@ -477,7 +477,10 @@ void Game::BuildVillage3D()
                 Vec3 normal = Normalize(Cross(b - a, c0 - a));
                 for (Vec3 q : {a, b, c0})
                 {
-                    mesh.vertices.push_back({q, normal, c.r, c.g, c.b, road ? 5.f : 2.f});
+                    Vertex3D vertex{q, normal, 1, 1, 1, road ? 5.f : 2.f};
+                    vertex.uvLayer = {q.x * .5f, q.z * .5f,
+                                      float(mesh.surfaces->Find(road ? "SootStone" : "GraveSoil"))};
+                    mesh.vertices.push_back(vertex);
                 }
             };
             triangle(a, d, b);

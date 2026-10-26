@@ -1,0 +1,23 @@
+version 1
+surface AshSkin Resources/Textures/AshSkin/BaseColor.png Resources/Textures/AshSkin/Normal.png Resources/Textures/AshSkin/Roughness.png
+surface PaleSkin Resources/Textures/PaleSkin/BaseColor.png Resources/Textures/PaleSkin/Normal.png Resources/Textures/PaleSkin/Roughness.png
+surface DarkSkin Resources/Textures/DarkSkin/BaseColor.png Resources/Textures/DarkSkin/Normal.png Resources/Textures/DarkSkin/Roughness.png
+surface CharcoalCloth Resources/Textures/CharcoalCloth/BaseColor.png Resources/Textures/CharcoalCloth/Normal.png Resources/Textures/CharcoalCloth/Roughness.png
+surface FadedLinen Resources/Textures/FadedLinen/BaseColor.png Resources/Textures/FadedLinen/Normal.png Resources/Textures/FadedLinen/Roughness.png
+surface BloodCloth Resources/Textures/BloodCloth/BaseColor.png Resources/Textures/BloodCloth/Normal.png Resources/Textures/BloodCloth/Roughness.png
+surface WornLeather Resources/Textures/WornLeather/BaseColor.png Resources/Textures/WornLeather/Normal.png Resources/Textures/WornLeather/Roughness.png
+surface RustedIron Resources/Textures/RustedIron/BaseColor.png Resources/Textures/RustedIron/Normal.png Resources/Textures/RustedIron/Roughness.png
+surface TarnishedBrass Resources/Textures/TarnishedBrass/BaseColor.png Resources/Textures/TarnishedBrass/Normal.png Resources/Textures/TarnishedBrass/Roughness.png
+surface OldBone Resources/Textures/OldBone/BaseColor.png Resources/Textures/OldBone/Normal.png Resources/Textures/OldBone/Roughness.png
+surface DeadWood Resources/Textures/DeadWood/BaseColor.png Resources/Textures/DeadWood/Normal.png Resources/Textures/DeadWood/Roughness.png
+surface SootStone Resources/Textures/SootStone/BaseColor.png Resources/Textures/SootStone/Normal.png Resources/Textures/SootStone/Roughness.png
+surface Plaster Resources/Textures/Plaster/BaseColor.png Resources/Textures/Plaster/Normal.png Resources/Textures/Plaster/Roughness.png
+surface Slate Resources/Textures/Slate/BaseColor.png Resources/Textures/Slate/Normal.png Resources/Textures/Slate/Roughness.png
+surface GraveSoil Resources/Textures/GraveSoil/BaseColor.png Resources/Textures/GraveSoil/Normal.png Resources/Textures/GraveSoil/Roughness.png
+surface WitheredGrass Resources/Textures/WitheredGrass/BaseColor.png Resources/Textures/WitheredGrass/Normal.png Resources/Textures/WitheredGrass/Roughness.png
+surface ContaminatedSoil Resources/Textures/ContaminatedSoil/BaseColor.png Resources/Textures/ContaminatedSoil/Normal.png Resources/Textures/ContaminatedSoil/Roughness.png
+surface Mycelium Resources/Textures/Mycelium/BaseColor.png Resources/Textures/Mycelium/Normal.png Resources/Textures/Mycelium/Roughness.png
+surface InfectedFlesh Resources/Textures/InfectedFlesh/BaseColor.png Resources/Textures/InfectedFlesh/Normal.png Resources/Textures/InfectedFlesh/Roughness.png
+surface Chitin Resources/Textures/Chitin/BaseColor.png Resources/Textures/Chitin/Normal.png Resources/Textures/Chitin/Roughness.png
+surface Black Resources/Textures/Black/BaseColor.png Resources/Textures/Black/Normal.png Resources/Textures/Black/Roughness.png
+surface Amber Resources/Textures/Amber/BaseColor.png Resources/Textures/Amber/Normal.png Resources/Textures/Amber/Roughness.png

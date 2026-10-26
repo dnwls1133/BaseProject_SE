@@ -9,7 +9,7 @@ float Terrain3D::Height(float x, float z)
     return std::sin(x * .085f) * .30f + std::cos(z * .071f) * .24f;
 }
 
-void Terrain3D::Build(const RandomLevelMap& map)
+void Terrain3D::Build(const RandomLevelMap& map, const std::shared_ptr<SurfaceSet3D>& surfaces)
 {
     PROFILE_SCOPE(CacheBuild);
     chunks.clear();
@@ -18,6 +18,7 @@ void Terrain3D::Build(const RandomLevelMap& map)
         for (int cx = 0; cx < map.Width; cx += 16)
         {
             auto mesh = std::make_shared<Geometry3D>();
+            mesh->surfaces = surfaces;
             mesh->minimum = {float(cx), -.65f, float(cz)};
             mesh->maximum = {float(cx + 16), .65f, float(cz + 16)};
             for (int z = cz; z < std::min(cz + 16, map.Height); ++z)
@@ -50,8 +51,20 @@ void Terrain3D::Build(const RandomLevelMap& map)
                         Vec3 n = Normalize(Cross(p1 - p0, p2 - p0));
                         for (Vec3 pos : {p0, p1, p2})
                         {
-                            mesh->vertices.push_back(
-                                {pos, n, c.r * variation, c.g * variation, c.b * variation, kind});
+                            Vertex3D vertex{
+                                pos, n, c.r * variation, c.g * variation, c.b * variation, kind};
+                            if (surfaces && tile != 2)
+                            {
+                                const std::string surface = tile == 1           ? "SootStone"
+                                                            : region.style == 5 ? "ContaminatedSoil"
+                                                                                : "GraveSoil";
+                                vertex.uvLayer = {pos.x * .5f, pos.z * .5f,
+                                                  float(surfaces->Find(surface))};
+                                // PNG supplies the authored albedo, retain only restrained
+                                // variation.
+                                vertex.r = vertex.g = vertex.b = variation;
+                            }
+                            mesh->vertices.push_back(vertex);
                         }
                     };
                     tri(a, d, b);

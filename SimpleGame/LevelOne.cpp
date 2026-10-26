@@ -170,7 +170,7 @@ bool LevelOne::Generate(std::uint32_t fixedSeed)
     lootGroup = numberGroup = minimapGroup = nullptr;
     content = std::move(nextContent);
     map = std::move(nextMap);
-    terrain3D.Build(map);
+    terrain3D.Build(map, meshCache3D.Surfaces());
     simulation = std::move(nextSimulation);
     society = std::move(nextSociety);
     society.ResetWildlifeTargets();
@@ -261,11 +261,12 @@ bool LevelOne::Generate(std::uint32_t fixedSeed)
         auto& prop = props.back();
         prop.scale = placement.scale;
         prop.facing = placement.facing;
+        prop.mesh3D = meshCache3D.PropModel(prop.type.id, int(prop.model));
         prop.placedParts =
-            meshCache3D.Place(int(prop.model), {prop.x, Terrain3D::Height(prop.x, prop.y), prop.y},
+            meshCache3D.Place(prop.mesh3D, {prop.x, Terrain3D::Height(prop.x, prop.y), prop.y},
                               prop.facing < 0 ? 3.14159f : 0, prop.scale);
         Vec3 minimum, maximum;
-        meshCache3D.Bounds(static_cast<int>(prop.model), minimum, maximum);
+        meshCache3D.Bounds(prop.mesh3D, minimum, maximum);
         const float extentX = std::max(std::abs(minimum.x), std::abs(maximum.x)) * prop.scale;
         const float extentZ = std::max(std::abs(minimum.z), std::abs(maximum.z)) * prop.scale;
         prop.bounds3DMin = {-extentX, minimum.y * prop.scale - 1, -extentZ};
@@ -730,6 +731,8 @@ void LevelOne::DrawPlayer(Renderer& r, ActorPass pass)
     Pose3D pose;
     pose.phase = phase;
     pose.movement = movement;
+    pose.speed = stats.rules.moveSpeed * movement;
+    pose.distance = phase / 4;
     pose.time = time;
     pose.flash = hurtTime * .4f;
     if (attackTime > 0)
@@ -791,6 +794,8 @@ void LevelOne::DrawEnemy(Renderer& r, const Enemy& enemy, ActorPass pass)
         Pose3D pose;
         pose.phase = enemy.phase;
         pose.movement = enemy.dead ? 0 : enemy.movement;
+        pose.speed = enemy.type.speed * pose.movement;
+        pose.distance = enemy.phase / enemy.type.gait;
         pose.time = time;
         pose.flash = enemy.flash * 4;
         pose.collapse = enemy.collapse;
@@ -800,10 +805,9 @@ void LevelOne::DrawEnemy(Renderer& r, const Enemy& enemy, ActorPass pass)
         const float yaw = enemy.windup > 0
                               ? std::atan2(enemy.x - enemy.attackX, enemy.y - enemy.attackY)
                               : enemy.yaw;
-        meshCache3D.Draw(
-            r, static_cast<int>(enemy.type.model),
-            {enemy.x, Terrain3D::Height(enemy.x, enemy.y) + enemy.collapse * .25f, enemy.y}, yaw,
-            enemy.type.model == ModelId::Brute ? 1.25f : 1, pose);
+        meshCache3D.Draw(r, static_cast<int>(enemy.type.model),
+                         {enemy.x, Terrain3D::Height(enemy.x, enemy.y), enemy.y}, yaw,
+                         enemy.type.model == ModelId::Brute ? 1.25f : 1, pose);
         if (enemy.flash > 0)
         {
             const float elapsed = .18f - std::min(.18f, enemy.flash);
@@ -867,8 +871,7 @@ void LevelOne::DrawProp(Renderer& r, const Prop& prop, ActorPass pass)
     }
     else
     {
-        meshCache3D.Draw(r, static_cast<int>(prop.model),
-                         {prop.x, Terrain3D::Height(prop.x, prop.y), prop.y},
+        meshCache3D.Draw(r, prop.mesh3D, {prop.x, Terrain3D::Height(prop.x, prop.y), prop.y},
                          prop.facing < 0 ? 3.14159f : 0, prop.scale, pose, tint);
     }
     if (prop.type.role == "brazier" || prop.type.role == "shrine")
@@ -1153,6 +1156,11 @@ void LevelOne::BuildScene()
     }
     for (auto& enemy : enemies)
     {
+        Vec3 minimum, maximum;
+        meshCache3D.Bounds(int(enemy.type.model), minimum, maximum);
+        const float scale = enemy.type.model == ModelId::Brute ? 1.25f : 1.f;
+        enemy.bounds3DMin = minimum * scale;
+        enemy.bounds3DMax = maximum * scale;
         scene.Attach(enemy, characters);
     }
     for (auto& drop : drops)

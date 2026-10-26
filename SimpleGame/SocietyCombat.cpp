@@ -323,7 +323,7 @@ void WorldSociety::TickActor(std::size_t index, float dt, WorldSimulation& world
     npc.movement = 0;
     if (!npc.Alive())
     {
-        npc.collapse = std::min(1.f, npc.collapse + dt * 2);
+        npc.collapse = std::min(1.f, npc.collapse + dt / 1.6f);
         return;
     }
     const bool near = std::hypot(npc.x - player.x, npc.y - player.y) < 32;

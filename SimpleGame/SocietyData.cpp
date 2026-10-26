@@ -405,8 +405,11 @@ void WorldSociety::ReconcilePositions(const RandomLevelMap& map)
         {
             const float angle = slot * 6.2831853f / place.capacity;
             const float radius = place.kind == "rest" ? 2.2f : 1.4f;
-            const Point desired{place.position.x + std::cos(angle) * radius,
-                                place.position.y + std::sin(angle) * radius};
+            const Point desired = place.kind == "rest"
+                                      ? Point{place.position.x + (slot % 4 - 1.5f) * 1.6f,
+                                              place.position.y + (slot / 4 - 1.f) * 2.2f}
+                                      : Point{place.position.x + std::cos(angle) * radius,
+                                              place.position.y + std::sin(angle) * radius};
             Point best = place.position;
             float score = 1e9f;
             for (int y = -4; y <= 4; ++y)
@@ -423,7 +426,10 @@ void WorldSociety::ReconcilePositions(const RandomLevelMap& map)
                     bool occupied = false;
                     for (const auto& used : place.slots)
                     {
-                        occupied |= std::hypot(used.x - candidate.x, used.y - candidate.y) < .9f;
+                        occupied |= place.kind == "rest" ? std::abs(used.x - candidate.x) < 1.2f &&
+                                                               std::abs(used.y - candidate.y) < 2.f
+                                                         : std::hypot(used.x - candidate.x,
+                                                                      used.y - candidate.y) < .9f;
                     }
                     const float d = std::hypot(desired.x - candidate.x, desired.y - candidate.y);
                     if (!occupied && d < score)

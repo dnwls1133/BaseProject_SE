@@ -177,3 +177,9 @@ ChurchRegalia, RefugeGear, SporeMantle, ResearchGear, PurgeArmor의 외부 장�
 최신 첫 맵은 256×256이다. `village`/`wilderness` 레코드와 사회 데이터의 `courier`
 정의, 저장 스키마 9 및 분위기 JSON 필드는 docs/FIVE_VILLAGE_WORLD.md를 따른다.
 기존 80×64·256×200 및 첫 전장의 40명 배치는 과거 구현 기록이다.
+
+
+## Resource 자산 적용 — 2026-10-21
+최신 3D 모델 파이프라인은 docs/RESOURCE_RUNTIME.md를 따른다. 원본은 Resource, 제작 변환은
+tools/prepare_resource_models.py, 게임용 메시·프리팹·PNG는 Data/Resources에 둔다.
+Models3D/*.mesh 기반 도형 모델은 최신 3D 렌더링 경로에서 사용하지 않으며 모델 ID 순서는 보존한다.

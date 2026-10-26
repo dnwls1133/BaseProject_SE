@@ -159,6 +159,7 @@
     <ClInclude Include="WorldRenderer3D.h" />
     <ClInclude Include="WorldShaders3D.h" />
     <ClInclude Include="MeshCache3D.h" />
+    <ClInclude Include="ResourceLibrary3D.h" />
     <ClInclude Include="Terrain3D.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Profiler.h" />
@@ -182,6 +183,8 @@
   <ItemGroup>
     <ClCompile Include="WorldRenderer3D.cpp" />
     <ClCompile Include="MeshCache3D.cpp" />
+    <ClCompile Include="ResourceLibrary3D.cpp" />
+    <ClCompile Include="WorldMaterials3D.cpp" />
     <ClCompile Include="Terrain3D.cpp" />
     <ClCompile Include="NpcLifeData.cpp" />
     <ClCompile Include="NpcLife.cpp" />

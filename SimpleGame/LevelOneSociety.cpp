@@ -39,6 +39,27 @@ std::vector<std::string> WrapJournal(Renderer& renderer, const std::vector<std::
 }
 } // namespace
 
+int LevelOne::CitizenModel(const WorldSociety::Npc& npc) const
+{
+    if (society.Factions()[npc.faction].id == "hive")
+    {
+        const char* model = npc.role == "leader"   ? "ResourceHiveLord"
+                            : npc.combatClass == 4 ? "ResourceHound"
+                            : npc.combatClass == 5 ? "ResourceSpitter"
+                            : npc.combatClass == 7 ? "ResourceSeeder"
+                                                   : "Brute";
+        return meshCache3D.Find(model);
+    }
+    const char* model =
+        npc.role == "guard" || npc.role == "leader" ? "ResourceWarden"
+        : npc.role == "healer"                      ? "ResourceHealer"
+        : society.IsCourier(int(&npc - society.Npcs().data())) || npc.role == "merchant"
+            ? "ResourceMerchant"
+        : npc.role == "scholar" ? "Pilgrim"
+                                : "ResourceCivilian";
+    return meshCache3D.Find(model);
+}
+
 void LevelOne::CreateCitizens()
 {
     activityPlaces.clear();
@@ -49,6 +70,15 @@ void LevelOne::CreateCitizens()
         ContentData::Require(model >= 0, "unknown activity 3D model: " + place.model);
         activityPlaces.emplace_back(this, i, model);
         activityPlaces.back().SetPosition(place.position.x, place.position.y);
+        Vec3 minimum, maximum;
+        meshCache3D.Bounds(model, minimum, maximum);
+        if (place.kind == "rest")
+        {
+            minimum = minimum - Vec3{5, 0, 5};
+            maximum = maximum + Vec3{5, 0, 5};
+        }
+        activityPlaces.back().bounds3DMin = minimum;
+        activityPlaces.back().bounds3DMax = maximum;
     }
     citizens.clear();
     citizens.reserve(society.Npcs().size());
@@ -56,6 +86,10 @@ void LevelOne::CreateCitizens()
     {
         citizens.emplace_back(this, i);
         citizens.back().SetPosition(society.Npcs()[i].x, society.Npcs()[i].y);
+        Vec3 minimum, maximum;
+        meshCache3D.Bounds(CitizenModel(society.Npcs()[i]), minimum, maximum);
+        citizens.back().bounds3DMin = minimum;
+        citizens.back().bounds3DMax = maximum;
     }
 }
 
@@ -89,6 +123,8 @@ void LevelOne::DrawCitizen(Renderer& r, const Citizen& citizen, ActorPass pass)
         Pose3D pose;
         pose.phase = npc.phase;
         pose.movement = npc.movement;
+        pose.speed = npc.speed * npc.movement;
+        pose.distance = npc.phase / 5;
         pose.time = time + static_cast<float>(citizen.index) * .73f;
         pose.flash = npc.flash * 3;
         pose.collapse = npc.collapse;
@@ -102,8 +138,8 @@ void LevelOne::DrawCitizen(Renderer& r, const Citizen& citizen, ActorPass pass)
                                  : 0;
         pose.attackStyle = society.TwoFactionWar() ? npc.attackPattern : 0;
         pose.activity = society.LifeActivity(static_cast<int>(citizen.index));
-        Vec3 position{npc.x, Terrain3D::Height(npc.x, npc.y) + npc.collapse * .25f, npc.y};
-        meshCache3D.Draw(r, static_cast<int>(npc.model), position, npc.yaw, .94f, pose);
+        Vec3 position{npc.x, Terrain3D::Height(npc.x, npc.y), npc.y};
+        meshCache3D.Draw(r, CitizenModel(npc), position, npc.yaw, .94f, pose);
         if (!society.IsHive(int(citizen.index)))
         {
             meshCache3D.Draw(r, static_cast<int>(faction.emblem), position, npc.yaw, .94f, pose);
@@ -179,11 +215,10 @@ void LevelOne::DrawCitizen(Renderer& r, const Citizen& citizen, ActorPass pass)
             const Color cargoColor = good == 1   ? Color(.62f, .18f, .23f)
                                      : good == 2 ? Color(.32f, .40f, .44f)
                                                  : Color(.57f, .43f, .22f);
-            r.Submit3D(0,
-                       Mat4::Translation({npc.x - std::sin(npc.yaw) * .45f, position.y + .95f,
-                                          npc.y - std::cos(npc.yaw) * .45f}) *
-                           Mat4::Rotation({0, 1, 0}, npc.yaw) * Mat4::Scale({.55f, .45f, .4f}),
-                       cargoColor, Material::Wood);
+            meshCache3D.Draw(r, meshCache3D.Find("ResourceCrate"),
+                             {npc.x - std::sin(npc.yaw) * .45f, position.y + .75f,
+                              npc.y - std::cos(npc.yaw) * .45f},
+                             npc.yaw, .65f, {}, cargoColor);
         }
     }
     else if (pass == ActorPass::Overlay && npc.Alive())
@@ -482,8 +517,7 @@ void LevelOne::DrawActivityPlace(Renderer& r, const ActivityPlace& actor, ActorP
             {
                 position = place.slots[i];
             }
-            const float yaw =
-                copies > 1 ? std::atan2(position.x - actor.x, position.y - actor.y) : 0;
+            const float yaw = 0;
             meshCache3D.Draw(r, actor.model,
                              {position.x, Terrain3D::Height(position.x, position.y), position.y},
                              yaw, 1, pose);
@@ -502,8 +536,11 @@ void LevelOne::DrawActivityPlace(Renderer& r, const ActivityPlace& actor, ActorP
                     const Vec3 position{actor.x + (good - 1) * .55f,
                                         Terrain3D::Height(actor.x, actor.y) + .2f + item * .23f,
                                         actor.y + .8f};
-                    r.Submit3D(0, Mat4::Translation(position) * Mat4::Scale({.45f, .2f, .38f}),
-                               color, Material::Wood);
+                    meshCache3D.Draw(r,
+                                     meshCache3D.Find(good == 1   ? "Potion"
+                                                      : good == 2 ? "ResourceBarrel"
+                                                                  : "ResourceCrate"),
+                                     position, 0, good == 1 ? .7f : .45f, {}, color);
                 }
             }
         }

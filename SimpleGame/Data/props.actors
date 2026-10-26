@@ -29,3 +29,11 @@ footprint purge_bastion 1
 prop ledger_table Cart static 0 1 0 95
 prop ration_board Fence static 0 1 0 75
 prop boundary_marker Roots static 0 1 0 60
+
+# Runtime GLB prefab binding is defined in Resources/models.catalog.
+prop supply_crate Cart static 0 1 0 65
+prop supply_barrel Cart static 0 1 0 65
+prop meadow_grass Roots static 1 0 0 30
+prop marsh_reeds Roots static 0 0 0 45
+prop hive_eggs FungalColony fungal 0 1 0 75
+prop wild_rock Pillar static 0 1 0 75

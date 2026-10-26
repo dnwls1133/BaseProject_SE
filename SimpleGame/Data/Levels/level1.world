@@ -205,3 +205,29 @@ place purge_bastion 118 54 1 1
 place purge_bastion 192 54 1 1
 place purge_bastion 155 118 1 1
 place mycelium_sanctum 81 118 1 1
+
+# Resource supply storage stays off the central travel and interaction lanes.
+place supply_crate 63.5 67.5 .85 1
+place supply_barrel 65.5 67.5 .9 1
+place supply_crate 63.5 70.5 .7 -1
+scatter meadow_grass 40 74 7 5 12 2
+place supply_crate 137.5 67.5 .85 1
+place supply_barrel 139.5 67.5 .9 1
+place supply_crate 137.5 70.5 .7 -1
+scatter meadow_grass 114 74 7 5 12 2
+place supply_crate 211.5 67.5 .85 1
+place supply_barrel 213.5 67.5 .9 1
+place supply_crate 211.5 70.5 .7 -1
+scatter meadow_grass 188 74 7 5 12 2
+place supply_crate 174.5 131.5 .85 1
+place supply_barrel 176.5 131.5 .9 1
+place supply_crate 174.5 134.5 .7 -1
+scatter meadow_grass 151 138 7 5 12 2
+place hive_eggs 84.5 133.5 .9 1
+place hive_eggs 99.5 132.5 .7 -1
+place hive_eggs 84.5 99.5 .9 1
+place hive_eggs 99.5 98.5 .7 -1
+place hive_eggs 135.5 199.5 .9 1
+place hive_eggs 150.5 198.5 .7 -1
+scatter marsh_reeds 90 186 20 12 28 3
+scatter wild_rock 173 97 14 10 12 4

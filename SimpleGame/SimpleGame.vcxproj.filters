@@ -25,6 +25,7 @@
     <ClInclude Include="WorldRenderer3D.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="WorldShaders3D.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="MeshCache3D.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="ResourceLibrary3D.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="WorldMonitor.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="Terrain3D.h"><Filter>헤더 파일</Filter></ClInclude>
     <ClInclude Include="stdafx.h">
@@ -54,6 +55,8 @@
   <ItemGroup>
     <ClCompile Include="WorldRenderer3D.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="MeshCache3D.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="ResourceLibrary3D.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="WorldMaterials3D.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="Terrain3D.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="NpcLifeData.cpp"><Filter>소스 파일</Filter></ClCompile>
     <ClCompile Include="NpcLife.cpp"><Filter>소스 파일</Filter></ClCompile>

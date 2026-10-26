@@ -1,0 +1,247 @@
+version 1
+asset Altar Resources/Meshes/Altar.rmesh
+asset Arch_Ruined_2m Resources/Meshes/Arch_Ruined_2m.rmesh
+asset Barrel Resources/Meshes/Barrel.rmesh
+asset Bed_Straw Resources/Meshes/Bed_Straw.rmesh
+asset Bench Resources/Meshes/Bench.rmesh
+asset BloodVial Resources/Meshes/BloodVial.rmesh
+asset Body_7H Resources/Meshes/Body_7H.rmesh
+gait Body_7H 1.1333333 2.1750000
+asset Boss_BroodMatriarch Resources/Meshes/Boss_BroodMatriarch.rmesh
+gait Boss_BroodMatriarch 0.9350000 1.8150000
+asset Boss_CrownedAbomination Resources/Meshes/Boss_CrownedAbomination.rmesh
+gait Boss_CrownedAbomination 3.0600000 5.8725000
+asset Boss_HiveHart Resources/Meshes/Boss_HiveHart.rmesh
+gait Boss_HiveHart 1.3200000 2.6400000
+asset Bowl Resources/Meshes/Bowl.rmesh
+asset Bucket Resources/Meshes/Bucket.rmesh
+asset Cauldron Resources/Meshes/Cauldron.rmesh
+asset Chair Resources/Meshes/Chair.rmesh
+asset Chest_Hinged Resources/Meshes/Chest_Hinged.rmesh
+asset Chimney Resources/Meshes/Chimney.rmesh
+asset ColdHearth Resources/Meshes/ColdHearth.rmesh
+asset Colony_Large Resources/Meshes/Colony_Large.rmesh
+asset Colony_Small Resources/Meshes/Colony_Small.rmesh
+asset Crate_Large Resources/Meshes/Crate_Large.rmesh
+asset Crate_Small Resources/Meshes/Crate_Small.rmesh
+asset Danger_RibBrute Resources/Meshes/Danger_RibBrute.rmesh
+gait Danger_RibBrute 2.2440000 4.3065000
+asset Danger_ThornHound Resources/Meshes/Danger_ThornHound.rmesh
+gait Danger_ThornHound 0.8000000 1.6000000
+asset Danger_ThornWeaver Resources/Meshes/Danger_ThornWeaver.rmesh
+gait Danger_ThornWeaver 0.5666667 1.1000000
+asset Door_Hinged Resources/Meshes/Door_Hinged.rmesh
+asset Egg_Cluster Resources/Meshes/Egg_Cluster.rmesh
+asset Fallen_Log Resources/Meshes/Fallen_Log.rmesh
+asset Fence_2m Resources/Meshes/Fence_2m.rmesh
+asset Floor_Stone_2m Resources/Meshes/Floor_Stone_2m.rmesh
+asset Floor_Wood_2m Resources/Meshes/Floor_Wood_2m.rmesh
+asset Foundation_Corner Resources/Meshes/Foundation_Corner.rmesh
+asset Gable_Triangle_2m Resources/Meshes/Gable_Triangle_2m.rmesh
+asset Grass_Dry_Clump Resources/Meshes/Grass_Dry_Clump.rmesh
+asset Grass_Fungal Resources/Meshes/Grass_Fungal.rmesh
+asset Grass_Reeds Resources/Meshes/Grass_Reeds.rmesh
+asset Ground_Contaminated Resources/Meshes/Ground_Contaminated.rmesh
+asset Ground_GraveSoil Resources/Meshes/Ground_GraveSoil.rmesh
+asset Ground_Mycelium Resources/Meshes/Ground_Mycelium.rmesh
+asset Ground_Stone Resources/Meshes/Ground_Stone.rmesh
+asset Healer Resources/Meshes/Healer.rmesh
+gait Healer 1.1333333 2.1750000
+asset InfectedWanderer Resources/Meshes/InfectedWanderer.rmesh
+gait InfectedWanderer 1.1333333 2.1750000
+asset Lantern Resources/Meshes/Lantern.rmesh
+asset Mycelium_Roots Resources/Meshes/Mycelium_Roots.rmesh
+asset Pilgrim Resources/Meshes/Pilgrim.rmesh
+gait Pilgrim 1.1333333 2.1750000
+asset Plate Resources/Meshes/Plate.rmesh
+asset Post_1m2 Resources/Meshes/Post_1m2.rmesh
+asset Post_2m4 Resources/Meshes/Post_2m4.rmesh
+asset Reliquary Resources/Meshes/Reliquary.rmesh
+asset Rock_Large Resources/Meshes/Rock_Large.rmesh
+asset Rock_Medium Resources/Meshes/Rock_Medium.rmesh
+asset Rock_Small Resources/Meshes/Rock_Small.rmesh
+asset Rock_Spire Resources/Meshes/Rock_Spire.rmesh
+asset Roof_Ridge_2m Resources/Meshes/Roof_Ridge_2m.rmesh
+asset Roof_Slate_2m Resources/Meshes/Roof_Slate_2m.rmesh
+asset Roof_Wood_2m Resources/Meshes/Roof_Wood_2m.rmesh
+asset Rubble_Cluster Resources/Meshes/Rubble_Cluster.rmesh
+asset Sack Resources/Meshes/Sack.rmesh
+asset Scavenger Resources/Meshes/Scavenger.rmesh
+gait Scavenger 1.1333333 2.1750000
+asset Shelf Resources/Meshes/Shelf.rmesh
+asset Shovel Resources/Meshes/Shovel.rmesh
+asset Shrine_MutantSaint Resources/Meshes/Shrine_MutantSaint.rmesh
+asset Stairs_2m Resources/Meshes/Stairs_2m.rmesh
+asset Stool Resources/Meshes/Stool.rmesh
+asset Table Resources/Meshes/Table.rmesh
+asset Tree_Dead_A Resources/Meshes/Tree_Dead_A.rmesh
+asset Tree_Dead_B Resources/Meshes/Tree_Dead_B.rmesh
+asset Tree_Infected Resources/Meshes/Tree_Infected.rmesh
+asset Tree_Stump Resources/Meshes/Tree_Stump.rmesh
+asset Wall_Doorway_2m Resources/Meshes/Wall_Doorway_2m.rmesh
+asset Wall_Plaster_2m Resources/Meshes/Wall_Plaster_2m.rmesh
+asset Wall_Ruined_2m Resources/Meshes/Wall_Ruined_2m.rmesh
+asset Wall_Stone_2m Resources/Meshes/Wall_Stone_2m.rmesh
+asset Wall_Timber_2m Resources/Meshes/Wall_Timber_2m.rmesh
+asset Wall_Window_2m Resources/Meshes/Wall_Window_2m.rmesh
+asset Warden Resources/Meshes/Warden.rmesh
+gait Warden 1.1333333 2.1750000
+asset Weak_AshWeaver Resources/Meshes/Weak_AshWeaver.rmesh
+gait Weak_AshWeaver 0.3683333 0.7150000
+asset Weak_HollowThrall Resources/Meshes/Weak_HollowThrall.rmesh
+gait Weak_HollowThrall 1.7340000 3.3277500
+asset Weak_StarvedHound Resources/Meshes/Weak_StarvedHound.rmesh
+gait Weak_StarvedHound 0.6400000 1.2800000
+asset WorkHammer Resources/Meshes/WorkHammer.rmesh
+prefab Pilgrim 180 1.15
+part Pilgrim Pilgrim 0 0 0 0 1 1 1
+prefab Infected 180 1.0
+part Infected Weak_HollowThrall 0 0 0 0 1 1 1
+prefab Brute 180 0.85
+part Brute Danger_RibBrute 0 0 0 0 1 1 1
+prefab Pillar 180 1.0
+part Pillar Post_2m4 0 0 0 0 1 1 1
+prefab Roots 180 1.0
+part Roots Mycelium_Roots 0 0 0 0 1 1 1
+prefab Brazier 180 1.5
+part Brazier Lantern 0 0 0 0 1 1 1
+prefab Shrine 180 1.0
+part Shrine Shrine_MutantSaint 0 0 0 0 1 1 1
+prefab Potion 180 1.8
+part Potion BloodVial 0 0 0 0 1 1 1
+prefab Fragment 180 0.35
+part Fragment Egg_Cluster 0 0 0 0 1 1 1
+prefab Crawler 180 1.1
+part Crawler Weak_AshWeaver 0 0 0 0 1 1 1
+prefab BrokenWall 180 1.0
+part BrokenWall Wall_Ruined_2m 0 0 0 0 1 1 1
+prefab Arch 180 1.0
+part Arch Arch_Ruined_2m 0 0 0 0 1 1 1
+prefab Statue 180 1.3
+part Statue Shrine_MutantSaint 0 0 0 0 1 1 1
+prefab Grave 180 0.65
+part Grave Rock_Spire 0 0 0 0 1 1 1
+prefab Cart 180 1.0
+part Cart Crate_Large 0 0 0 0 1 1 1
+part Cart Barrel 0.7 0 0.2 0 1 1 1
+part Cart Sack -0.6 0 0.3 0 1 1 1
+prefab FungalColony 180 1.0
+part FungalColony Colony_Large 0 0 0 0 1 1 1
+prefab Debris 180 1.0
+part Debris Rubble_Cluster 0 0 0 0 1 1 1
+prefab Corpse 180 1.0
+part Corpse InfectedWanderer 0 0 0 0 1 1 1
+freeze Corpse Death 1
+prefab Fence 180 1.0
+part Fence Fence_2m 0 0 0 0 1 1 1
+prefab DeadTree 180 1.0
+part DeadTree Tree_Dead_A 0 0 0 0 1 1 1
+prefab BlightedTree 180 1.0
+part BlightedTree Tree_Infected 0 0 0 0 1 1 1
+prefab ChurchRegalia 180 1.0
+prefab RefugeGear 180 1.0
+prefab SporeMantle 180 1.0
+prefab ResearchGear 180 1.0
+prefab PurgeArmor 180 1.0
+prefab BloodChapel 180 1.0
+part BloodChapel Floor_Stone_2m 0 0 0 0 1.5 1 1.5
+part BloodChapel Wall_Stone_2m 0 0 -1.5 0 1.5 1 1
+part BloodChapel Wall_Stone_2m -1.5 0 0 90 1.5 1 1
+part BloodChapel Wall_Stone_2m 1.5 0 0 90 1.5 1 1
+part BloodChapel Wall_Doorway_2m 0 0 1.5 0 1.5 1 1
+part BloodChapel Roof_Slate_2m -0.75 2.4 0 0 0.75 1 1.5
+part BloodChapel Roof_Slate_2m 0.75 2.4 0 180 0.75 1 1.5
+part BloodChapel Chimney 1 2.1 -0.8 0 0.7 0.7 0.7
+part BloodChapel Shrine_MutantSaint 0 0 -0.5 0 0.65 0.65 0.65
+prefab UnionStorehouse 180 1.0
+part UnionStorehouse Floor_Stone_2m 0 0 0 0 1.5 1 1.5
+part UnionStorehouse Wall_Plaster_2m 0 0 -1.5 0 1.5 1 1
+part UnionStorehouse Wall_Plaster_2m -1.5 0 0 90 1.5 1 1
+part UnionStorehouse Wall_Plaster_2m 1.5 0 0 90 1.5 1 1
+part UnionStorehouse Wall_Doorway_2m 0 0 1.5 0 1.5 1 1
+part UnionStorehouse Roof_Wood_2m -0.75 2.4 0 0 0.75 1 1.5
+part UnionStorehouse Roof_Wood_2m 0.75 2.4 0 180 0.75 1 1.5
+part UnionStorehouse Chimney 1 2.1 -0.8 0 0.7 0.7 0.7
+prefab MyceliumSanctum 180 1.0
+part MyceliumSanctum Colony_Large 0 0 0 0 1.6 1.6 1.6
+part MyceliumSanctum Mycelium_Roots 1 0 0 0 1 1 1
+part MyceliumSanctum Egg_Cluster -0.8 0 0.7 0 1 1 1
+prefab BloodObservatory 180 1.0
+part BloodObservatory Floor_Stone_2m 0 0 0 0 1.5 1 1.5
+part BloodObservatory Wall_Plaster_2m 0 0 -1.5 0 1.5 1 1
+part BloodObservatory Wall_Window_2m -1.5 0 0 90 1.5 1 1
+part BloodObservatory Wall_Window_2m 1.5 0 0 90 1.5 1 1
+part BloodObservatory Wall_Doorway_2m 0 0 1.5 0 1.5 1 1
+part BloodObservatory Roof_Slate_2m -0.75 2.4 0 0 0.75 1 1.5
+part BloodObservatory Roof_Slate_2m 0.75 2.4 0 180 0.75 1 1.5
+part BloodObservatory Chimney 1 2.1 -0.8 0 0.7 0.7 0.7
+prefab PurgeBastion 180 1.0
+part PurgeBastion Floor_Stone_2m 0 0 0 0 1.5 1 1.5
+part PurgeBastion Wall_Stone_2m 0 0 -1.5 0 1.5 1 1
+part PurgeBastion Wall_Stone_2m -1.5 0 0 90 1.5 1 1
+part PurgeBastion Wall_Stone_2m 1.5 0 0 90 1.5 1 1
+part PurgeBastion Wall_Doorway_2m 0 0 1.5 0 1.5 1 1
+part PurgeBastion Roof_Slate_2m -0.75 2.4 0 0 0.75 1 1.5
+part PurgeBastion Roof_Slate_2m 0.75 2.4 0 180 0.75 1 1.5
+part PurgeBastion Chimney 1 2.1 -0.8 0 0.7 0.7 0.7
+prefab Bedroll 180 1.0
+part Bedroll Bed_Straw 0 0 0 0 1 1 1
+prefab MedicalCot 180 1.0
+part MedicalCot Bed_Straw 0 0 0 0 1 1 1
+part MedicalCot Lantern 0.6 0 0.2 0 1 1 1
+prefab WorkTable 180 1.0
+part WorkTable Table 0 0 0 0 1 1 1
+part WorkTable BloodVial 0.3 0.85 0 0 1 1 1
+prefab NoticeBoard 180 1.0
+part NoticeBoard Shelf 0 0 0 0 1 1 1
+part NoticeBoard Crate_Small 0.8 0 0.3 0 1 1 1
+prefab FieldBed 180 1.0
+part FieldBed Grass_Dry_Clump 0 0 0 0 1 1 1
+part FieldBed Grass_Dry_Clump -0.65 0 -0.65 0 1 1 1
+part FieldBed Grass_Dry_Clump 0 0 -0.65 0 1 1 1
+part FieldBed Grass_Dry_Clump 0.65 0 -0.65 0 1 1 1
+part FieldBed Grass_Dry_Clump -0.65 0 0 0 1 1 1
+part FieldBed Grass_Dry_Clump 0.65 0 0 0 1 1 1
+part FieldBed Grass_Dry_Clump -0.65 0 0.65 0 1 1 1
+part FieldBed Grass_Dry_Clump 0 0 0.65 0 1 1 1
+part FieldBed Grass_Dry_Clump 0.65 0 0.65 0 1 1 1
+prefab ResourceWarden 180 1.15
+part ResourceWarden Warden 0 0 0 0 1 1 1
+prefab ResourceHealer 180 1.15
+part ResourceHealer Healer 0 0 0 0 1 1 1
+prefab ResourceMerchant 180 1.15
+part ResourceMerchant Scavenger 0 0 0 0 1 1 1
+prefab ResourceCivilian 180 1.15
+part ResourceCivilian Body_7H 0 0 0 0 1 1 1
+prefab ResourceInfected 180 1.15
+part ResourceInfected InfectedWanderer 0 0 0 0 1 1 1
+prefab ResourceHound 180 1.0
+part ResourceHound Danger_ThornHound 0 0 0 0 1 1 1
+prefab ResourceSpitter 180 0.9
+part ResourceSpitter Danger_ThornWeaver 0 0 0 0 1 1 1
+prefab ResourceSeeder 180 0.7
+part ResourceSeeder Boss_BroodMatriarch 0 0 0 0 1 1 1
+prefab ResourceHiveLord 180 0.75
+part ResourceHiveLord Boss_CrownedAbomination 0 0 0 0 1 1 1
+prefab ResourceChest 180 1.0
+part ResourceChest Chest_Hinged 0 0 0 0 1 1 1
+prefab ResourceBarrel 180 1.0
+part ResourceBarrel Barrel 0 0 0 0 1 1 1
+prefab ResourceGrass 180 1.0
+part ResourceGrass Grass_Dry_Clump 0 0 0 0 1 1 1
+prefab ResourceReeds 180 1.0
+part ResourceReeds Grass_Reeds 0 0 0 0 1 1 1
+prefab ResourceRock 180 1.0
+part ResourceRock Rock_Large 0 0 0 0 1 1 1
+prefab ResourceEggs 180 1.0
+part ResourceEggs Egg_Cluster 0 0 0 0 1 1 1
+prefab ResourceCrate 180 1.0
+part ResourceCrate Crate_Small 0 0 0 0 1 1 1
+bind ledger_table WorkTable
+bind ration_board NoticeBoard
+bind supply_crate ResourceCrate
+bind supply_barrel ResourceBarrel
+bind meadow_grass ResourceGrass
+bind marsh_reeds ResourceReeds
+bind hive_eggs ResourceEggs
+bind wild_rock ResourceRock

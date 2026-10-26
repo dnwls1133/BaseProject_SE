@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "WorldRenderer3D.h"
+#include <stdexcept>
 #include "WorldShaders3D.h"
 #include <algorithm>
 #include <cstddef>
@@ -141,6 +142,18 @@ void WorldRenderer3D::Upload(Buffer& b, const std::vector<Vertex3D>& vertices)
                                                                        : i == 1 ? 3
                                                                                 : 6)));
     }
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D),
+                          reinterpret_cast<void*>(offsetof(Vertex3D, uvLayer)));
+    glEnableVertexAttribArray(11);
+    glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D),
+                          reinterpret_cast<void*>(offsetof(Vertex3D, joints)));
+    glEnableVertexAttribArray(12);
+    glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D),
+                          reinterpret_cast<void*>(offsetof(Vertex3D, weights)));
+    glEnableVertexAttribArray(14);
+    glVertexAttribPointer(14, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D),
+                          reinterpret_cast<void*>(offsetof(Vertex3D, metallic)));
     glGenBuffers(1, &b.instances);
     glBindBuffer(GL_ARRAY_BUFFER, b.instances);
     for (int i = 0; i < 6; ++i)
@@ -155,6 +168,10 @@ void WorldRenderer3D::Upload(Buffer& b, const std::vector<Vertex3D>& vertices)
     glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(Instance),
                           reinterpret_cast<void*>(offsetof(Instance, clip)));
     glVertexAttribDivisor(9, 1);
+    glEnableVertexAttribArray(13);
+    glVertexAttribPointer(13, 3, GL_FLOAT, GL_FALSE, sizeof(Instance),
+                          reinterpret_cast<void*>(offsetof(Instance, animation)));
+    glVertexAttribDivisor(13, 1);
     glBindVertexArray(0);
 }
 
@@ -166,6 +183,13 @@ WorldRenderer3D::WorldRenderer3D()
     {
         Upload(primitives[i], Primitive(i));
     }
+    Mat4 identity;
+    glGenBuffers(1, &identityPalette);
+    glBindBuffer(GL_TEXTURE_BUFFER, identityPalette);
+    glBufferData(GL_TEXTURE_BUFFER, sizeof(identity), &identity, GL_STATIC_DRAW);
+    glGenTextures(1, &identityPaletteTexture);
+    glBindTexture(GL_TEXTURE_BUFFER, identityPaletteTexture);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, identityPalette);
     glGenTextures(1, &shadowDepth);
     glBindTexture(GL_TEXTURE_2D, shadowDepth);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 2048, 2048, 0, GL_DEPTH_COMPONENT,
@@ -194,6 +218,8 @@ WorldRenderer3D::WorldRenderer3D()
 
 void WorldRenderer3D::Release(Buffer& b)
 {
+    glDeleteBuffers(1, &b.palette);
+    glDeleteTextures(1, &b.paletteTexture);
     glDeleteBuffers(1, &b.vertices);
     glDeleteBuffers(1, &b.instances);
     glDeleteVertexArrays(1, &b.vao);
@@ -209,6 +235,9 @@ WorldRenderer3D::~WorldRenderer3D()
     {
         Release(b.second);
     }
+    glDeleteBuffers(1, &identityPalette);
+    glDeleteTextures(1, &identityPaletteTexture);
+    glDeleteTextures(3, surfaceTextures);
     glDeleteProgram(shader);
     glDeleteProgram(shadowShader);
     glDeleteFramebuffers(1, &shadowFbo);
@@ -222,11 +251,15 @@ void WorldRenderer3D::Begin()
         b.clear();
     }
     lamps.clear();
-    staticQueue.clear();
+    for (auto& batch : meshInstances)
+    {
+        batch.second.clear();
+    }
     for (auto it = staticBuffers.begin(); it != staticBuffers.end();)
     {
         if (it->second.owner.expired())
         {
+            meshInstances.erase(it->first);
             Release(it->second);
             it = staticBuffers.erase(it);
         }
@@ -254,23 +287,46 @@ void WorldRenderer3D::Submit(int shape, const Mat4& matrix, Color color, float m
     }
     if (shape >= 0 && shape < 5)
     {
-        batches[shape].push_back({matrix, color, material, clip});
+        Instance instance;
+        instance.transform = matrix;
+        instance.color = color;
+        instance.material = material;
+        instance.clip = clip;
+        batches[shape].push_back(instance);
     }
 }
 
 void WorldRenderer3D::Submit(const std::shared_ptr<Geometry3D>& mesh, const Mat4& transform,
-                             const std::array<float, 4>& clip)
+                             const std::array<float, 4>& clip, Color tint, Vec3 animation)
 {
     if (mesh->vertices.empty())
     {
         return;
     }
+    EnsureSurfaces(mesh->surfaces);
     auto it = staticBuffers.find(mesh.get());
     if (it == staticBuffers.end())
     {
         Buffer b;
         Upload(b, mesh->vertices);
         b.owner = mesh;
+        if (mesh->skinFrames.size() > 1)
+        {
+            GLint maximum = 0;
+            glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &maximum);
+            if (mesh->skinFrames.size() * 4 > std::size_t(maximum))
+            {
+                Release(b);
+                throw std::runtime_error("GPU skin palette exceeds texture buffer capacity");
+            }
+            glGenBuffers(1, &b.palette);
+            glBindBuffer(GL_TEXTURE_BUFFER, b.palette);
+            glBufferData(GL_TEXTURE_BUFFER, mesh->skinFrames.size() * sizeof(Mat4),
+                         mesh->skinFrames.data(), GL_STATIC_DRAW);
+            glGenTextures(1, &b.paletteTexture);
+            glBindTexture(GL_TEXTURE_BUFFER, b.paletteTexture);
+            glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, b.palette);
+        }
         b.instanceCount = b.shadowCount = 1;
         Instance instance;
         instance.material = -1;
@@ -282,7 +338,9 @@ void WorldRenderer3D::Submit(const std::shared_ptr<Geometry3D>& mesh, const Mat4
     submitted.transform = transform;
     submitted.material = -1;
     submitted.clip = clip;
-    staticQueue.push_back({mesh.get(), submitted});
+    submitted.color = tint;
+    submitted.animation = animation;
+    meshInstances[mesh.get()].push_back(submitted);
 }
 
 void WorldRenderer3D::Light(Vec3 p, Color c)
@@ -306,14 +364,23 @@ void WorldRenderer3D::Draw(std::uint64_t& calls, bool shadows)
         Profile::Add(Profile::Metric::GeometryDraws);
         Profile::Add(Profile::Metric::World3DTriangles, double(b.count / 3) * count);
     };
-    for (const auto& p : staticQueue)
+    // Authored grass/cloth includes two-sided surfaces. Keep their reverse faces visible.
+    glDisable(GL_CULL_FACE);
+    for (const auto& batch : meshInstances)
     {
-        auto& b = staticBuffers.at(p.first);
-        const Instance& instance = p.second;
-        glBindBuffer(GL_ARRAY_BUFFER, b.instances);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(instance), &instance);
-        draw(b);
+        if (batch.second.empty())
+        {
+            continue;
+        }
+        const auto& buffer = staticBuffers.at(batch.first);
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_BUFFER,
+                      buffer.paletteTexture ? buffer.paletteTexture : identityPaletteTexture);
+        draw(buffer);
     }
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_BUFFER, identityPaletteTexture);
+    glEnable(GL_CULL_FACE);
     for (auto& b : primitives)
     {
         draw(b);
@@ -346,6 +413,16 @@ void WorldRenderer3D::Render(GLuint target, const Camera3D& camera, float time,
                      GL_STREAM_DRAW);
         Profile::Add(Profile::Metric::World3DInstances, b.instanceCount);
     }
+    for (const auto& batch : meshInstances)
+    {
+        auto& buffer = staticBuffers.at(batch.first);
+        buffer.instanceCount = buffer.shadowCount = GLsizei(batch.second.size());
+        glBindBuffer(GL_ARRAY_BUFFER, buffer.instances);
+        glBufferData(GL_ARRAY_BUFFER, batch.second.size() * sizeof(Instance), batch.second.data(),
+                     GL_STREAM_DRAW);
+        Profile::Add(Profile::Metric::World3DInstances, buffer.instanceCount);
+        Profile::Add(Profile::Metric::World3DShadowInstances, buffer.shadowCount);
+    }
     const Vec3 sun = Normalize({-.55f, 1, -.35f});
     const Vec3 right = Normalize(Cross(sun * -1, {0, 1, 0}));
     const Vec3 up = Cross(right, sun * -1);
@@ -369,6 +446,7 @@ void WorldRenderer3D::Render(GLuint target, const Camera3D& camera, float time,
     glViewport(0, 0, 2048, 2048);
     glClear(GL_DEPTH_BUFFER_BIT);
     glUseProgram(shadowShader);
+    glUniform1i(glGetUniformLocation(shadowShader, "skinPalette"), 4);
     glUniformMatrix4fv(glGetUniformLocation(shadowShader, "viewProjection"), 1, GL_FALSE, light.m);
     glUniformMatrix4fv(glGetUniformLocation(shadowShader, "lightMatrix"), 1, GL_FALSE, light.m);
     glUniform1f(glGetUniformLocation(shadowShader, "time"), time);
@@ -380,6 +458,15 @@ void WorldRenderer3D::Render(GLuint target, const Camera3D& camera, float time,
     glBindFramebuffer(GL_FRAMEBUFFER, target);
     glViewport(0, 0, camera.width, camera.height);
     glUseProgram(shader);
+    glUniform1i(glGetUniformLocation(shader, "skinPalette"), 4);
+    for (int i = 0; i < 3; ++i)
+    {
+        glActiveTexture(GL_TEXTURE1 + i);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, surfaceTextures[i]);
+    }
+    glUniform1i(glGetUniformLocation(shader, "baseColorMaps"), 1);
+    glUniform1i(glGetUniformLocation(shader, "normalMaps"), 2);
+    glUniform1i(glGetUniformLocation(shader, "roughnessMaps"), 3);
     glUniformMatrix4fv(glGetUniformLocation(shader, "viewProjection"), 1, GL_FALSE,
                        camera.viewProjection.m);
     glUniformMatrix4fv(glGetUniformLocation(shader, "lightMatrix"), 1, GL_FALSE, light.m);
@@ -410,6 +497,7 @@ void WorldRenderer3D::Render(GLuint target, const Camera3D& camera, float time,
     }
     Draw(calls, false);
     glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -444,6 +532,17 @@ void Renderer::Submit3D(const std::shared_ptr<Geometry3D>& geometry)
                                             float(clipX + clipWidth), float(height - clipY)}}
                     : std::array<float, 4>{{0, 0, float(width), float(height)}};
     world->Submit(geometry, modelSpace3D, clip);
+}
+
+void Renderer::Submit3D(const std::shared_ptr<Geometry3D>& geometry, const Mat4& transform,
+                        Color tint, Vec3 animation)
+{
+    std::array<float, 4> clip =
+        clipEnabled ? std::array<float, 4>{{float(clipX), float(height - clipY - clipHeight),
+                                            float(clipX + clipWidth), float(height - clipY)}}
+                    : std::array<float, 4>{{0, 0, float(width), float(height)}};
+    world->Submit(geometry, modelSpaceIdentity ? transform : modelSpace3D * transform, clip, tint,
+                  animation);
 }
 
 void Renderer::Light3D(Vec3 p, Color color)

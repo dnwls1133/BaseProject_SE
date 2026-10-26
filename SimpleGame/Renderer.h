@@ -108,6 +108,8 @@ class Renderer
 
     void Submit3D(int shape, const Mat4& matrix, Color color, Material material);
     void Submit3D(const std::shared_ptr<Geometry3D>& geometry);
+    void Submit3D(const std::shared_ptr<Geometry3D>& geometry, const Mat4& transform, Color tint,
+                  Vec3 animation = {-1, 0, 0});
     void Light3D(Vec3 position, Color color);
     void FinishScene();
     void Flush(Profile::Metric reason = Profile::Metric::FlushOther);
