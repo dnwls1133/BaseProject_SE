@@ -14,6 +14,7 @@
 # Intermediate build files
 /SimpleGame/Data/Cache/
 /Data/Cache/
+/build/
 /SimpleGame/x64/
 /SimpleGame/Debug/
 /SimpleGame/Release/
@@ -29,19 +30,11 @@
 *.Build.CppClean.log
 *.vcxproj.FileListAbsolute.txt
 
-# Build output: keep the bundled runtime DLLs tracked
+# Legacy build output locations
 /Debug/*
-!/Debug/freeglut.dll
-!/Debug/glew32.dll
 /Release/*
-!/Release/freeglut.dll
-!/Release/glew32.dll
 /x64/Debug/*
-!/x64/Debug/freeglut.dll
-!/x64/Debug/glew32.dll
 /x64/Release/*
-!/x64/Release/freeglut.dll
-!/x64/Release/glew32.dll
 
 # Persistent player worlds are runtime state, not authored content.
 **/Saves/

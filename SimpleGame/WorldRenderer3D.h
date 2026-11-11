@@ -21,6 +21,7 @@ struct SurfaceSet3D
     };
 
     std::vector<Entry> entries;
+    std::string cacheDirectory;
 
     int Find(const std::string& name) const
     {
@@ -90,6 +91,7 @@ class WorldRenderer3D
     std::array<std::vector<Instance>, 5> batches;
     std::unordered_map<const Geometry3D*, Buffer> staticBuffers;
     std::unordered_map<const Geometry3D*, std::vector<Instance>> meshInstances;
+    std::vector<const Geometry3D*> meshDrawOrder;
     GLuint surfaceTextures[3] = {};
     GLuint identityPalette = 0, identityPaletteTexture = 0;
     std::weak_ptr<SurfaceSet3D> uploadedSurfaces;

@@ -78,6 +78,61 @@ void main()
 }
 )GLSL";
 
+inline constexpr char ShadowVertex[] = R"GLSL(#version 330 core
+layout(location = 0) in vec3 position;
+layout(location = 2) in vec4 surface;
+layout(location = 3) in mat4 model;
+layout(location = 7) in vec4 tint;
+layout(location = 8) in float instanceMaterial;
+layout(location = 11) in vec4 joints;
+layout(location = 12) in vec4 weights;
+layout(location = 13) in vec3 animation;
+uniform mat4 viewProjection;
+uniform float time;
+uniform samplerBuffer skinPalette;
+out vec4 color;
+flat out int material;
+
+mat4 bone(float index)
+{
+    int at = int(index) * 4;
+    return mat4(texelFetch(skinPalette, at), texelFetch(skinPalette, at + 1),
+                texelFetch(skinPalette, at + 2), texelFetch(skinPalette, at + 3));
+}
+
+void main()
+{
+    vec3 localPosition = position;
+    if (animation.x >= 0.0)
+    {
+        mat4 skin = mat4(0.0);
+        for (int i = 0; i < 4; ++i)
+        {
+            if (weights[i] > .00001)
+            {
+                mat4 first = bone(animation.x + joints[i]);
+                mat4 second = bone(animation.y + joints[i]);
+                skin += (first * (1.0 - animation.z) + second * animation.z) * weights[i];
+            }
+        }
+        localPosition = (skin * vec4(position, 1.0)).xyz;
+    }
+    material = int(instanceMaterial < 0.0 ? surface.w : instanceMaterial);
+    vec4 world = model * vec4(localPosition, 1.0);
+    if (material == 7)
+    {
+        world.y += sin(world.x * 2.1 + time * 1.7) * cos(world.z * 1.6 - time) * .025;
+    }
+    if (material == 8)
+    {
+        world.x += sin(time * 5.0 + world.z * 4.0) * max(position.y, 0.0) * .12;
+        world.y += sin(time * 7.0 + world.x * 3.0) * max(position.y, 0.0) * .16;
+    }
+    color = vec4(surface.rgb, 1.0) * tint;
+    gl_Position = viewProjection * world;
+}
+)GLSL";
+
 inline constexpr char Shadow[] = R"GLSL(#version 330 core
 in vec4 color;
 flat in int material;

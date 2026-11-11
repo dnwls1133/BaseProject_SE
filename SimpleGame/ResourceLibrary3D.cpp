@@ -116,6 +116,7 @@ void ResourceLibrary3D::Load(const std::string& root)
     using ContentData::Require;
     ResourceLibrary3D next;
     next.surfaces = std::make_shared<SurfaceSet3D>();
+    next.surfaces->cacheDirectory = ContentData::Path(root, "Cache/Textures");
     ContentData::Load(ContentData::Path(root, "Resources/surfaces.catalog"),
                       [&](const std::string& command, ContentData::Row& row)
                       {

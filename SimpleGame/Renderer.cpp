@@ -5,24 +5,111 @@
 #include "Renderer.h"
 #include "RendererShaders.h"
 #include "WorldRenderer3D.h"
-#include <windows.h>
+#include "Platform.h"
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <stb_truetype.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <fstream>
 #include <iostream>
-#include <cstring>
+#include <iterator>
+#include <stdexcept>
 
 namespace
 {
-std::wstring Wide(const std::string& s)
+struct FontSource
 {
-    int n = MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), nullptr, 0);
-    std::wstring out(n, L' ');
-    if (n)
-    {
-        MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), &out[0], n);
-    }
+    std::vector<unsigned char> bytes;
+    stbtt_fontinfo info = {};
+};
 
-    return out;
+struct FontFace
+{
+    std::shared_ptr<FontSource> source;
+    stbtt_fontinfo info = {};
+    float scale = 1;
+    int ascent = 0;
+    int descent = 0;
+};
+
+std::vector<std::uint32_t> DecodeUtf8(const std::string& text)
+{
+    std::vector<std::uint32_t> codepoints;
+    for (std::size_t i = 0; i < text.size();)
+    {
+        const unsigned char first = static_cast<unsigned char>(text[i]);
+        std::uint32_t value = 0xFFFD;
+        std::size_t length = 1;
+        if (first < 0x80)
+        {
+            value = first;
+        }
+        else if (first >= 0xC2 && first <= 0xDF && i + 1 < text.size())
+        {
+            const unsigned char second = static_cast<unsigned char>(text[i + 1]);
+            if ((second & 0xC0) == 0x80)
+            {
+                value = ((first & 0x1F) << 6) | (second & 0x3F);
+                length = 2;
+            }
+        }
+        else if (first >= 0xE0 && first <= 0xEF && i + 2 < text.size())
+        {
+            const unsigned char second = static_cast<unsigned char>(text[i + 1]);
+            const unsigned char third = static_cast<unsigned char>(text[i + 2]);
+            const bool valid = (second & 0xC0) == 0x80 && (third & 0xC0) == 0x80 &&
+                               !(first == 0xE0 && second < 0xA0) &&
+                               !(first == 0xED && second >= 0xA0);
+            if (valid)
+            {
+                value = ((first & 0x0F) << 12) | ((second & 0x3F) << 6) | (third & 0x3F);
+                length = 3;
+            }
+        }
+        else if (first >= 0xF0 && first <= 0xF4 && i + 3 < text.size())
+        {
+            const unsigned char second = static_cast<unsigned char>(text[i + 1]);
+            const unsigned char third = static_cast<unsigned char>(text[i + 2]);
+            const unsigned char fourth = static_cast<unsigned char>(text[i + 3]);
+            const bool valid = (second & 0xC0) == 0x80 && (third & 0xC0) == 0x80 &&
+                               (fourth & 0xC0) == 0x80 &&
+                               !(first == 0xF0 && second < 0x90) &&
+                               !(first == 0xF4 && second > 0x8F);
+            if (valid)
+            {
+                value = ((first & 0x07) << 18) | ((second & 0x3F) << 12) |
+                        ((third & 0x3F) << 6) | (fourth & 0x3F);
+                length = 4;
+            }
+        }
+
+        codepoints.push_back(value);
+        i += length;
+    }
+    return codepoints;
+}
+
+float MeasureText(const FontFace& font, const std::vector<std::uint32_t>& codepoints)
+{
+    float width = 0;
+    int previous = 0;
+    for (std::uint32_t codepoint : codepoints)
+    {
+        const int glyph = stbtt_FindGlyphIndex(&font.info, int(codepoint));
+        if (previous && glyph)
+        {
+            width += stbtt_GetGlyphKernAdvance(&font.info, previous, glyph) * font.scale;
+        }
+
+        int advance = 0;
+        int bearing = 0;
+        stbtt_GetGlyphHMetrics(&font.info, glyph, &advance, &bearing);
+        static_cast<void>(bearing);
+        width += advance * font.scale;
+        previous = glyph;
+    }
+    return width;
 }
 } // namespace
 
@@ -83,7 +170,6 @@ Renderer::Renderer(int w, int h)
     blurProgram = Compile(ShaderSource::ScreenVertex, ShaderSource::BlurFragment);
     glGenBuffers(1, &buffer);
     glGenVertexArrays(1, &vao);
-    fontDC = CreateCompatibleDC(nullptr);
     vertices.reserve(100000);
     Resize(w, h);
 }
@@ -97,11 +183,7 @@ Renderer::~Renderer()
 
     for (auto& font : fonts)
     {
-        DeleteObject(static_cast<HFONT>(font.second));
-    }
-    if (fontDC)
-    {
-        DeleteDC((HDC)fontDC);
+        delete static_cast<FontFace*>(font.second);
     }
     ReleaseTargets();
     glDeleteBuffers(1, &buffer);
@@ -187,10 +269,10 @@ void Renderer::Resize(int w, int h)
                                0);
         valid = valid && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
     }
-    ready = valid && fontDC;
+    ready = valid;
     if (!ready)
     {
-        std::cerr << "Render target or font initialization failed.\n";
+        std::cerr << "Render target initialization failed.\n";
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
@@ -510,63 +592,91 @@ Renderer::Label& Renderer::GetLabel(const std::string& text, int size)
     }
     Label label;
     label.lastUsed = ++labelUse;
-    HDC dc = (HDC)fontDC;
-    if (!dc)
-    {
-        return labels.emplace(key, label).first->second;
-    }
-    std::wstring wide = Wide(text);
-    HFONT font = static_cast<HFONT>(Font(size));
+    auto* font = static_cast<FontFace*>(Font(size));
     if (!font)
     {
         return labels.emplace(key, label).first->second;
     }
-    HGDIOBJ oldFont = SelectObject(dc, font);
-    SIZE measure = {};
-    GetTextExtentPoint32W(dc, wide.c_str(), (int)wide.size(), &measure);
-    int w = std::max(2, (int)measure.cx + 8), h = std::max(2, (int)measure.cy + 8);
-    BITMAPINFO info = {};
-    info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    info.bmiHeader.biWidth = w;
-    info.bmiHeader.biHeight = -h;
-    info.bmiHeader.biPlanes = 1;
-    info.bmiHeader.biBitCount = 32;
-    info.bmiHeader.biCompression = BI_RGB;
-    void* pixels = nullptr;
-    HBITMAP bitmap = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &pixels, nullptr, 0);
-    if (bitmap && pixels)
+
+    const std::vector<std::uint32_t> codepoints = DecodeUtf8(text);
+    const int width =
+        std::max(2, static_cast<int>(std::ceil(MeasureText(*font, codepoints))) + 8);
+    const int height = std::max(
+        2, static_cast<int>(std::ceil((font->ascent - font->descent) * font->scale)) + 8);
+    std::vector<unsigned char> pixels(static_cast<std::size_t>(width) * height * 4, 255);
+    for (std::size_t i = 3; i < pixels.size(); i += 4)
     {
-        HGDIOBJ oldBitmap = SelectObject(dc, bitmap);
-        std::memset(pixels, 0, (size_t)w * h * 4);
-        SetBkMode(dc, TRANSPARENT);
-        SetTextColor(dc, RGB(255, 255, 255));
-        TextOutW(dc, 4, 4, wide.c_str(), (int)wide.size());
-        GdiFlush();
-        unsigned char* bytes = (unsigned char*)pixels;
-        for (int i = 0; i < w * h; ++i)
-        {
-            unsigned char a = std::max(bytes[i * 4], std::max(bytes[i * 4 + 1], bytes[i * 4 + 2]));
-            bytes[i * 4] = bytes[i * 4 + 1] = bytes[i * 4 + 2] = 255;
-            bytes[i * 4 + 3] = a;
-        }
-        glGenTextures(1, &label.texture);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, label.texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        label.width = w;
-        label.height = h;
-        labelCacheBytes += static_cast<std::size_t>(w) * h * 4;
-        Profile::Add(Profile::Metric::LabelUploadBytes, double(w) * h * 4);
-        Profile::Set(Profile::Metric::LabelCacheBytes, double(labelCacheBytes));
-        Profile::Set(Profile::Metric::LabelCacheEntries, double(labels.size() + 1));
-        SelectObject(dc, oldBitmap);
-        DeleteObject(bitmap);
+        pixels[i] = 0;
     }
-    SelectObject(dc, oldFont);
+
+    float cursor = 4;
+    const float baseline = 4 + font->ascent * font->scale;
+    int previous = 0;
+    for (std::uint32_t codepoint : codepoints)
+    {
+        const int glyph = stbtt_FindGlyphIndex(&font->info, static_cast<int>(codepoint));
+        if (previous && glyph)
+        {
+            cursor += stbtt_GetGlyphKernAdvance(&font->info, previous, glyph) * font->scale;
+        }
+
+        int glyphWidth = 0;
+        int glyphHeight = 0;
+        int xOffset = 0;
+        int yOffset = 0;
+        unsigned char* bitmap = stbtt_GetGlyphBitmap(&font->info, font->scale, font->scale, glyph,
+                                                      &glyphWidth, &glyphHeight, &xOffset, &yOffset);
+        if (bitmap)
+        {
+            const int x = static_cast<int>(std::lround(cursor)) + xOffset;
+            const int y = static_cast<int>(std::lround(baseline)) + yOffset;
+            for (int row = 0; row < glyphHeight; ++row)
+            {
+                const int targetY = y + row;
+                if (targetY < 0 || targetY >= height)
+                {
+                    continue;
+                }
+
+                for (int column = 0; column < glyphWidth; ++column)
+                {
+                    const int targetX = x + column;
+                    if (targetX < 0 || targetX >= width)
+                    {
+                        continue;
+                    }
+
+                    const std::size_t target =
+                        (static_cast<std::size_t>(targetY) * width + targetX) * 4 + 3;
+                    pixels[target] = std::max(pixels[target], bitmap[row * glyphWidth + column]);
+                }
+            }
+            stbtt_FreeBitmap(bitmap, nullptr);
+        }
+
+        int advance = 0;
+        int bearing = 0;
+        stbtt_GetGlyphHMetrics(&font->info, glyph, &advance, &bearing);
+        static_cast<void>(bearing);
+        cursor += advance * font->scale;
+        previous = glyph;
+    }
+
+    glGenTextures(1, &label.texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, label.texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 pixels.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    label.width = width;
+    label.height = height;
+    labelCacheBytes += static_cast<std::size_t>(width) * height * 4;
+    Profile::Add(Profile::Metric::LabelUploadBytes, double(width) * height * 4);
+    Profile::Set(Profile::Metric::LabelCacheBytes, double(labelCacheBytes));
+    Profile::Set(Profile::Metric::LabelCacheEntries, double(labels.size() + 1));
     return labels.emplace(key, label).first->second;
 }
 
@@ -577,14 +687,52 @@ void* Renderer::Font(int size)
     {
         return found->second;
     }
-    HFONT font = CreateFontW(-size * 2, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-                             OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
-                             DEFAULT_PITCH, L"Malgun Gothic");
-    if (font)
+    auto font = std::make_unique<FontFace>();
+    auto source = std::static_pointer_cast<FontSource>(fontSource);
+    if (!source)
     {
-        fonts.emplace(size, font);
+        PROFILE_SCOPE(FontLoad);
+        source = std::make_shared<FontSource>();
+        const auto path =
+            Platform::ExecutableDirectory() / "Data" / "Fonts" / "NanumGothic-Regular.ttf";
+        std::ifstream file(path, std::ios::binary | std::ios::ate);
+        if (!file)
+        {
+            throw std::runtime_error("cannot open bundled Korean font: " + path.string());
+        }
+
+        const auto byteCount = file.tellg();
+        if (byteCount <= 0 || byteCount > 32 * 1024 * 1024)
+        {
+            throw std::runtime_error("bundled Korean font has invalid size: " + path.string());
+        }
+        source->bytes.resize(static_cast<std::size_t>(byteCount));
+        file.seekg(0);
+        file.read(reinterpret_cast<char*>(source->bytes.data()),
+                  static_cast<std::streamsize>(source->bytes.size()));
+        if (!file)
+        {
+            throw std::runtime_error("cannot read bundled Korean font: " + path.string());
+        }
+
+        const int offset = stbtt_GetFontOffsetForIndex(source->bytes.data(), 0);
+        if (offset < 0 || !stbtt_InitFont(&source->info, source->bytes.data(), offset))
+        {
+            throw std::runtime_error("cannot parse bundled Korean font: " + path.string());
+        }
+        fontSource = source;
+        Profile::Add(Profile::Metric::FontLoads);
     }
-    return font;
+    font->source = std::move(source);
+    font->info = font->source->info;
+
+    int lineGap = 0;
+    stbtt_GetFontVMetrics(&font->info, &font->ascent, &font->descent, &lineGap);
+    static_cast<void>(lineGap);
+    font->scale = stbtt_ScaleForPixelHeight(&font->info, static_cast<float>(std::max(1, size) * 2));
+    FontFace* face = font.release();
+    fonts.emplace(size, face);
+    return face;
 }
 
 float Renderer::TextWidth(const std::string& s, int size)
@@ -599,22 +747,17 @@ float Renderer::TextWidth(const std::string& s, int size)
     {
         return found->second;
     }
-    HDC dc = static_cast<HDC>(fontDC);
-    HFONT font = static_cast<HFONT>(Font(size));
-    if (!dc || !font)
+    const auto* font = static_cast<const FontFace*>(Font(size));
+    if (!font)
     {
         return 4;
     }
-    auto previous = SelectObject(dc, font);
-    const std::wstring text = Wide(s);
-    SIZE measure{};
-    GetTextExtentPoint32W(dc, text.c_str(), int(text.size()), &measure);
-    SelectObject(dc, previous);
+
+    const float width = MeasureText(*font, DecodeUtf8(s)) * .5f + 4;
     if (textMeasures.size() >= 4096)
     {
         textMeasures.clear();
     }
-    const float width = measure.cx * .5f + 4;
     textMeasures.emplace(key, width);
     return width;
 }

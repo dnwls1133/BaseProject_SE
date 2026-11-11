@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "Profiler.h"
-#include "Dependencies/glew.h"
-#include <windows.h>
-#include <psapi.h>
+#include "Platform.h"
+#include <GL/glew.h>
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -20,8 +19,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
-
-#pragma comment(lib, "psapi.lib")
+#include <cstdlib>
 
 namespace Profile
 {
@@ -38,6 +36,26 @@ const char* const Names[] = {
 const char* const GpuNames[] = {
     "gpu_shadow_ms",         "gpu_world_ms",       "gpu_msaa_resolve_ms", "gpu_bloom_horizontal_ms",
     "gpu_bloom_vertical_ms", "gpu_postprocess_ms", "gpu_ui_ms",           "gpu_frame_ms"};
+
+bool IsProfilingDisabled()
+{
+#if defined(_WIN32)
+    char* value = nullptr;
+    std::size_t length = 0;
+    if (_dupenv_s(&value, &length, "HB_PROFILE") != 0 || value == nullptr)
+    {
+        std::free(value);
+        return false;
+    }
+
+    const bool disabled = value[0] == '0';
+    std::free(value);
+    return disabled;
+#else
+    const char* value = std::getenv("HB_PROFILE");
+    return value != nullptr && value[0] == '0';
+#endif
+}
 
 struct Distribution
 {
@@ -403,27 +421,29 @@ void SerializeReport(Output& item)
     out << "}},\"log_dropped_record_count\":" << state.dropped.exchange(0)
         << ",\"log_writer_last_record_ms\":" << state.writerLastMs.load()
         << ",\"log_file_failed\":" << (state.fileFailed ? "true" : "false");
-    PROCESS_MEMORY_COUNTERS_EX memory = {};
-    memory.cb = sizeof(memory);
-    if (GetProcessMemoryInfo(GetCurrentProcess(),
-                             reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&memory), sizeof(memory)))
+    const auto memory = Platform::GetMemoryUsage();
+    if (memory.workingSetBytes)
     {
-        out << ",\"process_working_set_bytes\":" << memory.WorkingSetSize
-            << ",\"process_private_commit_bytes\":" << memory.PrivateUsage;
+        out << ",\"process_working_set_bytes\":" << *memory.workingSetBytes
+            << ",\"process_private_commit_bytes\":";
+        if (memory.privateCommitBytes)
+        {
+            out << *memory.privateCommitBytes;
+        }
+        else
+        {
+            out << "null";
+        }
     }
     else
     {
         out << ",\"process_working_set_bytes\":null,\"process_private_commit_bytes\":null";
     }
-    FILETIME created, exited, kernel, user;
     out << ",\"process_cpu_core_equivalents\":";
-    if (GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))
+    const auto processTicks = Platform::ProcessCpuTime100ns();
+    if (processTicks)
     {
-        auto ticks = [](FILETIME time)
-        {
-            return (std::uint64_t(time.dwHighDateTime) << 32) | time.dwLowDateTime;
-        };
-        auto currentTicks = ticks(kernel) + ticks(user);
+        const auto currentTicks = *processTicks;
         auto now = Clock::now();
         double elapsed = std::chrono::duration<double>(now - state.processSampleTime).count();
         if (state.previousProcessTicks && elapsed > 0)
@@ -592,26 +612,19 @@ void RecordModel(const std::string& name, std::size_t vertices, bool isStatic, d
 
 void Initialize()
 {
-    wchar_t setting[8] = {};
-    GetEnvironmentVariableW(L"HB_PROFILE", setting, 8);
-    if (state.enabled || setting[0] == L'0')
+    if (state.enabled || IsProfilingDisabled())
     {
         return;
     }
     state.enabled = true;
     state.sessionStart = state.windowStart = Clock::now();
-    SYSTEM_INFO system = {};
-    GetSystemInfo(&system);
-    state.logicalProcessors = system.dwNumberOfProcessors;
-    wchar_t executable[MAX_PATH] = {};
-    GetModuleFileNameW(nullptr, executable, MAX_PATH);
-    state.directory = std::filesystem::path(executable).parent_path() / "Logs" / "Performance";
-    SYSTEMTIME utc;
-    GetSystemTime(&utc);
+    state.logicalProcessors = Platform::LogicalProcessorCount();
+    state.directory = Platform::ExecutableDirectory() / "Logs" / "Performance";
+    const std::tm utc = Platform::UtcTime();
     std::ostringstream id;
-    id << "profile-" << utc.wYear << '-' << unsigned(utc.wMonth) << '-' << unsigned(utc.wDay) << '-'
-       << unsigned(utc.wHour) << '-' << unsigned(utc.wMinute) << '-' << unsigned(utc.wSecond) << '-'
-       << GetCurrentProcessId();
+    id << "profile-" << utc.tm_year + 1900 << '-' << unsigned(utc.tm_mon + 1) << '-'
+       << unsigned(utc.tm_mday) << '-' << unsigned(utc.tm_hour) << '-'
+       << unsigned(utc.tm_min) << '-' << unsigned(utc.tm_sec) << '-' << Platform::ProcessId();
     state.session = id.str();
     GLint bits = 0;
     if (GLEW_VERSION_3_3 || GLEW_ARB_timer_query)

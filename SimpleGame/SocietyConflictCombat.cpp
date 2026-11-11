@@ -131,6 +131,15 @@ bool WorldSociety::TickConflictActor(int index, float dt, WorldSimulation& world
     }
     bool engagement = target >= 0 || againstPlayer;
     n.target = againstPlayer ? -1 : target;
+    if (engagement && n.health < 25)
+    {
+        const float dx = n.x - goal.x, dy = n.y - goal.y;
+        const float length = std::max(.01f, std::hypot(dx, dy));
+        n.action = Action::Flee;
+        n.windup = 0;
+        MoveTo(n, {n.x + dx / length * 8, n.y + dy / length * 8}, dt, map);
+        return true;
+    }
     if (!engagement && (n.combatClass == 0 || IsCourier(index)))
     {
         n.action = Action::Rest;
@@ -164,11 +173,14 @@ bool WorldSociety::TickConflictActor(int index, float dt, WorldSimulation& world
     }
     if (!engagement)
     {
-        // Regional enemy strongholds are authored strategic knowledge, not remote NPC sensing.
+        // Authored settlements are objectives. Empty hostile wilderness is not a
+        // settlement: arriving there must not permanently strand the entire army.
         float best = 1e10f;
-        for (const auto& region : regions)
+        for (int objective : conflictObjectives)
         {
-            if (region.owner == n.faction)
+            const auto& region = regions[objective];
+            if (region.owner < 0 || region.owner == n.faction ||
+                diplomacy[n.faction][region.owner] >= rules.hostility)
             {
                 continue;
             }
@@ -177,9 +189,10 @@ bool WorldSociety::TickConflictActor(int index, float dt, WorldSimulation& world
             {
                 best = distance;
                 goal = {region.x, region.y};
+                n.destination = objective;
             }
         }
-        if (!hive)
+        if (!hive && n.combatClass == 3)
         {
             float dirtyDistance = 18;
             for (int i = 0; i < int(contamination.size()); ++i)

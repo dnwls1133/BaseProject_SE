@@ -105,28 +105,11 @@ void WorldSociety::Damage(int attacker, int target, float amount, WorldSimulatio
     }
 }
 
-void WorldSociety::MoveTo(Npc& npc, Point goal, float dt, const RandomLevelMap& map)
+void WorldSociety::BuildNpcPath(Npc& npc, Point goal, const RandomLevelMap& map)
 {
-    npc.pathRetry = std::max(0.f, npc.pathRetry - dt);
-    const float goalX = goal.x - npc.x, goalY = goal.y - npc.y;
-    const float goalDistance = std::hypot(goalX, goalY);
-    if (goalDistance < .1f)
+    if (std::hypot(goal.x - npc.x, goal.y - npc.y) < 4 &&
+        map.CanTravel(npc.x, npc.y, goal.x, goal.y))
     {
-        return;
-    }
-    // Finish at the reserved work position rather than the navigation cell center.
-    if (goalDistance < 4 && map.CanTravel(npc.x, npc.y, goal.x, goal.y))
-    {
-        const float stride = std::min(goalDistance, npc.speed * dt);
-        npc.x += goalX / goalDistance * stride;
-        npc.y += goalY / goalDistance * stride;
-        npc.yaw = std::atan2(-goalX, -goalY);
-        npc.facing = goalX - goalY < 0 ? -1.f : 1.f;
-        npc.phase += stride * 5;
-        npc.movement = 1;
-        npc.path.clear();
-        npc.pathCell = -1;
-        npc.waypoint = 0;
         return;
     }
     int gx = std::clamp(static_cast<int>(goal.x), 1, map.Width - 2);
@@ -257,6 +240,72 @@ void WorldSociety::MoveTo(Npc& npc, Point goal, float dt, const RandomLevelMap& 
     }
     else if (needsPath && npc.pathRetry <= 0)
     {
+        Profile::Add(Profile::Metric::NpcPathDeferred);
+    }
+}
+
+void WorldSociety::MoveTo(Npc& npc, Point goal, float dt, const RandomLevelMap& map)
+{
+    npc.pathRetry = std::max(0.f, npc.pathRetry - dt);
+    const float goalX = goal.x - npc.x, goalY = goal.y - npc.y;
+    const float goalDistance = std::hypot(goalX, goalY);
+    if (goalDistance < .1f)
+    {
+        return;
+    }
+    // Finish at the reserved work position rather than the navigation cell center.
+    if (goalDistance < 4 && map.CanTravel(npc.x, npc.y, goal.x, goal.y))
+    {
+        const float stride = std::min(goalDistance, npc.speed * dt);
+        npc.x += goalX / goalDistance * stride;
+        npc.y += goalY / goalDistance * stride;
+        npc.yaw = std::atan2(-goalX, -goalY);
+        npc.facing = goalX - goalY < 0 ? -1.f : 1.f;
+        npc.phase += stride * 5;
+        npc.movement = 1;
+        npc.path.clear();
+        npc.pathCell = -1;
+        npc.waypoint = 0;
+        return;
+    }
+    int gx = std::clamp(static_cast<int>(goal.x), 1, map.Width - 2);
+    int gy = std::clamp(static_cast<int>(goal.y), 1, map.Height - 2);
+    if (!map.CanStand(gx + .5f, gy + .5f))
+    {
+        float best = 1e10f;
+        const int centerX = gx, centerY = gy;
+        for (int y = centerY - 3; y <= centerY + 3; ++y)
+        {
+            for (int x = centerX - 3; x <= centerX + 3; ++x)
+            {
+                const float d = std::hypot(x + .5f - goal.x, y + .5f - goal.y);
+                if (d < best && map.CanStand(x + .5f, y + .5f))
+                {
+                    best = d;
+                    gx = x;
+                    gy = y;
+                }
+            }
+        }
+    }
+    const int cell = gy * map.Width + gx;
+    const bool needsPath = npc.pathCell != cell || npc.waypoint >= npc.path.size();
+    if (needsPath && npc.pathRetry <= 0)
+    {
+        const int index = int(&npc - npcs.data());
+        auto pending = std::find_if(pathRequests.begin(), pathRequests.end(),
+                                    [&](const auto& request)
+                                    {
+                                        return request.first == index;
+                                    });
+        if (pending == pathRequests.end())
+        {
+            pathRequests.push_back({index, goal});
+        }
+        else
+        {
+            pending->second = goal;
+        }
         Profile::Add(Profile::Metric::NpcPathDeferred);
     }
     if (npc.waypoint >= npc.path.size())

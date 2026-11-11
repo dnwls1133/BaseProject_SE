@@ -1,57 +1,122 @@
 #include "stdafx.h"
 #include "WorldRenderer3D.h"
 #include "ContentData.h"
-#include <windows.h>
-#include <wincodec.h>
-#include <wrl/client.h>
-#include <filesystem>
-#include <iterator>
+#include "Platform.h"
+#include <algorithm>
+#include <cstring>
+#include <fstream>
+#include <memory>
 
-#pragma comment(lib, "windowscodecs.lib")
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+#include <stb_image.h>
 
 namespace
 {
-std::vector<unsigned char> ReadPng(IWICImagingFactory* factory, const std::string& path)
+constexpr std::uint32_t TextureCacheMagic = 0x41424752, TextureCacheVersion = 1;
+constexpr std::size_t TextureBytes = 512 * 512 * 4;
+
+std::uint64_t TextureHash(const std::vector<unsigned char>& bytes)
 {
-    using Microsoft::WRL::ComPtr;
-    ComPtr<IWICBitmapDecoder> decoder;
-    const auto wide = std::filesystem::path(path).wstring();
-    ContentData::Require(SUCCEEDED(factory->CreateDecoderFromFilename(
-                             wide.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad,
-                             decoder.GetAddressOf())),
-                         "cannot decode resource texture: " + path);
-    ComPtr<IWICBitmapFrameDecode> frame;
-    ContentData::Require(SUCCEEDED(decoder->GetFrame(0, frame.GetAddressOf())),
-                         "missing PNG frame: " + path);
-    UINT width = 0, height = 0;
-    frame->GetSize(&width, &height);
-    ContentData::Require(width == 512 && height == 512,
-                         "resource texture must be 512x512: " + path);
-    ComPtr<IWICFormatConverter> converter;
-    ContentData::Require(SUCCEEDED(factory->CreateFormatConverter(converter.GetAddressOf())) &&
-                             SUCCEEDED(converter->Initialize(
-                                 frame.Get(), GUID_WICPixelFormat32bppRGBA, WICBitmapDitherTypeNone,
-                                 nullptr, 0, WICBitmapPaletteTypeCustom)),
-                         "cannot convert resource PNG: " + path);
-    std::vector<unsigned char> pixels(width * height * 4);
-    ContentData::Require(
-        SUCCEEDED(converter->CopyPixels(nullptr, width * 4, UINT(pixels.size()), pixels.data())),
-        "cannot read resource pixels: " + path);
-    return pixels;
+    std::uint64_t hash = 14695981039346656037ull;
+    std::size_t offset = 0;
+    for (; offset + sizeof(std::uint64_t) <= bytes.size(); offset += sizeof(std::uint64_t))
+    {
+        std::uint64_t word = 0;
+        std::memcpy(&word, bytes.data() + offset, sizeof(word));
+        hash = (hash ^ word) * 1099511628211ull;
+    }
+    for (; offset < bytes.size(); ++offset)
+    {
+        hash = (hash ^ bytes[offset]) * 1099511628211ull;
+    }
+    return hash ^ static_cast<std::uint64_t>(bytes.size());
 }
 
-struct ComScope
+std::vector<unsigned char> ReadPng(const std::string& path, const std::string& cacheDirectory)
 {
-    HRESULT initialized = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-
-    ~ComScope()
+    std::ifstream source(path, std::ios::binary | std::ios::ate);
+    ContentData::Require(bool(source), "cannot open resource texture: " + path);
+    const auto size = source.tellg();
+    ContentData::Require(size > 0 && size <= 16 * 1024 * 1024,
+                         "resource PNG size is invalid: " + path);
+    std::vector<unsigned char> encoded(static_cast<std::size_t>(size));
+    source.seekg(0);
+    source.read(reinterpret_cast<char*>(encoded.data()), std::streamsize(encoded.size()));
+    ContentData::Require(bool(source), "cannot read resource texture: " + path);
+    const auto sourceHash = TextureHash(encoded);
+    const auto cache =
+        std::filesystem::path(cacheDirectory) / (std::to_string(sourceHash) + ".rgba");
+    if (!cacheDirectory.empty())
     {
-        if (SUCCEEDED(initialized))
+        PROFILE_SCOPE(TextureCacheRead);
+        std::ifstream file(cache, std::ios::binary | std::ios::ate);
+        if (file && file.tellg() == std::streamoff(TextureBytes + 24))
         {
-            CoUninitialize();
+            file.seekg(0);
+            std::uint32_t magic = 0, version = 0;
+            std::uint64_t original = 0, checksum = 0;
+            file.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+            file.read(reinterpret_cast<char*>(&version), sizeof(version));
+            file.read(reinterpret_cast<char*>(&original), sizeof(original));
+            file.read(reinterpret_cast<char*>(&checksum), sizeof(checksum));
+            std::vector<unsigned char> pixels(TextureBytes);
+            file.read(reinterpret_cast<char*>(pixels.data()), std::streamsize(pixels.size()));
+            if (file && magic == TextureCacheMagic && version == TextureCacheVersion &&
+                original == sourceHash && checksum == TextureHash(pixels))
+            {
+                Profile::Add(Profile::Metric::TextureCacheHits);
+                return pixels;
+            }
         }
     }
-};
+    Profile::Add(Profile::Metric::TextureCacheMisses);
+    int width = 0;
+    int height = 0;
+    std::vector<unsigned char> pixels;
+    {
+        PROFILE_SCOPE(TextureDecode);
+        std::unique_ptr<unsigned char, decltype(&stbi_image_free)> decoded(
+            stbi_load_from_memory(encoded.data(), int(encoded.size()), &width, &height, nullptr, 4),
+            stbi_image_free);
+        ContentData::Require(decoded != nullptr,
+                             "cannot decode resource texture: " + path + " (" +
+                                 (stbi_failure_reason() ? stbi_failure_reason() : "unknown error") +
+                                 ")");
+        ContentData::Require(width == 512 && height == 512,
+                             "resource texture must be 512x512: " + path);
+        pixels.resize(TextureBytes);
+        std::copy(decoded.get(), decoded.get() + pixels.size(), pixels.begin());
+    }
+    if (!cacheDirectory.empty())
+    {
+        PROFILE_SCOPE(TextureCacheWrite);
+        std::error_code error;
+        std::filesystem::create_directories(cacheDirectory, error);
+        if (!error)
+        {
+            const std::filesystem::path temporary(cache.string() + "." +
+                                                  std::to_string(Platform::ProcessId()) + ".tmp");
+            std::ofstream file(temporary, std::ios::binary | std::ios::trunc);
+            const auto checksum = TextureHash(pixels);
+            file.write(reinterpret_cast<const char*>(&TextureCacheMagic),
+                       sizeof(TextureCacheMagic));
+            file.write(reinterpret_cast<const char*>(&TextureCacheVersion),
+                       sizeof(TextureCacheVersion));
+            file.write(reinterpret_cast<const char*>(&sourceHash), sizeof(sourceHash));
+            file.write(reinterpret_cast<const char*>(&checksum), sizeof(checksum));
+            file.write(reinterpret_cast<const char*>(pixels.data()),
+                       std::streamsize(pixels.size()));
+            file.close();
+            std::string message;
+            if (!file || !Platform::AtomicReplace(temporary, cache, message))
+            {
+                std::filesystem::remove(temporary, error);
+            }
+        }
+    }
+    return pixels;
+}
 } // namespace
 
 void WorldRenderer3D::EnsureSurfaces(const std::shared_ptr<SurfaceSet3D>& surfaces)
@@ -60,13 +125,7 @@ void WorldRenderer3D::EnsureSurfaces(const std::shared_ptr<SurfaceSet3D>& surfac
     {
         return;
     }
-    PROFILE_SCOPE(CacheRead);
-    ComScope com;
-    Microsoft::WRL::ComPtr<IWICImagingFactory> factory;
-    ContentData::Require(
-        SUCCEEDED(CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
-                                   IID_PPV_ARGS(factory.GetAddressOf()))),
-        "cannot initialize Windows PNG decoder");
+    PROFILE_SCOPE(TexturePrepare);
     GLint maximum = 0;
     glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maximum);
     ContentData::Require(!surfaces->entries.empty() &&
@@ -84,9 +143,11 @@ void WorldRenderer3D::EnsureSurfaces(const std::shared_ptr<SurfaceSet3D>& surfac
             for (int layer = 0; layer < int(surfaces->entries.size()); ++layer)
             {
                 const auto& entry = surfaces->entries[layer];
-                const auto pixels = ReadPng(factory.Get(), kind == 0   ? entry.baseColor
-                                                           : kind == 1 ? entry.normal
-                                                                       : entry.roughness);
+                const auto pixels = ReadPng(kind == 0   ? entry.baseColor
+                                            : kind == 1 ? entry.normal
+                                                        : entry.roughness,
+                                            surfaces->cacheDirectory);
+                PROFILE_SCOPE(TextureUpload);
                 glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, 512, 512, 1, GL_RGBA,
                                 GL_UNSIGNED_BYTE, pixels.data());
             }

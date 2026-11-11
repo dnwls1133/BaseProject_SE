@@ -1,5 +1,13 @@
 # 튜토리얼 프로토타입 구현 안내 — 시각 개선판
 
+## 현재 플랫폼 기준 — 2026-11-04
+
+창·입력 계층은 freeglut에서 GLFW로 전환했다. GLFW 3.4와 GLEW 2.2, stb_image,
+stb_truetype 소스는 저장소에 포함하며 GLFW/GLEW는 정적으로 링크한다. 한국어 UI는 함께
+배포하는 Nanum Gothic 폰트를 사용한다. CMake 기반 Windows/Linux/macOS 빌드 절차와
+Visual Studio 프로젝트 연결은 [BUILDING.md](BUILDING.md)를 따른다. 아래 날짜가 붙은
+이전 구현 기록의 freeglut 언급은 당시 상태를 가리킨다.
+
 2026-09-22 추가: 후속 첫 전투 레벨을 열린 야외 지형과 외부 콘텐츠 로딩으로 전환했다. 상세는 docs/LEVEL_ONE.md와 docs/CONTENT_PIPELINE.md를 따른다. 아래 튜토리얼의 별도 VillageArt 표현까지 외부화한 것은 아니며, 이번 변경의 실행 검증은 사용자 담당이다.
 
 2026-09-22: Actor의 업데이트·렌더링을 지속적인 Scene Graph 순회로 통합하고 구역 컬링·클리핑·패스 선택을 추가했다. [Scene Graph 안내](SCENE_GRAPH.md)를 따른다. 실행 검증과 성능 측정은 미수행이다.

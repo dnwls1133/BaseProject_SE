@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "WorldMonitor.h"
-#include <windows.h>
+#include "Platform.h"
 #include <condition_variable>
 #include <fstream>
 #include <iostream>
@@ -86,9 +86,10 @@ class Writer
                         throw std::runtime_error("snapshot write failed");
                     }
                 }
-                if (!MoveFileExW(temporary.c_str(), final.c_str(), MOVEFILE_REPLACE_EXISTING))
+                std::string error;
+                if (!Platform::AtomicReplace(temporary, final, error))
                 {
-                    throw std::runtime_error("snapshot replacement failed");
+                    throw std::runtime_error("snapshot replacement failed: " + error);
                 }
                 reported = false;
             }

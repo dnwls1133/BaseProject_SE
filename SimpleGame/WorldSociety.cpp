@@ -88,6 +88,18 @@ void WorldSociety::Update(float dt, WorldSimulation& world, const RandomLevelMap
                 .push_back(static_cast<int>(i));
         }
     }
+    // Service the oldest requests before Actor traversal. Index order cannot starve
+    // distant factions, and each Actor still performs its own movement through Scene.
+    while (!pathRequests.empty() && pathBudget > 0 && pathNodeBudget > 0)
+    {
+        const auto request = pathRequests.front();
+        pathRequests.pop_front();
+        if (request.first >= 0 && request.first < int(npcs.size()) && npcs[request.first].Alive())
+        {
+            BuildNpcPath(npcs[request.first], request.second, map);
+        }
+    }
+    Profile::Set(Profile::Metric::NpcPathQueue, double(pathRequests.size()));
     TickContamination(dt, world, map);
     const auto previous = minute;
     minute = world.Minute();
@@ -126,6 +138,17 @@ void WorldSociety::Update(float dt, WorldSimulation& world, const RandomLevelMap
         QuestTick(world, player);
     }
     Profile::Set(Profile::Metric::SocialNpcCount, static_cast<double>(npcs.size()));
+    int marching = 0, engaged = 0;
+    for (const auto& npc : npcs)
+    {
+        if (conflictEnabled && npc.Alive() && npc.wildTarget < 0)
+        {
+            marching += npc.action == Action::Raid;
+            engaged += npc.action == Action::Combat;
+        }
+    }
+    Profile::Set(Profile::Metric::ConflictMarchers, marching);
+    Profile::Set(Profile::Metric::ConflictEngaged, engaged);
     Profile::Set(Profile::Metric::SocialMessageQueue, static_cast<double>(messages.size()));
     Profile::Set(Profile::Metric::SocialQuestCount, static_cast<double>(quests.size()));
     std::size_t activePlans = 0;

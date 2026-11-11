@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "LevelOne.h"
 #include "ContentData.h"
-#include <windows.h>
+#include "Platform.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -89,12 +89,13 @@ bool LevelOne::SaveWorld(bool manual)
         if (autosaveAllowed && std::filesystem::exists(path))
         {
             const std::filesystem::path backup(path.string() + ".bak");
-            ContentData::Require(CopyFileW(path.c_str(), backup.c_str(), FALSE) != 0,
-                                 "cannot back up previous save");
+            std::string error;
+            ContentData::Require(Platform::CopyFilePortable(path, backup, error),
+                                 "cannot back up previous save: " + error);
         }
-        ContentData::Require(MoveFileExW(temporary.c_str(), path.c_str(),
-                                         MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0,
-                             "cannot commit save");
+        std::string error;
+        ContentData::Require(Platform::AtomicReplace(temporary, path, error),
+                             "cannot commit save: " + error);
         autosaveAllowed = true;
         Profile::Event("world_saved",
                        "path=" + path.string() + " bytes=" + std::to_string(bytes.size()));

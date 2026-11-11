@@ -192,7 +192,12 @@ bool WorldSociety::ChooseGoalPlan(int index, WorldSimulation& world, const Rando
     {
         trade =
             trade || (order.stage == 0 && minute >= order.available && minute < order.deadline &&
-                      (order.source == npc.region || order.source == npc.home));
+                      order.destination == npc.region && order.receiver >= 0 &&
+                      order.receiver != index && npcs[order.receiver].Alive() &&
+                      !EconomyParticipantBusy(order.receiver, order.id) &&
+                      std::hypot(npc.x - npcs[order.receiver].x,
+                                 npc.y - npcs[order.receiver].y) <= rules.talkRange &&
+                      map.Visible(npc.x, npc.y, npcs[order.receiver].x, npcs[order.receiver].y));
     }
     const LifeGoal urgentGoal = (life.fatigue > 85 || npc.health < 40) && life.satiation >= 20
                                     ? LifeGoal::Recover
@@ -325,7 +330,7 @@ bool WorldSociety::ChooseGoalPlan(int index, WorldSimulation& world, const Rando
     {
         return true;
     }
-    if (plan.goal == LifeGoal::Supply && PlanEconomyOrder(index, world))
+    if (plan.goal == LifeGoal::Supply && PlanEconomyOrder(index, world, map))
     {
         return true;
     }

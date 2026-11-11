@@ -523,6 +523,11 @@ class WorldSociety
     int hiveFaction = -1, knightFaction = -1, contaminationWidth = 0;
     float conflictCell = 4, conflictClock = 0, spreadRate = .08f, scarSeconds = 35;
     std::vector<Contamination> contamination;
+    std::vector<int> conflictObjectives;
+    std::vector<Contamination> contaminationNext;
+    std::vector<unsigned char> contaminationStand, contaminationEdges;
+    std::vector<std::vector<int>> contaminationRegions;
+    void PrepareConflictTopology(const RandomLevelMap& map);
     void LoadConflict(const std::string& root, const std::string& file, const LevelData& level);
     void TickContamination(float dt, WorldSimulation& world, const RandomLevelMap& map);
     bool TickConflictActor(int index, float dt, WorldSimulation& world, const RandomLevelMap& map,
@@ -562,7 +567,8 @@ class WorldSociety
                             const std::string& actor, std::uint64_t cause);
     float EconomyWorkScore(int npc, int place, const WorldSimulation& world) const;
     bool EconomyWork(int npc, WorldSimulation& world);
-    bool PlanEconomyOrder(int npc, WorldSimulation& world);
+    bool PlanEconomyOrder(int npc, WorldSimulation& world, const RandomLevelMap& map,
+                          float dt = 0);
     bool ExecuteEconomyOrder(int npc, float dt, WorldSimulation& world, const RandomLevelMap& map);
     void CancelEconomyOrder(EconomyOrder& order, WorldSimulation& world, const std::string& reason);
     bool BuyEconomyFood(int npc, WorldSimulation& world);
@@ -636,6 +642,7 @@ class WorldSociety
     std::uint32_t randomState = 1, signature = 0;
     std::uint64_t minute = 0, serial = 1, lastFactionTick = 0, nextQuestTick = 0;
     int pathBudget = 0, pathNodeBudget = 0, playerDamage = 0;
+    std::deque<std::pair<int, Point>> pathRequests;
     std::vector<int> pathParents, pathCosts;
     std::vector<std::uint32_t> pathStamps;
     std::uint32_t pathStamp = 0;
@@ -667,4 +674,5 @@ class WorldSociety
     void Damage(int attacker, int target, float amount, WorldSimulation& world,
                 const std::string& wildlife = "");
     void MoveTo(Npc& npc, Point target, float dt, const RandomLevelMap& map);
+    void BuildNpcPath(Npc& npc, Point target, const RandomLevelMap& map);
 };

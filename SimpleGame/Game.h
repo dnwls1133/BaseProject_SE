@@ -16,6 +16,7 @@ class Game
     Game& operator=(const Game&) = delete;
 
     bool Load(const std::string& path);
+    bool LoadFirstLevel(const std::string& dataRoot);
     void Key(unsigned char key, bool down);
     void Update(float dt);
     void Render(Renderer& renderer);

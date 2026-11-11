@@ -7,7 +7,12 @@
 void MeshCache3D::Load(const std::string& root)
 {
     static std::unordered_map<std::string, std::weak_ptr<ResourceLibrary3D>> libraries;
-    const auto key = std::filesystem::absolute(root).lexically_normal().string();
+    auto directory = std::filesystem::weakly_canonical(root);
+    if (directory.filename().empty() && directory != directory.root_path())
+    {
+        directory = directory.parent_path();
+    }
+    const auto key = directory.string();
     resources = libraries[key].lock();
     if (resources)
     {

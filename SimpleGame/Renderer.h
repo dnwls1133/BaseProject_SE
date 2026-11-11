@@ -1,5 +1,5 @@
 #pragma once
-#include "Dependencies/glew.h"
+#include <GL/glew.h>
 #include "Profiler.h"
 #include "Math3D.h"
 #include <memory>
@@ -175,8 +175,8 @@ class Renderer
     float clock = 0;
     Point offset = {0, 0};
     Material material = Material::Plain;
-    void* fontDC = nullptr;
     std::unordered_map<int, void*> fonts;
+    std::shared_ptr<void> fontSource;
     std::unordered_map<std::string, float> textMeasures;
     std::uint64_t labelUse = 0;
     void* Font(int size);

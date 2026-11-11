@@ -12,10 +12,26 @@
     X(CourierMotion, cpu_npc_courier_motion_ms)                                                    \
     X(NewsDelivered, npc_physical_news_delivered_count)                                            \
     X(ConflictField, cpu_contamination_update_ms)                                                  \
+    X(FontLoad, cpu_font_source_load_ms)                                                           \
+    X(FontLoads, font_source_load_count)                                                           \
+    X(TexturePrepare, cpu_resource_texture_prepare_ms)                                             \
+    X(TextureDecode, cpu_resource_texture_decode_ms)                                               \
+    X(TextureCacheRead, cpu_texture_cache_read_ms)                                                 \
+    X(TextureCacheWrite, cpu_texture_cache_write_ms)                                               \
+    X(TextureCacheHits, texture_cache_hit_count)                                                   \
+    X(TextureCacheMisses, texture_cache_miss_count)                                                \
+    X(TextureUpload, cpu_resource_texture_upload_ms)                                               \
+    X(NpcPathQueue, npc_path_request_queue_count)                                                  \
+    X(ConflictTopology, cpu_contamination_topology_build_ms)                                       \
+    X(ConflictTopologyBuilds, contamination_topology_build_count)                                  \
     X(ConflictCombat, cpu_faction_combat_ms)                                                       \
     X(ContaminatedCells, contamination_cell_count)                                                 \
     X(BurningCells, burning_cell_count)                                                            \
     X(ConflictStrikes, faction_attack_resolved_count)                                              \
+    X(ConflictMarchers, faction_marching_unit_count)                                               \
+    X(ConflictEngaged, faction_engaged_unit_count)                                                 \
+    X(EconomyBriefings, economy_briefing_approach_count)                                           \
+    X(EconomyReservations, economy_contract_reserved_count)                                        \
     X(FrameInterval, frame_present_interval_ms)                                                    \
     X(Update, cpu_update_ms)                                                                       \
     X(Render, cpu_render_submit_ms)                                                                \

@@ -8,10 +8,10 @@
 
 namespace
 {
-GLuint Program(const char* fragment)
+GLuint Program(const char* vertex, const char* fragment)
 {
     GLuint ids[2] = {glCreateShader(GL_VERTEX_SHADER), glCreateShader(GL_FRAGMENT_SHADER)};
-    const char* sources[2] = {WorldShaders3D::Vertex, fragment};
+    const char* sources[2] = {vertex, fragment};
     GLuint result = glCreateProgram();
     bool valid = true;
     for (int i = 0; i < 2; ++i)
@@ -177,8 +177,8 @@ void WorldRenderer3D::Upload(Buffer& b, const std::vector<Vertex3D>& vertices)
 
 WorldRenderer3D::WorldRenderer3D()
 {
-    shader = Program(WorldShaders3D::Fragment);
-    shadowShader = Program(WorldShaders3D::Shadow);
+    shader = Program(WorldShaders3D::Vertex, WorldShaders3D::Fragment);
+    shadowShader = Program(WorldShaders3D::ShadowVertex, WorldShaders3D::Shadow);
     for (int i = 0; i < 5; ++i)
     {
         Upload(primitives[i], Primitive(i));
@@ -366,13 +366,9 @@ void WorldRenderer3D::Draw(std::uint64_t& calls, bool shadows)
     };
     // Authored grass/cloth includes two-sided surfaces. Keep their reverse faces visible.
     glDisable(GL_CULL_FACE);
-    for (const auto& batch : meshInstances)
+    for (const auto* mesh : meshDrawOrder)
     {
-        if (batch.second.empty())
-        {
-            continue;
-        }
-        const auto& buffer = staticBuffers.at(batch.first);
+        const auto& buffer = staticBuffers.at(mesh);
         glActiveTexture(GL_TEXTURE4);
         glBindTexture(GL_TEXTURE_BUFFER,
                       buffer.paletteTexture ? buffer.paletteTexture : identityPaletteTexture);
@@ -413,8 +409,28 @@ void WorldRenderer3D::Render(GLuint target, const Camera3D& camera, float time,
                      GL_STREAM_DRAW);
         Profile::Add(Profile::Metric::World3DInstances, b.instanceCount);
     }
-    for (const auto& batch : meshInstances)
+    // Both world passes use depth testing without blending. Front-to-back submission
+    // reduces hidden fragment work without changing meshes, MSAA or shadow resolution.
+    auto distanceSquared = [&](const Instance& item)
     {
+        const float x = item.transform.m[12] - camera.eye.x;
+        const float y = item.transform.m[13] - camera.eye.y;
+        const float z = item.transform.m[14] - camera.eye.z;
+        return x * x + y * y + z * z;
+    };
+    meshDrawOrder.clear();
+    for (auto& batch : meshInstances)
+    {
+        if (batch.second.empty())
+        {
+            continue;
+        }
+        std::stable_sort(batch.second.begin(), batch.second.end(),
+                         [&](const Instance& a, const Instance& b)
+                         {
+                             return distanceSquared(a) < distanceSquared(b);
+                         });
+        meshDrawOrder.push_back(batch.first);
         auto& buffer = staticBuffers.at(batch.first);
         buffer.instanceCount = buffer.shadowCount = GLsizei(batch.second.size());
         glBindBuffer(GL_ARRAY_BUFFER, buffer.instances);
@@ -423,6 +439,12 @@ void WorldRenderer3D::Render(GLuint target, const Camera3D& camera, float time,
         Profile::Add(Profile::Metric::World3DInstances, buffer.instanceCount);
         Profile::Add(Profile::Metric::World3DShadowInstances, buffer.shadowCount);
     }
+    std::stable_sort(meshDrawOrder.begin(), meshDrawOrder.end(),
+                     [&](const Geometry3D* a, const Geometry3D* b)
+                     {
+                         return distanceSquared(meshInstances.at(a).front()) <
+                                distanceSquared(meshInstances.at(b).front());
+                     });
     const Vec3 sun = Normalize({-.55f, 1, -.35f});
     const Vec3 right = Normalize(Cross(sun * -1, {0, 1, 0}));
     const Vec3 up = Cross(right, sun * -1);

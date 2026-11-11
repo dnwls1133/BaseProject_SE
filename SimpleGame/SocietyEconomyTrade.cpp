@@ -217,12 +217,14 @@ void WorldSociety::EconomyTick(WorldSimulation& world)
     }
 }
 
-bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
+bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world, const RandomLevelMap& map,
+                                    float dt)
 {
     if (!HasEconomy())
     {
         return false;
     }
+    PROFILE_SCOPE(EconomyDecision);
     auto& npc = npcs[index];
     auto& worker = economyWorkers[index];
     auto& life = lives[index];
@@ -235,18 +237,23 @@ bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
     }
     EconomyOrder* choice = nullptr;
     float best = 0;
+    int local = 0, available = 0, evaluated = 0;
     for (auto& order : economyOrders)
     {
-        // A buyer must brief a carrier in person; orders are not a global radio channel.
+        // A locally perceived buyer can be approached. Acceptance still requires contact.
         if (npc.region != order.destination || order.receiver < 0 ||
-            std::hypot(npc.x - npcs[order.receiver].x, npc.y - npcs[order.receiver].y) > 2.5f)
+            std::hypot(npc.x - npcs[order.receiver].x, npc.y - npcs[order.receiver].y) >
+                rules.talkRange ||
+            !map.Visible(npc.x, npc.y, npcs[order.receiver].x, npcs[order.receiver].y))
         {
             continue;
         }
+        ++local;
         if (order.stage != 0 || minute < order.available || minute >= order.deadline)
         {
             continue;
         }
+        ++available;
         if (order.receiver == index || !npcs[order.receiver].Alive() ||
             EconomyParticipantBusy(order.receiver, order.id) ||
             EconomyRepresentative(order.source, index, order.id) < 0)
@@ -293,6 +300,7 @@ bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
         const float value = order.freight * (1 + npc.traits[1]) +
                             (npc.role == "merchant" ? 3.f : 0) + (worker.coins < 2 ? 2.f : 0) -
                             distance * .025f - life.fatigue * .02f;
+        ++evaluated;
         if (value > best)
         {
             choice = &order;
@@ -301,8 +309,36 @@ bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
     }
     if (!choice)
     {
+        life.decisionTrace =
+            "transport local=" + std::to_string(local) + " available=" + std::to_string(available) +
+            " stock_partner_slot_eligible=" + std::to_string(evaluated) + " positive_score=0";
+        if (life.task == LifeTask::None && life.plan.goal == LifeGoal::Supply)
+        {
+            life.partner = -1;
+            SetPlanStage(index, PlanStage::Waiting, life.decisionTrace);
+        }
         worker.nextJob = minute + 12;
         return false;
+    }
+    const auto& buyer = npcs[choice->receiver];
+    if (std::hypot(npc.x - buyer.x, npc.y - buyer.y) > 2.5f)
+    {
+        if (life.cause != choice->id || life.partner != choice->receiver)
+        {
+            Profile::Add(Profile::Metric::EconomyBriefings);
+            Record("economy_briefing_approach", npc.id, buyer.id, "noticed", "approaching",
+                   "현지 구매 담당자에게 이동한 뒤 직접 주문 수락", choice->id);
+        }
+        life.partner = choice->receiver;
+        life.cause = choice->id;
+        life.reason = buyer.name + "에게 이동해 지역 물자 운송 요청을 직접 확인";
+        npc.action = Action::Travel;
+        SetPlanStage(index, PlanStage::Moving, life.reason);
+        if (dt > 0)
+        {
+            MoveTo(npc, {buyer.x, buyer.y}, dt, map);
+        }
+        return true;
     }
     const float payment = choice->units * choice->unitPrice + choice->freight;
     if (economyRegions[choice->destination].coins < payment)
@@ -324,6 +360,7 @@ bool WorldSociety::PlanEconomyOrder(int index, WorldSimulation& world)
     choice->escrow = payment;
     choice->carrier = index;
     choice->stage = 1;
+    Profile::Add(Profile::Metric::EconomyReservations);
     worker.order = choice->id;
     life.task = LifeTask::Collect;
     life.place = economyRegions[choice->source].warehouse;

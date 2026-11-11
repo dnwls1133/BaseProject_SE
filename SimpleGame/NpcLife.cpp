@@ -255,7 +255,7 @@ void WorldSociety::ChooseLife(int index, WorldSimulation& world, const RandomLev
         }
         l.nextSocial = minute + 20;
     }
-    if (PlanEconomyOrder(index, world))
+    if (PlanEconomyOrder(index, world, map))
     {
         return;
     }
@@ -507,7 +507,8 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
     {
         return !npcs[i].Alive() || npcs[i].wildTarget >= 0 || npcs[i].playerThreat ||
                npcs[i].action == Action::Combat || npcs[i].action == Action::Flee ||
-               npcs[i].action == Action::Escort;
+               npcs[i].action == Action::Escort ||
+               (conflictEnabled && npcs[i].combatClass > 0 && npcs[i].action == Action::Raid);
     };
     for (auto& a : agreements)
     {
@@ -697,7 +698,9 @@ void WorldSociety::LifeTick(std::uint64_t elapsed, WorldSimulation& world,
         l.satiation = std::max(0.f, l.satiation - lifeFoodPerDay * minutes * 50 / 1440);
         Point campaignGoal;
         if (l.satiation < planningRules.hunger && n.food >= 1 &&
-            (CampaignGoal(int(i), campaignGoal) || (HasEconomy() && economyWorkers[i].order)))
+            (CampaignGoal(int(i), campaignGoal) || (HasEconomy() && economyWorkers[i].order) ||
+             (conflictEnabled && n.combatClass > 0 &&
+              (n.action == Action::Raid || n.action == Action::Combat))))
         {
             n.food -= 1;
             l.satiation = std::min(100.f, l.satiation + 55);
@@ -776,6 +779,11 @@ bool WorldSociety::TickLife(int index, float dt, WorldSimulation& world, const R
     auto& l = lives[index];
     if (l.task == LifeTask::None)
     {
+        if (HasEconomy() && l.plan.goal == LifeGoal::Supply &&
+            l.plan.stage != PlanStage::Failed && l.plan.stage != PlanStage::Complete)
+        {
+            PlanEconomyOrder(index, world, map, dt);
+        }
         return true;
     }
     if (HasEconomy() && economyWorkers[index].order && l.slot < 0)

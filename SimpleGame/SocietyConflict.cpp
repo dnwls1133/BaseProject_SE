@@ -107,6 +107,23 @@ void WorldSociety::LoadConflict(const std::string& root, const std::string& file
         Require(n.faction != knightFaction || n.combatClass <= 3, "invalid knight profile");
     }
     diplomacy[knightFaction][hiveFaction] = diplomacy[hiveFaction][knightFaction] = -100;
+    conflictObjectives.clear();
+    for (const auto& region : level.regions)
+    {
+        if (region.villageRadius > 0)
+        {
+            const int objective = RegionIndex(region.id);
+            Require(objective >= 0, "unknown conflict settlement: " + region.id);
+            conflictObjectives.push_back(objective);
+        }
+    }
+    if (conflictObjectives.empty())
+    {
+        for (const auto& faction : factions)
+        {
+            conflictObjectives.push_back(faction.home);
+        }
+    }
     conflictEnabled = true;
 }
 
@@ -137,6 +154,49 @@ void WorldSociety::BurnContamination(Point center, float radius, int actor)
     }
 }
 
+void WorldSociety::PrepareConflictTopology(const RandomLevelMap& map)
+{
+    contaminationStand.clear();
+    contaminationEdges.clear();
+    contaminationRegions.clear();
+    if (!conflictEnabled)
+    {
+        return;
+    }
+    PROFILE_SCOPE(ConflictTopology);
+    Profile::Add(Profile::Metric::ConflictTopologyBuilds);
+    contaminationStand.resize(contamination.size());
+    contaminationEdges.resize(contamination.size());
+    contaminationRegions.resize(regions.size());
+    contaminationNext.resize(contamination.size());
+    for (int i = 0; i < int(contamination.size()); ++i)
+    {
+        const float x = (i % contaminationWidth + .5f) * conflictCell;
+        const float y = (i / contaminationWidth + .5f) * conflictCell;
+        contaminationStand[i] = map.CanStand(x, y);
+        int direction = 0;
+        for (int offset : {-1, 1, -contaminationWidth, contaminationWidth})
+        {
+            const int j = i + offset;
+            if (contaminationStand[i] && j >= 0 && j < int(contamination.size()) &&
+                std::abs(j % contaminationWidth - i % contaminationWidth) <= 1 &&
+                map.CanTravel(x, y, (j % contaminationWidth + .5f) * conflictCell,
+                              (j / contaminationWidth + .5f) * conflictCell))
+            {
+                contaminationEdges[i] |= static_cast<unsigned char>(1u << direction);
+            }
+            ++direction;
+        }
+        for (std::size_t r = 0; r < regions.size(); ++r)
+        {
+            if (std::hypot(x - regions[r].x, y - regions[r].y) < 15)
+            {
+                contaminationRegions[r].push_back(i);
+            }
+        }
+    }
+}
+
 void WorldSociety::TickContamination(float dt, WorldSimulation& world, const RandomLevelMap& map)
 {
     if (!conflictEnabled)
@@ -151,16 +211,19 @@ void WorldSociety::TickContamination(float dt, WorldSimulation& world, const Ran
     }
     // Fixed simulation seconds, independent of view culling and accelerated calendar time.
     conflictClock -= 1;
-    auto next = contamination;
+    if (contaminationStand.size() != contamination.size())
+    {
+        PrepareConflictTopology(map);
+    }
+    auto& next = contaminationNext;
+    next = contamination;
     int dirty = 0, burning = 0;
     for (int i = 0; i < int(contamination.size()); ++i)
     {
-        const float x = (i % contaminationWidth + .5f) * conflictCell;
-        const float y = (i / contaminationWidth + .5f) * conflictCell;
         auto& cell = next[i];
         cell.fire = std::max(0.f, cell.fire - 1);
         cell.scar = std::max(0.f, cell.scar - 1);
-        if (!map.CanStand(x, y))
+        if (!contaminationStand[i])
         {
             cell.density = 0;
             continue;
@@ -168,20 +231,15 @@ void WorldSociety::TickContamination(float dt, WorldSimulation& world, const Ran
         if (cell.scar <= 0)
         {
             float sourceDensity = contamination[i].density;
+            int direction = 0;
             for (int offset : {-1, 1, -contaminationWidth, contaminationWidth})
             {
                 const int j = i + offset;
-                if (j < 0 || j >= int(contamination.size()) ||
-                    std::abs(j % contaminationWidth - i % contaminationWidth) > 1)
-                {
-                    continue;
-                }
-                const float nx = (j % contaminationWidth + .5f) * conflictCell;
-                const float ny = (j / contaminationWidth + .5f) * conflictCell;
-                if (map.CanTravel(x, y, nx, ny))
+                if (contaminationEdges[i] & (1u << direction))
                 {
                     sourceDensity = std::max(sourceDensity, contamination[j].density - .45f);
                 }
+                ++direction;
             }
             cell.density = std::min(1.f, cell.density + sourceDensity * spreadRate);
         }
@@ -210,21 +268,16 @@ void WorldSociety::TickContamination(float dt, WorldSimulation& world, const Ran
             contamination[cell].density = std::min(1.f, contamination[cell].density + .12f);
         }
     }
-    for (auto& region : regions)
+    for (std::size_t r = 0; r < regions.size(); ++r)
     {
+        auto& region = regions[r];
         float sum = 0;
-        int count = 0;
-        for (int i = 0; i < int(contamination.size()); ++i)
+        const auto& cells = contaminationRegions[r];
+        for (int i : cells)
         {
-            const float x = (i % contaminationWidth + .5f) * conflictCell;
-            const float y = (i / contaminationWidth + .5f) * conflictCell;
-            if (std::hypot(x - region.x, y - region.y) < 15)
-            {
-                sum += contamination[i].density;
-                ++count;
-            }
+            sum += contamination[i].density;
         }
-        region.hive = count ? sum / count : 0;
+        region.hive = cells.empty() ? 0 : sum / static_cast<float>(cells.size());
         if (world.Minute() != minute)
         {
             const auto* state = world.FindRegion(region.id);

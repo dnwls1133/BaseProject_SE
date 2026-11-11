@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ModelCache.h"
 #include "ContentData.h"
-#include <windows.h>
+#include "Platform.h"
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
@@ -183,7 +183,7 @@ bool ModelCache::Read(const std::string& path)
 bool ModelCache::Write(const std::string& path) const
 {
     PROFILE_SCOPE(CacheWrite);
-    std::string temporary = path + "." + std::to_string(GetCurrentProcessId()) + ".tmp";
+    std::string temporary = path + "." + std::to_string(Platform::ProcessId()) + ".tmp";
     std::ofstream file(temporary, std::ios::binary | std::ios::trunc);
     if (!file)
     {
@@ -206,8 +206,8 @@ bool ModelCache::Write(const std::string& path) const
     file.close();
 
     std::filesystem::path tempPath(temporary), finalPath(path);
-    bool committed = written && MoveFileExW(tempPath.c_str(), finalPath.c_str(),
-                                            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+    std::string error;
+    bool committed = written && Platform::AtomicReplace(tempPath, finalPath, error);
     if (!committed)
     {
         std::error_code error;

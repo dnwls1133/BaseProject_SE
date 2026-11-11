@@ -346,6 +346,7 @@ void WorldSociety::Load(const std::string& root, const std::string& file, const 
 
 void WorldSociety::ReconcilePositions(const RandomLevelMap& map)
 {
+    pathRequests.clear();
     auto approach = [&](Point& point)
     {
         if (map.CanStand(point.x, point.y))
@@ -476,6 +477,7 @@ void WorldSociety::ReconcilePositions(const RandomLevelMap& map)
         npc.pathCell = -1;
         npc.waypoint = 0;
     }
+    PrepareConflictTopology(map);
 }
 
 const char* WorldSociety::ActionName(Action value)

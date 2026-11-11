@@ -94,8 +94,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\Dependencies;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);opengl32.lib;freeglut.lib;glew32.lib;</AdditionalDependencies>
+
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,8 +109,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\Dependencies\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);freeglut.lib;glew32.lib;</AdditionalDependencies>
+
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,8 +128,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\Dependencies;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);freeglut.lib;glew32.lib;</AdditionalDependencies>
+
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,8 +147,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);freeglut.lib;glew32.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\Dependencies\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -159,6 +159,7 @@
     <ClInclude Include="WorldRenderer3D.h" />
     <ClInclude Include="WorldShaders3D.h" />
     <ClInclude Include="MeshCache3D.h" />
+    <ClInclude Include="Platform.h" />
     <ClInclude Include="ResourceLibrary3D.h" />
     <ClInclude Include="Terrain3D.h" />
     <ClInclude Include="Renderer.h" />
@@ -181,6 +182,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\third_party\glew\src\glew.c"><PrecompiledHeader>NotUsing</PrecompiledHeader></ClCompile>
+    <ClCompile Include="Platform.cpp" />
     <ClCompile Include="WorldRenderer3D.cpp" />
     <ClCompile Include="MeshCache3D.cpp" />
     <ClCompile Include="ResourceLibrary3D.cpp" />
@@ -243,16 +246,30 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\third_party\glfw\include;$(ProjectDir)..\third_party\glew\include;$(ProjectDir)..\third_party\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link><AdditionalDependencies>opengl32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies></Link>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)$(IntDir)glfw-build\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;gdi32.lib;glfw3.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ItemGroup>
     <GameContent Include="Data\**\*" Exclude="Data\Cache\**\*" />
     <None Include="Data\**\*" Exclude="Data\village.level;Data\dialogue.ko.txt;Data\Cache\**\*" />
   </ItemGroup>
+  <Target Name="BuildBundledGLFW" BeforeTargets="Link">
+    <PropertyGroup>
+      <GlfwBuildDirectory>$(ProjectDir)$(IntDir)glfw-build</GlfwBuildDirectory>
+      <BundledCMakeExecutable Condition="'$(BundledCMakeExecutable)' == '' and Exists('$(VSINSTALLDIR)Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe')">$(VSINSTALLDIR)Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe</BundledCMakeExecutable>
+      <BundledCMakeExecutable Condition="'$(BundledCMakeExecutable)' == ''">cmake</BundledCMakeExecutable>
+    </PropertyGroup>
+    <MakeDir Directories="$(GlfwBuildDirectory)" />
+    <Exec Command="&quot;$(BundledCMakeExecutable)&quot; -S &quot;$(ProjectDir)..\third_party\glfw&quot; -B &quot;$(GlfwBuildDirectory)&quot; -G &quot;Visual Studio 17 2022&quot; -A &quot;$(Platform)&quot; -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=&quot;$(GlfwBuildDirectory)\lib&quot; -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG=&quot;$(GlfwBuildDirectory)\lib&quot; -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE=&quot;$(GlfwBuildDirectory)\lib&quot; -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO=&quot;$(GlfwBuildDirectory)\lib&quot; -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL=&quot;$(GlfwBuildDirectory)\lib&quot;" />
+    <Exec Command="&quot;$(BundledCMakeExecutable)&quot; --build &quot;$(GlfwBuildDirectory)&quot; --config $(Configuration) --target glfw" />
+  </Target>
   <Target Name="CopyGameContent" AfterTargets="Build">
     <MakeDir Directories="@(GameContent->'$(TargetDir)Data\%(RecursiveDir)')" />
     <Copy SourceFiles="@(GameContent)"
@@ -262,4 +279,3 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
-

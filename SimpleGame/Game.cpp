@@ -154,6 +154,13 @@ void Game::Reset()
     BuildScene();
 }
 
+bool Game::LoadFirstLevel(const std::string& dataRoot)
+{
+    dataDirectory = dataRoot;
+    EnterFirstLevel();
+    return inFirstLevel;
+}
+
 bool Game::Load(const std::string& path)
 {
     scene.Clear();

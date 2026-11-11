@@ -2,7 +2,7 @@
 #include "LevelOne.h"
 #include "WorldMonitor.h"
 #include "Profiler.h"
-#include <windows.h>
+#include "Platform.h"
 #include <chrono>
 #include <filesystem>
 #include <iomanip>
@@ -68,7 +68,7 @@ void LevelOne::PublishMonitoring(float dt)
     std::ostringstream out;
     out.imbue(std::locale::classic());
     out << std::fixed << std::setprecision(3);
-    out << "{\"schema_version\":1,\"session_id\":" << GetCurrentProcessId()
+    out << "{\"schema_version\":1,\"session_id\":" << Platform::ProcessId()
         << ",\"behavior_model\":\"persistent_goals_v1\",\"content_signature\":"
         << society.Signature() << ",\"sequence\":" << ++monitorSequence
         << ",\"sampled_at_unix_ms\":" << timestamp << ",\"generation\":" << expedition
@@ -110,7 +110,11 @@ void LevelOne::PublishMonitoring(float dt)
             << ",\"target_monster\":" << n.wildTarget << ",\"windup_seconds\":" << n.windup
             << ",\"cooldown_seconds\":" << n.cooldown << ",\"attack_attempts\":" << n.attackAttempts
             << ",\"attack_hits\":" << n.attackHits << ",\"attack_misses\":" << n.attackMisses
-            << ",\"damage_dealt\":" << n.damageDealt
+            << ",\"damage_dealt\":" << n.damageDealt << ",\"combat_class\":" << n.combatClass
+            << ",\"attack_pattern\":" << n.attackPattern << ",\"path_remaining_points\":"
+            << (n.waypoint < n.path.size() ? n.path.size() - n.waypoint : 0)
+            << ",\"path_retry_seconds\":" << n.pathRetry
+            << ",\"path_failure_count\":" << n.pathFailures
             << ",\"is_courier\":" << (society.IsCourier(int(i)) ? "true" : "false")
             << ",\"courier_destination\":" << JsonString(society.CourierDestination(int(i)))
             << ",\"last_attack\":" << JsonString(n.lastAttack)
@@ -417,8 +421,5 @@ void LevelOne::PublishMonitoring(float dt)
             << ",\"minute\":" << event.minute << ",\"text\":" << JsonString(event.text) << '}';
     }
     out << "]}";
-    wchar_t executable[MAX_PATH] = {};
-    GetModuleFileNameW(nullptr, executable, MAX_PATH);
-    WorldMonitor::Publish(std::filesystem::path(executable).parent_path() / "Logs" / "WorldMonitor",
-                          out.str());
+    WorldMonitor::Publish(Platform::ExecutableDirectory() / "Logs" / "WorldMonitor", out.str());
 }

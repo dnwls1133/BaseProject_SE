@@ -8,180 +8,307 @@ This program is distributed WITHOUT ANY WARRANTY.
 #define NOMINMAX
 #endif
 #include "stdafx.h"
-#include "Dependencies/glew.h"
-#include "Dependencies/freeglut.h"
-#include <windows.h>
-#include <memory>
-#include <iostream>
+#include <GL/glew.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <filesystem>
+#include <iostream>
+#include <memory>
 #include "Profiler.h"
 #include "Renderer.h"
 #include "Game.h"
+#include "Platform.h"
+
+namespace
+{
 std::unique_ptr<Renderer> renderer;
 Game game;
-int lastTick = 0;
 
-void Display()
+void Display(GLFWwindow* window)
 {
-    if (renderer)
+    if (!renderer)
     {
-        Profile::BeginFrame();
-        renderer->ResetDrawCallCount();
-        {
-            PROFILE_SCOPE(Render);
-            game.Render(*renderer);
-        }
-        {
-            PROFILE_SCOPE(Swap);
-            glutSwapBuffers();
-        }
-        Profile::Presented();
-        Profile::EndFrame();
+        return;
+    }
+
+    Profile::BeginFrame();
+    renderer->ResetDrawCallCount();
+    {
+        PROFILE_SCOPE(Render);
+        game.Render(*renderer);
+    }
+    {
+        PROFILE_SCOPE(Swap);
+        glfwSwapBuffers(window);
+    }
+    Profile::Presented();
+    Profile::EndFrame();
+}
+
+void Error(int code, const char* description)
+{
+    std::cerr << "[GLFW] " << code << ": " << (description ? description : "unknown error")
+              << '\n';
+}
+
+unsigned char AsciiKey(int key, int modifiers)
+{
+    if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z)
+    {
+        return static_cast<unsigned char>('A' + key - GLFW_KEY_A);
+    }
+    if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
+    {
+        return static_cast<unsigned char>('0' + key - GLFW_KEY_0);
+    }
+
+    switch (key)
+    {
+    case GLFW_KEY_ESCAPE:
+        return 27;
+    case GLFW_KEY_ENTER:
+    case GLFW_KEY_KP_ENTER:
+        return 13;
+    case GLFW_KEY_TAB:
+        return 9;
+    case GLFW_KEY_BACKSPACE:
+        return 8;
+    case GLFW_KEY_SPACE:
+        return ' ';
+    case GLFW_KEY_APOSTROPHE:
+        return (modifiers & GLFW_MOD_SHIFT) ? '"' : '\'';
+    case GLFW_KEY_COMMA:
+        return (modifiers & GLFW_MOD_SHIFT) ? '<' : ',';
+    case GLFW_KEY_MINUS:
+        return (modifiers & GLFW_MOD_SHIFT) ? '_' : '-';
+    case GLFW_KEY_PERIOD:
+        return (modifiers & GLFW_MOD_SHIFT) ? '>' : '.';
+    case GLFW_KEY_SLASH:
+        return (modifiers & GLFW_MOD_SHIFT) ? '?' : '/';
+    case GLFW_KEY_SEMICOLON:
+        return (modifiers & GLFW_MOD_SHIFT) ? ':' : ';';
+    case GLFW_KEY_EQUAL:
+        return (modifiers & GLFW_MOD_SHIFT) ? '+' : '=';
+    case GLFW_KEY_LEFT_BRACKET:
+        return (modifiers & GLFW_MOD_SHIFT) ? '{' : '[';
+    case GLFW_KEY_BACKSLASH:
+        return (modifiers & GLFW_MOD_SHIFT) ? '|' : '\\';
+    case GLFW_KEY_RIGHT_BRACKET:
+        return (modifiers & GLFW_MOD_SHIFT) ? '}' : ']';
+    case GLFW_KEY_GRAVE_ACCENT:
+        return (modifiers & GLFW_MOD_SHIFT) ? '~' : '`';
+    default:
+        return 0;
     }
 }
 
-Profile::Clock::time_point nextTickDue;
-Profile::Clock::time_point previousTick;
-bool hasPreviousTick = false;
-
-void Tick(int)
+void Key(GLFWwindow*, int key, int, int action, int modifiers)
 {
-    auto tickStart = Profile::Clock::now();
-    Profile::Add(Profile::Metric::Ticks);
-    Profile::Add(
-        Profile::Metric::TimerLate,
-        std::max(0.0, std::chrono::duration<double, std::milli>(tickStart - nextTickDue).count()));
-    if (hasPreviousTick)
+    if (action == GLFW_REPEAT)
     {
-        Profile::Add(Profile::Metric::TickInterval,
-                     std::chrono::duration<double, std::milli>(tickStart - previousTick).count());
+        return;
     }
-    previousTick = tickStart;
-    hasPreviousTick = true;
-    int now = glutGet(GLUT_ELAPSED_TIME);
-    float elapsed = (now - lastTick) / 1000.f;
-    float dt = std::min(.05f, elapsed);
-    if (elapsed > .05f)
-    {
-        Profile::Add(Profile::Metric::DtClamps);
-    }
-    lastTick = now;
-    {
-        PROFILE_SCOPE(Update);
-        game.Update(dt);
-    }
-    glutPostRedisplay();
-    // Keep an absolute cadence: update cost must not be added to every interval.
-    const auto period = std::chrono::microseconds(16667);
-    nextTickDue += period;
-    const auto afterUpdate = Profile::Clock::now();
-    if (nextTickDue < afterUpdate - period)
-    {
-        nextTickDue = afterUpdate;
-    }
-    const double remaining =
-        std::chrono::duration<double, std::milli>(nextTickDue - afterUpdate).count();
-    const unsigned delay = static_cast<unsigned>(std::max(1.0, std::ceil(remaining)));
-    glutTimerFunc(delay, Tick, 0);
-}
 
-void KeyDown(unsigned char k, int, int)
-{
-    game.Key(k, true);
-}
-
-void KeyUp(unsigned char k, int, int)
-{
-    game.Key(k, false);
-}
-
-void Reshape(int w, int h)
-{
-    if (renderer)
+    if (action != GLFW_PRESS && action != GLFW_RELEASE)
     {
-        renderer->Resize(w, h);
+        return;
+    }
+
+    const unsigned char mapped = AsciiKey(key, modifiers);
+    if (mapped != 0)
+    {
+        game.Key(mapped, action == GLFW_PRESS);
     }
 }
 
-void Close()
+void Focus(GLFWwindow*, int focused)
 {
-    Profile::Shutdown();
-    renderer.reset();
-}
-
-void WindowEntry(int state)
-{
-    if (state == GLUT_LEFT)
+    if (!focused)
     {
         game.ClearInput();
     }
 }
 
-int main(int argc, char** argv)
+void FramebufferSize(GLFWwindow* window, int, int)
 {
-    glutInit(&argc, argv);
-    glutInitContextVersion(3, 3);
-    glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(1280, 800);
-    glutCreateWindow("HolyBloodPrototype");
-    HWND window = FindWindowA(nullptr, "HolyBloodPrototype");
-    if (window)
+    if (!renderer)
     {
-        SetWindowTextW(window, L"성혈의 잔향 - 마지막 이름");
+        return;
     }
+
+    int width = 0;
+    int height = 0;
+    glfwGetFramebufferSize(window, &width, &height);
+    if (width > 0 && height > 0)
+    {
+        renderer->Resize(width, height);
+    }
+}
+
+void UpdateFrame(std::chrono::steady_clock::time_point now,
+                 std::chrono::steady_clock::time_point& previousTick,
+                 std::chrono::steady_clock::time_point& nextTickDue, bool& hasPreviousTick)
+{
+    Profile::Add(Profile::Metric::Ticks);
+    Profile::Add(Profile::Metric::TimerLate,
+                 std::max(0.0, std::chrono::duration<double, std::milli>(now - nextTickDue).count()));
+    const float elapsed = std::chrono::duration<float>(now - previousTick).count();
+    if (hasPreviousTick)
+    {
+        Profile::Add(Profile::Metric::TickInterval,
+                     std::chrono::duration<double, std::milli>(now - previousTick).count());
+    }
+    previousTick = now;
+    hasPreviousTick = true;
+
+    const float dt = std::min(.05f, elapsed);
+    if (elapsed > .05f)
+    {
+        Profile::Add(Profile::Metric::DtClamps);
+    }
+    {
+        PROFILE_SCOPE(Update);
+        game.Update(dt);
+    }
+
+    const auto period = std::chrono::microseconds(16667);
+    nextTickDue += period;
+    const auto afterUpdate = std::chrono::steady_clock::now();
+    if (nextTickDue < afterUpdate - period)
+    {
+        nextTickDue = afterUpdate;
+    }
+}
+} // namespace
+
+int main()
+{
+    glfwSetErrorCallback(Error);
+    if (!glfwInit())
+    {
+        std::cerr << "Cannot initialize GLFW. Check the window-system dependencies.\n";
+        return 1;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#if defined(__APPLE__)
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#endif
+    glfwWindowHint(GLFW_DEPTH_BITS, 24);
+    glfwWindowHint(GLFW_RED_BITS, 8);
+    glfwWindowHint(GLFW_GREEN_BITS, 8);
+    glfwWindowHint(GLFW_BLUE_BITS, 8);
+    glfwWindowHint(GLFW_ALPHA_BITS, 8);
+
+    GLFWwindow* window = glfwCreateWindow(1280, 800, "성혈의 잔향 - 마지막 이름", nullptr, nullptr);
+    if (!window)
+    {
+        glfwTerminate();
+        std::cerr << "Cannot create an OpenGL 3.3 window.\n";
+        return 1;
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
+    glfwSetKeyCallback(window, Key);
+    glfwSetWindowFocusCallback(window, Focus);
+    glfwSetFramebufferSizeCallback(window, FramebufferSize);
+
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK || !GLEW_VERSION_3_3)
     {
-        std::cerr << "OpenGL 3.3 compatibility support required.\n";
+        std::cerr << "OpenGL 3.3 support required.\n";
+        glfwDestroyWindow(window);
+        glfwTerminate();
         return 1;
     }
+
+    int framebufferWidth = 0;
+    int framebufferHeight = 0;
+    glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+    if (framebufferWidth <= 0 || framebufferHeight <= 0)
+    {
+        framebufferWidth = 1280;
+        framebufferHeight = 800;
+    }
+
+    std::error_code pathError;
+    std::filesystem::current_path(Platform::ExecutableDirectory(), pathError);
+    if (pathError)
+    {
+        std::cerr << "Cannot set the game content directory: " << pathError.message() << '\n';
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 1;
+    }
+
     Profile::Initialize();
-    renderer.reset(new Renderer(1280, 800));
+    renderer.reset(new Renderer(framebufferWidth, framebufferHeight));
     if (!renderer->IsInitialized())
     {
         std::cerr << "Renderer initialization failed.\n";
         Profile::Shutdown();
+        renderer.reset();
+        glfwDestroyWindow(window);
+        glfwTerminate();
         return 1;
-    }
-    // Prefer packaged data beside the executable; fall back to project working directories.
-    wchar_t initial[MAX_PATH] = {}, exe[MAX_PATH] = {};
-    GetCurrentDirectoryW(MAX_PATH, initial);
-    GetModuleFileNameW(nullptr, exe, MAX_PATH);
-    std::wstring folder = exe;
-    size_t slash = folder.find_last_of(L"\\/");
-    if (slash != std::wstring::npos)
-    {
-        SetCurrentDirectoryW(folder.substr(0, slash).c_str());
-    }
-    bool loaded = game.Load("Data/village.level");
-    if (!loaded)
-    {
-        SetCurrentDirectoryW(initial);
-        loaded = game.Load("Data/village.level") || game.Load("SimpleGame/Data/village.level");
     }
 
-    if (!loaded)
+    if (!game.LoadFirstLevel("Data/"))
     {
-        std::cerr << "Cannot load Data/village.level. Check project data deployment.\n";
+        std::cerr << "Cannot load Data/world.catalog beside the executable. "
+                     "See the content error above.\n";
         Profile::Shutdown();
         renderer.reset();
+        glfwDestroyWindow(window);
+        glfwTerminate();
         return 1;
     }
+
     Profile::StartGameplay();
-    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-    glutIgnoreKeyRepeat(1);
-    glutDisplayFunc(Display);
-    glutKeyboardFunc(KeyDown);
-    glutKeyboardUpFunc(KeyUp);
-    glutReshapeFunc(Reshape);
-    glutCloseFunc(Close);
-    glutEntryFunc(WindowEntry);
-    lastTick = glutGet(GLUT_ELAPSED_TIME);
-    nextTickDue = Profile::Clock::now() + std::chrono::milliseconds(17);
-    glutTimerFunc(17, Tick, 0);
-    glutMainLoop();
+    constexpr auto period = std::chrono::microseconds(16667);
+    auto previousTick = std::chrono::steady_clock::now();
+    auto nextTickDue = previousTick + period;
+    bool hasPreviousTick = false;
+    int result = 0;
+    try
+    {
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+            const auto now = std::chrono::steady_clock::now();
+            if (now >= nextTickDue)
+            {
+                UpdateFrame(now, previousTick, nextTickDue, hasPreviousTick);
+                int width = 0;
+                int height = 0;
+                glfwGetFramebufferSize(window, &width, &height);
+                if (width > 0 && height > 0)
+                {
+                    Display(window);
+                }
+                continue;
+            }
+
+            const double waitSeconds =
+                std::chrono::duration<double>(nextTickDue - now).count();
+            glfwWaitEventsTimeout(std::max(0.0, waitSeconds));
+        }
+    }
+    catch (const std::exception& error)
+    {
+        std::cerr << "Game runtime error: " << error.what() << '\n';
+        result = 1;
+    }
+
     Profile::Shutdown();
-    return 0;
+    renderer.reset();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return result;
 }
